@@ -1,0 +1,203 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 932315686417784448ea951b85ad721e, type: 3}
+  m_Name: MahjongTileDatabase
+  m_EditorClassIdentifier: 
+  front: {fileID: 21300000, guid: 54d995dc7eadc0149bb97fc7ffa2aa6b, type: 3}
+  back: {fileID: 21300000, guid: b4a40f2fc9d0a0845a8325600605d64b, type: 3}
+  fallBack: {fileID: 21300000, guid: 184edd0d92e46ee4ebeec53a2a3cb89b, type: 3}
+  greatAssets:
+  - tileType: 0
+    number: 1
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: 96f833d89b9244f42a23b1f69eac51c1, type: 3}
+    code: 1m
+  - tileType: 0
+    number: 2
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: 16871b36a07fc2440a15d4f0d13cb4b2, type: 3}
+    code: 2m
+  - tileType: 0
+    number: 3
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: 9511159de26b1a249bef04234edc48c8, type: 3}
+    code: 3m
+  - tileType: 0
+    number: 4
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: cb7cab97e339c7848b89ad01450b730f, type: 3}
+    code: 4m
+  - tileType: 0
+    number: 5
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: 1f690dc419e3c3b41b3628472cea9905, type: 3}
+    code: 5m
+  - tileType: 0
+    number: 6
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: c0a85242a86a0e04ab772fd9ea41af96, type: 3}
+    code: 6m
+  - tileType: 0
+    number: 7
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: 4b1578783a78480459d87e9513993534, type: 3}
+    code: 7m
+  - tileType: 0
+    number: 8
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: d1850c476f8a7ef498d06ce667a69172, type: 3}
+    code: 8m
+  - tileType: 0
+    number: 9
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: 56b2b816713fec9429c64023a1aff4ac, type: 3}
+    code: 9m
+  - tileType: 10
+    number: 1
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: 625c8ddfe89523a498856cf17c41a8d7, type: 3}
+    code: 1p
+  - tileType: 10
+    number: 2
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: 5a62b56a51e1a944eafd4c898989fc39, type: 3}
+    code: 2p
+  - tileType: 10
+    number: 3
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: a844f95f73eee224db1f5770c8ce2944, type: 3}
+    code: 3p
+  - tileType: 10
+    number: 4
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: ecbee4ac6668ad34dbaa212eb16b7df4, type: 3}
+    code: 4p
+  - tileType: 10
+    number: 5
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: e8723a14bfcbad7428cce029c2d0f8c5, type: 3}
+    code: 5p
+  - tileType: 10
+    number: 6
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: 723aa6c9d1ec66e4ea34f9315276f6b4, type: 3}
+    code: 6p
+  - tileType: 10
+    number: 7
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: 38b93fae731a2be41b415536e1f2cb48, type: 3}
+    code: 7p
+  - tileType: 10
+    number: 8
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: 79a849edd11c6c649ab7fa32f9bd8232, type: 3}
+    code: 8p
+  - tileType: 10
+    number: 9
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: e5644e91c6938614eab816e44dd252b1, type: 3}
+    code: 9p
+  - tileType: 20
+    number: 1
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: 58d8cc852dec60648b8d500b783ecdb1, type: 3}
+    code: 1s
+  - tileType: 20
+    number: 2
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: fd91a87bcbe7d6a4f94a642f8aba4cd1, type: 3}
+    code: 2s
+  - tileType: 20
+    number: 3
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: ab47ebf69ba7c924bb66c94bba1fd753, type: 3}
+    code: 3s
+  - tileType: 20
+    number: 4
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: 245f83a5d70f1c947b2acf32d03d7300, type: 3}
+    code: 4s
+  - tileType: 20
+    number: 5
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: 4a46ff5c586e1ff4982f18dc78b23b12, type: 3}
+    code: 5s
+  - tileType: 20
+    number: 6
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: 7f066463531d249478258c117ea0c41d, type: 3}
+    code: 6s
+  - tileType: 20
+    number: 7
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: 3db6d7e2e8cbc784eba594d9a31d69da, type: 3}
+    code: 7s
+  - tileType: 20
+    number: 8
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: be5c0a226fdea494cb4449dcded3317f, type: 3}
+    code: 8s
+  - tileType: 20
+    number: 9
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: 4b1ec47fed511854fb83804ef02ff69e, type: 3}
+    code: 9s
+  - tileType: 30
+    number: 0
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: 3818a7b05a757b64f8c88631e1366b90, type: 3}
+    code: 1z
+  - tileType: 31
+    number: 0
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: 0dd99f396326cef4284df92cce2b6a6a, type: 3}
+    code: 2z
+  - tileType: 32
+    number: 0
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: d69ec081d0b69c44c8619bf11cdceb73, type: 3}
+    code: 3z
+  - tileType: 33
+    number: 0
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: 5aeef5c34f4cbb04f868c9c86459bc3b, type: 3}
+    code: 4z
+  - tileType: 34
+    number: 0
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: d52da1ed69bf4e448bd0d539a0a50cfa, type: 3}
+    code: 5z
+  - tileType: 35
+    number: 0
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: f6a617ef89f1e3a4789261d70f6495cd, type: 3}
+    code: 6z
+  - tileType: 36
+    number: 0
+    isAkaDora: 0
+    sprite: {fileID: 21300000, guid: f364e3cdb0e25ec4884362b1959df049, type: 3}
+    code: 7z
+  - tileType: 0
+    number: 5
+    isAkaDora: 1
+    sprite: {fileID: 21300000, guid: b0dacf81046113f4495e18cfb5f43ce9, type: 3}
+    code: 0m
+  - tileType: 10
+    number: 5
+    isAkaDora: 1
+    sprite: {fileID: 21300000, guid: ad21c013492afde4b9d96566a329bec9, type: 3}
+    code: 0p
+  - tileType: 20
+    number: 5
+    isAkaDora: 1
+    sprite: {fileID: 21300000, guid: 4884e451ea53213429376f18a9d433c4, type: 3}
+    code: 0s
