@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public struct MahjongRoundInfo
 {
@@ -9,6 +10,11 @@ public struct MahjongRoundInfo
     public int riichiBong;
     // public int oyaIndex;
     public Wind playerWind; // <-- 필요없는데...
+    /// <summary>
+    /// 이 도라 타일은 UI 공유용입니다. 내부 계산에 쓰지 마세요.
+    /// </summary>
+    public List<MahjongTile> doraTiles;
+
 
     private MahjongRoundInfo(int guk, int bonzang, int riichiBong, Wind playerWind)
     {
@@ -16,10 +22,19 @@ public struct MahjongRoundInfo
         this.bonzang = bonzang;
         this.riichiBong = riichiBong;
         this.playerWind = playerWind;
+        // doraTile = MahjongTile.NullTile();
+        doraTiles = new List<MahjongTile>();
     }
 
     public void AddRiichiBong(){
         riichiBong++;
+    }
+    /// <summary>
+    /// 깡을 쳤다거나 할 경우, 추가된 도라룰 여기 넣어주세요!
+    /// </summary>
+    /// <param name="tiles"></param>
+    public void AddNewDoraTiles(MahjongTile tile){
+        doraTiles.Add(tile);
     }
 
 
@@ -83,31 +98,38 @@ public struct MahjongRoundInfo
 
     void ChangeOya()
     {
-        playerWind = (Wind)(playerWind + 1 % 4);
+        playerWind = (Wind)((int)(playerWind + 1) % 4);
     }
-    public Wind currentJang
+    public Wind RoundWind
     {
         get
         {
-            return (Wind)((guk - 1 / 4) % 4);
+            return (Wind)(  ( (guk - 1) / 4) % 4  );
         }
     }
 
 }
 
-public struct MahjongRoundSimpleInfo{
-    List<MahjongTile> doraTiles;
+public struct WindInfo
+{
     public Wind roundWind;
-    public int guk;
     public Wind playerWind;
+    public bool IsValid
+    {
+        get { return roundWind != Wind.MOLLU && playerWind != Wind.MOLLU; }
+    }
 
-
-    
+    public WindInfo(Wind roundWind, Wind playerWind)
+    {
+        this.roundWind = roundWind;
+        this.playerWind = playerWind;
+    }
+    public static WindInfo NullInfo()
+    {
+        return new WindInfo(Wind.MOLLU, Wind.MOLLU);
+    }
 }
 
-public struct AdvMahjongRoundInfo{
-
-}
 
 
 public struct TsumoInfo

@@ -87,15 +87,15 @@ public class PlayerHand : MonoBehaviour
     }
 
     void ShowRiichiNyaButtons(TsumoInfo tsumoInfo){
-        Debug.Log($"리치냐를 킬까요? {tsumoInfo.isRiichiAble}/{tsumoInfo.isTsumoAble}");
+        // MyLogger.Log($"리치냐를 킬까요? {tsumoInfo.isRiichiAble}/{tsumoInfo.isTsumoAble}");
         RiichiNya.SetActive(tsumoInfo.isRiichiAble);
         TsumoNya.SetActive(tsumoInfo.isTsumoAble);
-        Debug.Log("업데이트했습니다!");
+        // MyLogger.Log("업데이트했습니다!");
     }
     void HideRiichiNyaButtons(){
         RiichiNya.SetActive(false);
         TsumoNya.SetActive(false);
-        Debug.Log("패를 버렸으니 리치냐 버튼을 가릴게요.");
+        // MyLogger.Log("패를 버렸으니 리치냐 버튼을 가릴게요.");
     }
 
 

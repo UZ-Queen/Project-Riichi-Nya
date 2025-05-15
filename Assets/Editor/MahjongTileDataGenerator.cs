@@ -65,23 +65,23 @@ public class MahjongTileDataGenerator : EditorWindow
                 
                 string realImagePath = Path.Combine("Assets",spriteRelativeDirectory,fileName);
                 Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(realImagePath);
-                // Debug.Log($"이미지 로드 시도 중.. {spriteRelativeDirectory + '/' + fileName}");
-                Debug.Log($"이미지 로드 시도 중.. {realImagePath}");
+                // MyLogger.Log($"이미지 로드 시도 중.. {spriteRelativeDirectory + '/' + fileName}");
+                MyLogger.Log($"이미지 로드 시도 중.. {realImagePath}");
                 if (sprite == null)
                 {
-                    Debug.LogError("로드 실패..");
+                    MyLogger.LogError("로드 실패..");
                 }
                 else
                 {
-                    Debug.Log("로드 성공!");
+                    MyLogger.Log("로드 성공!");
                     newData.sprite = sprite;
                     count++;
                 }
-                // Debug.Log(sprite == null ? "로드 실패.." : "이미지 로드 성공"); // <-- Tlqkf 이거 왜 안됨??
+                // MyLogger.Log(sprite == null ? "로드 실패.." : "이미지 로드 성공"); // <-- Tlqkf 이거 왜 안됨??
             }
             else
             {
-                Debug.LogError($"마작 타일 이미지를 불러오지 못했습니다. 경로를 확인해주세요\n{Path.Combine(Application.dataPath, spriteRelativeDirectory, fileName)}"); ;
+                MyLogger.LogError($"마작 타일 이미지를 불러오지 못했습니다. 경로를 확인해주세요\n{Path.Combine(Application.dataPath, spriteRelativeDirectory, fileName)}"); ;
             }
             // tileData.Add(tile.ToString() ,newData);
             tileData.Add(newData);
@@ -107,7 +107,7 @@ public class MahjongTileDataGenerator : EditorWindow
 
 
         AssetDatabase.SaveAssets();
-        Debug.Log($"마작 타일 DB 생성 완료! 불러온 이미지: {count}/37");
+        MyLogger.Log($"마작 타일 DB 생성 완료! 불러온 이미지: {count}/37");
     }
 }
 #endif

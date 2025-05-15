@@ -7,7 +7,7 @@ public class UiScoreInfo : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI uiScoreText;
 
-    int currentValue;
+    int currentValue = 0;
     public void UpdateScore(int newValue){
         currentValue = newValue;
         UpdateScoreUI();

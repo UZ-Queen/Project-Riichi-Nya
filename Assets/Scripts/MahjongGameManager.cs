@@ -5,14 +5,6 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public enum PlayerCallType
-{
-    Riichi, Tsumo, Ron, Chii, Pon, Kan, Nukidora
-}
-
-public enum GameState{
-    Initializing, PlayerTurn, GameOver, Processing, MOLLU,
-}
 
 public class MahjongGameManager : MonoBehaviour
 {
@@ -20,7 +12,9 @@ public class MahjongGameManager : MonoBehaviour
 
     [SerializeField] private PlayerHand playerHand;
     [SerializeField] private UiScoreInfo uiScoreInfo;
+    [SerializeField] private UiRoundInfo uiRoundInfo;
 
+[SerializeField] private UiWinInfo uiWininfo;
     public GameState currentState = GameState.Initializing;
     public MahjongTileDatabase TileDB;
     System.Random prng;
@@ -34,18 +28,16 @@ public class MahjongGameManager : MonoBehaviour
         
         currentState = GameState.Initializing;
 
-        // prng = new System.Random(seed);
         prng = new System.Random();
-        // Wind playerSeat = (Wind)prng.Next(0, 4);
-        // player = new MahjongPlayer(playerSeat);
-        //원래 4명의 자리를 뚝딱 해줘야하지만.. 1인용이다!
-
-        
+        // prng = new System.Random(seed);
         currentRound = MahjongRound.NewRound(prng.Next(), out player);
 
         //라운드 생성 후 꼭 패산을 수동으로 생성해야 라운드가 시작한다.
         AttachRoundEvent();
         currentRound.GenerateYama();
+        UpdatePlayerScore(0);
+        
+
 
         currentState = GameState.PlayerTurn;
         // currentRound = new MahjongRound(prng.Next(), player);
@@ -58,6 +50,7 @@ public class MahjongGameManager : MonoBehaviour
         currentRound.OnNewRoundStart +=StartNextRound;
         currentRound.OnPlayerScoreAlters += UpdatePlayerScore;
         currentRound.OnPlayerWin += HandlePlayerWin;
+        currentRound.OnRoundInfoUpdate += UpdateRoundInfo;
 
     }
     void DetachRoundEvent()
@@ -67,6 +60,7 @@ public class MahjongGameManager : MonoBehaviour
         currentRound.OnNewRoundStart -=StartNextRound;
         currentRound.OnPlayerScoreAlters -= UpdatePlayerScore;
         currentRound.OnPlayerWin -= HandlePlayerWin;
+        currentRound.OnRoundInfoUpdate -= UpdateRoundInfo;
     }
 
 
@@ -92,12 +86,21 @@ public class MahjongGameManager : MonoBehaviour
         
     }
 
+    /// <summary>
+    /// 플레이어의 점수에서 변경된 수치를 받습니다. 
+    /// </summary>
+    /// <param name="delta"></param>
     void UpdatePlayerScore(int delta){
-        uiScoreInfo?.UpdateScore(delta + player.score);
+        // MyLogger.Log($"점수를 바꿀게요! {delta} + {player.Score}");
+        uiScoreInfo?.UpdateScore(player.Score);
+    }
+
+    void UpdateRoundInfo(MahjongRoundInfo info){
+        uiRoundInfo?.UpdateUIInfo(info);
     }
 
     void HandlePlayerWin(MahjongWinInfo info){
-
+        uiWininfo.UpdateInfo(info, player.IsOya);
     }
 
     void CheckRiichii(TsumoInfo tsumoInfo)
@@ -147,12 +150,6 @@ public class MahjongGameManager : MonoBehaviour
     {
         // currentRound = new MahjongRound(prng.Next(), player); 
         StartNewGame();
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
 
     }
 

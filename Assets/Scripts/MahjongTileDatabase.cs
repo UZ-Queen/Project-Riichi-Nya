@@ -58,7 +58,7 @@ public class MahjongTileDatabase : ScriptableObject
         }
         
         if(sprite == null){
-            Debug.LogError($"타일DB: {tile.ToString()} 타일 스프라이트를 찾지 못했습니다!");
+            MyLogger.LogError($"타일DB: {tile.ToString()} 타일 스프라이트를 찾지 못했습니다!");
             sprite = fallBack;
         }
         return sprite;

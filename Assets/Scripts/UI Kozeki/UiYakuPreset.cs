@@ -23,17 +23,18 @@ public class UiYakuPreset : MonoBehaviour
     [SerializeField] private TextMeshProUGUI uiHanText;
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
-        UpdateInfo(Yaku.Tanyao);
+        // UpdateInfo(Yaku.Tsumo);
     }
 
 
     public void UpdateInfo(Yaku yaku){
+        MyLogger.Log($"yaku: {yaku.ToString()}");
         // YakuInfo.YakuData[yaku]
         uiYakuName.text = yaku.ToString();
         uiYakuHan.text = YakuInfo.YakuData[yaku].Han.ToString();
-        uiYakuName.text = "판"; // <----- 언어 모듈 연결해서 바꿔!
+        uiHanText.text = "판"; // <----- 언어 모듈 연결해서 바꿔!
             
     }
 }

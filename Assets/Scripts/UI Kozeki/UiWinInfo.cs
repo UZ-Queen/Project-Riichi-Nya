@@ -5,6 +5,7 @@ using TMPro;
 using System.Drawing;
 using Unity.VisualScripting;
 using UnityEngine.Rendering;
+using System.Text;
 
 /// <summary>
 /// 화료 시 
@@ -37,21 +38,31 @@ public class UiWinInfo : MonoBehaviour
 
         // uiYakuPresets = new List<UiYakuPreset>();
         int index = 0;
-        foreach(var yaku in info.yakues){
-            // newPreset.UpdateInfo(yaku);
-            // uiYakuPresets.Add(newPreset);
-            if(index >= uiYakuPresets.Count){
-                // Debug.LogError("")
-
+            while(info.yakues.Count > uiYakuPresets.Count){
+                MyLogger.Log("UIYAKUPRESET: 자리가 부족해서 새로운 프리셋을 만듭니다!");
+                // MyLogger.LogError("")
+                
                 UiYakuPreset newPreset = Instantiate(yakuPresetPrefap, yakuPresetHolder.transform);
                 newPreset.gameObject.SetActive(false);
                 uiYakuPresets.Add(newPreset);
                 // break;
             }
+        
+        // for(int i=0; i<info.yakues.Count; i++){
+        //     uiYakuPresets[i].UpdateInfo(yaku);
+        // }
+
+            StringBuilder sb = new StringBuilder();
+        foreach(var yaku in info.yakues){
+            sb.Append(" " + yaku.ToString());
+            // newPreset.UpdateInfo(yaku);
+            // uiYakuPresets.Add(newPreset);
+
             uiYakuPresets[index].UpdateInfo(yaku);
             uiYakuPresets[index].gameObject.SetActive(true);
             index++;
         }
+        MyLogger.LogWarning(sb.ToString());
         // uiHanInt.text = info.Han.ToString();
         uiHanText.text = info.Han.ToString() + "판";
         // uiFuInt.text = info.Fu.ToString();

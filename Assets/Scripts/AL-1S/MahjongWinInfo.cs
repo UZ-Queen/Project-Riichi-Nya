@@ -25,6 +25,8 @@ public class MahjongWin : MahjongHand
     public List<MahjongBlock> availableWaitingBlocks = new List<MahjongBlock>();
     public bool isWaitingTileTsumo;
 
+    public Wind roundWind = Wind.MOLLU;
+    public Wind playerWind = Wind.MOLLU;
     public bool IsHandConcealed
     {
         get
@@ -57,7 +59,16 @@ public class MahjongWin : MahjongHand
         }
         return allTiles;
     }
-
+    /// <summary>
+    /// 꼭 Wininfo를 생성하기 전에 업데이트 해 주세요.
+    /// </summary>
+    /// <param name="roundWind"></param>
+    /// <param name="playerWind"></param>
+    public void UpdateRoundWindInfo(Wind roundWind, Wind playerWind)
+    {
+        this.roundWind = roundWind;
+        this.playerWind = playerWind;
+    }
     //일반 화료
     public MahjongWin(MahjongBlock head, List<MahjongBlock> bodies, MahjongTile agariTile, bool isTsumo)
     {
@@ -66,6 +77,10 @@ public class MahjongWin : MahjongHand
 
         this.bodies = new List<MahjongBlock>(bodies);
         this.waitingTile = agariTile;
+
+        // this.roundWind = roundWind;
+        // this.playerWind = playerWind;
+
         GenerateAvailableWaitingBlocks();
         isWaitingTileTsumo = isTsumo;
         //UpdateInfo();
@@ -141,8 +156,8 @@ public struct MahjongHandInfo
 
     public Wind seatWind;
     public Wind roundWind;
-    public bool isSeatWind;
-    public bool isRoundWind;
+    // public bool isSeatWind;
+    // public bool isRoundWind;
 
     public bool doBodyContainsHaku;
     public bool doBodyContainsHatsu;
@@ -221,10 +236,10 @@ public struct MahjongHandInfo
                             && block.tileType <= MahjongTile.TileType.Pei
                             && block.blockType == MahjongBlock.BlockType.Head) == 1;
 
-        seatWind = Wind.Ton;
-        roundWind = Wind.Ton;
-        isSeatWind = true;
-        isRoundWind = true;
+        seatWind = winHand.playerWind;
+        roundWind = winHand.roundWind;
+        // isSeatWind = true;
+        // isRoundWind = true;
 
         doBodyContainsHaku = winHand.bodies.Count(block => block.tileType == MahjongTile.TileType.Haku
                             && block.blockType == MahjongBlock.BlockType.Body) == 1;
@@ -239,7 +254,6 @@ public struct MahjongHandInfo
                 && block.blockType == MahjongBlock.BlockType.Head) == 1;
 
         isChittoi = winHand.heads.Count == 7;
-        Logger.Log("머리 갯수: " + winHand.heads.Count);
         isHonisou = MahjongYakuSolver.IsHonisou(winHand);
         bodyContainsOnly19 = winHand.bodies.Count(block => block.Contains19 && block.bodyType != MahjongBlock.BodyType.Sequence);
 
@@ -256,7 +270,7 @@ public struct MahjongHandInfo
         isKokushimushou = winHand.winType == MahjongWin.WinType.Kokushimusou;
         isChuuren = MahjongYakuSolver.IsChuuren(winHand);
 
-        doraCount = 0;
+        doraCount = winHand.GetAllTiles().Count(tile => tile.isDora);
         uradoraCount = 0;
 
         akadoraCount = winHand.GetAllTiles().Count(tile => tile.isAkaDora);
@@ -345,6 +359,8 @@ public struct MahjongWinInfo : IComparable<MahjongWinInfo>
         }
     }
 
+    // public WindInfo windInfo;// = WindInfo.NullInfo();
+
     public ScoreTable scoreTable { get; private set; }
 
 
@@ -358,6 +374,21 @@ public struct MahjongWinInfo : IComparable<MahjongWinInfo>
     {
         get;
     }
+
+    public struct DoraInfo{
+    public int doraCount;
+    public int akadoraCount;
+    public int uradoraCount;
+    public DoraInfo(int doraCount, int akadoraCount, int uradoraCount){
+        this.doraCount =doraCount;
+        this.akadoraCount = akadoraCount;
+        this.uradoraCount = uradoraCount;
+    }
+    }
+
+    // public int doraCount;
+    // public int akadoraCount;
+    // public int uradoraCount;
 
     public MahjongTile winTile;
     public MahjongWinInfo(MahjongWin winHand)
@@ -374,14 +405,18 @@ public struct MahjongWinInfo : IComparable<MahjongWinInfo>
         MahjongYakuSolver.Get2HanYakues(info, yakues);
         MahjongYakuSolver.Get3orHigherHanYakues(info, yakues);
         MahjongYakuSolver.GetYakumanYakues(info, yakues);
-
         MahjongUtility.RemoveLowerYakues(yakues);
+
+        // doraCount = info.dora
+
+
         Han = MahjongUtility.GetHan(yakues);
 
         int baseScore = MahjongUtility.GetBaseScoreByHanAndFu(Han, Fu);
         scoreTable = new ScoreTable(baseScore);
 
     }
+
 
 
     public override string ToString()

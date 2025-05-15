@@ -18,3 +18,12 @@ public enum UniqueName
     GobaiYakunyan = 40000,
     RyokubaiYakunyan = 48000,
 }
+
+public enum PlayerCallType
+{
+    Riichi, Tsumo, Ron, Chii, Pon, Kan, Nukidora
+}
+
+public enum GameState{
+    Initializing, PlayerTurn, GameOver, Processing, MOLLU,
+}

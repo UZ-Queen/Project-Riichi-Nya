@@ -14,8 +14,12 @@ public class UiRoundInfo : MonoBehaviour
     [SerializeField] private MahjongTileGameObject uiPlayerWind;
 
 
-    public void UpdateUIInfo(){
+    public void UpdateUIInfo(MahjongRoundInfo info){
         
+        uiDoraTile.SetTile(info.doraTiles[0]);
+        uiRoundWind.SetTile(MahjongTile.WindToTile(info.RoundWind));
+        uiPlayerWind.SetTile(MahjongTile.WindToTile(info.playerWind));
+        uiGuk.text = (info.guk%4+1).ToString();
     }
 
     // Start is called before the first frame update

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 
 
-    public enum Yaku
+public enum Yaku
     {
         //1판역
         Riichi, Tanyao, Tsumo,
@@ -328,7 +328,7 @@ using System.Text;
         {
             if (winHand.winType != MahjongWin.WinType.Normal) return false;
             if (!winHand.IsHandConcealed) return false;
-
+            if(winHand.bodies[0][0].IsZapae) return false;
             List<MahjongTile> hand = winHand.GetAllTiles();
 
             string chuurenFormStr = "1m1m1m2m3m4m5m6m7m8m9m9m9m";
