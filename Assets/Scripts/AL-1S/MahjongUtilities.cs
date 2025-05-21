@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 
 
@@ -85,11 +86,12 @@ public partial class MahjongUtility
         return wins;
     }
 
-    static public HashSet<MahjongWinInfo> CheckWinnableHashSet(List<MahjongTile> copyHand, MahjongTile agariTile)
+    static public HashSet<MahjongWinInfo> CheckWinnableHashSet(List<MahjongTile> copyHand, MahjongTile agariTile, WindInfo windInfo)
     {
         HashSet<MahjongWinInfo> info = new HashSet<MahjongWinInfo>();
         foreach (var i in CheckWinnable(copyHand, agariTile))
         {
+            i.UpdateRoundWindInfo(windInfo);
             info.Add(new MahjongWinInfo(i));
         }
         return info;
@@ -442,11 +444,11 @@ public partial class MahjongUtility
         return 8000 * yakumanCount; // 6
     }
 
-    public static int GetHan(SortedSet<Yaku> yakues)
+    public static int GetHan(SortedSet<Yaku> yakues, DoraInfo info)
     {
         int count = 0;
         count = yakues.Sum(yaku => YakuInfo.YakuData[yaku].Han);
-
+        count += info.DoranekoMatsuri;
         return count;
     }
     public static void RemoveLowerYakues(SortedSet<Yaku> yakues)
@@ -463,7 +465,7 @@ public partial class MahjongUtility
     }
 
     //또한 핑후도 판단해준다.
-    public static int GetFu(MahjongWin win, ref bool isPinfu)
+    public static int GetFu(MahjongWin win, WindInfo info, ref bool isPinfu)
     {
         if (win.winType != MahjongWin.WinType.Normal) return 25;
 
@@ -479,7 +481,7 @@ public partial class MahjongUtility
             //bool isPinfuThisturn = false;
             int currentBusu = 0;
             currentBusu += MachiBusu(block, win.waitingTile);
-            currentBusu += HeadBusu(win.heads[0]);
+            currentBusu += HeadBusu(win.heads[0], info);
             currentBusu += BodyBusu(win, block);
 
             if (currentBusu == 0 && win.IsHandConcealed)
@@ -514,6 +516,17 @@ public partial class MahjongUtility
 
 
         return baseFu;
+
+    }
+
+    public static bool IsYakuDora(Yaku yaku)
+    {
+        // if(yaku == Yaku.AkaDora || yaku == Yaku.Dora || yaku == Yaku.UraDora || yaku )
+        if (yaku == Yaku.AkaDora) return true;
+        if (yaku == Yaku.Dora) return true;
+        if (yaku == Yaku.UraDora) return true;
+        if (yaku == Yaku.NukiDora) return true;
+        return false;
 
     }
 
@@ -565,15 +578,26 @@ public partial class MahjongUtility
         //변짱, 간짱, 단기
     }
 
-    static int HeadBusu(MahjongBlock head)
+    static int HeadBusu(MahjongBlock head, WindInfo info)
     {
-        if (!head.ContainsZapae)
-            return 0;
-        else
-        {
-            MyLogger.LogWarning("현재 풍패를 알 수 없기 떄문에 모든 풍패는 2부를 추가로 얻습니다. 참고하세요");
+        // if (!head.ContainsZapae)
+        //     return 0;
+        if (head.Contains(MahjongTile.WindToTile(info.playerWind)))
             return 2;
-        }
+        if (head.Contains(MahjongTile.WindToTile(info.roundWind)))
+            return 2;
+        if (head.Contains(MahjongTile.StringToTile("5z")))
+            return 2;
+        if (head.Contains(MahjongTile.StringToTile("6z")))
+            return 2;
+        if (head.Contains(MahjongTile.StringToTile("7z")))
+            return 2;
+
+        return 0;
+
+
+        // MyLogger.LogWarning("현재 풍패를 알 수 없기 떄문에 모든 풍패는 2부를 추가로 얻습니다. 참고하세요");
+        // return 2;
     }
 
     static int BodyBusu(MahjongWin win, MahjongBlock waitingBlock)

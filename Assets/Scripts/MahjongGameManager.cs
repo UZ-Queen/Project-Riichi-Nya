@@ -1,3 +1,5 @@
+#define IROHA
+#undef IROHA
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,6 +15,7 @@ public class MahjongGameManager : MonoBehaviour
     [SerializeField] private PlayerHand playerHand;
     [SerializeField] private UiScoreInfo uiScoreInfo;
     [SerializeField] private UiRoundInfo uiRoundInfo;
+    [SerializeField] private UiCallInfo uiCallHolder;
 
 [SerializeField] private UiWinInfo uiWininfo;
     public GameState currentState = GameState.Initializing;
@@ -23,22 +26,27 @@ public class MahjongGameManager : MonoBehaviour
     int seed = 1557;
 
 
-    void StartNewGame()
+    public void StartNewGame()
     {
         
         currentState = GameState.Initializing;
-
+        GameUIManager.Instance.Initialize();
+        
         prng = new System.Random();
-        // prng = new System.Random(seed);
+        #if IROHA
+        prng = new System.Random(seed);
+        #endif
         currentRound = MahjongRound.NewRound(prng.Next(), out player);
 
         //라운드 생성 후 꼭 패산을 수동으로 생성해야 라운드가 시작한다.
         AttachRoundEvent();
         currentRound.GenerateYama();
         UpdatePlayerScore(0);
-        
 
-
+        #if IROHA
+        player.ManipulateHand("1z1z1z2z2z2z3z3z3z4z4z4z2p");
+        #endif
+        UpdatePlayerHand();
         currentState = GameState.PlayerTurn;
         // currentRound = new MahjongRound(prng.Next(), player);
     }
@@ -68,12 +76,30 @@ public class MahjongGameManager : MonoBehaviour
     {
         playerHand.FillHand(player.Hand);
     }
+    bool showCallButtons;
     void LetPlayerTsumoTile(TsumoInfo tsumoInfo)
     {
         playerHand.TsumoTile(tsumoInfo);
+        if (uiCallHolder.UpdateInfo(tsumoInfo.isRiichiAble, tsumoInfo.isTsumoAble))
+        { 
+           GameUIManager.Instance.ActivePanel(GameUIState.RiichiTsumo);
+        }
         currentState = GameState.PlayerTurn;
     }
 
+    void PlayerDiscardTile(int index)
+    {
+        if(currentState != GameState.PlayerTurn) return;
+        //대충 조건 검사
+        currentRound.DiscardTile(index);
+        currentState = GameState.Processing;
+        if (index != 13)
+        {
+            UpdatePlayerHand();
+        }
+        // GameUIManager.Instance.DeactivePanel(GameUIState.RiichiTsumo);
+        currentState = GameState.PlayerTurn;
+    }
     void StartNextRound(MahjongRound nextRound){
         currentState = GameState.Processing;
         DetachRoundEvent();
@@ -99,8 +125,10 @@ public class MahjongGameManager : MonoBehaviour
         uiRoundInfo?.UpdateUIInfo(info);
     }
 
-    void HandlePlayerWin(MahjongWinInfo info){
+    void HandlePlayerWin(MahjongWinInfo info)
+    {
         uiWininfo.UpdateInfo(info, player.IsOya);
+        GameUIManager.Instance.VolatileTurnOn(GameUIState.WinInfo, 5);
     }
 
     void CheckRiichii(TsumoInfo tsumoInfo)
@@ -149,23 +177,11 @@ public class MahjongGameManager : MonoBehaviour
     void Start()
     {
         // currentRound = new MahjongRound(prng.Next(), player); 
-        StartNewGame();
+        // StartNewGame();
 
     }
 
-    void PlayerDiscardTile(int index)
-    {
-        if(currentState != GameState.PlayerTurn) return;
-        //대충 조건 검사
-        currentRound.DiscardTile(index);
-        currentState = GameState.Processing;
-        if (index != 13)
-        {
-            UpdatePlayerHand();
-        }
 
-        currentState = GameState.PlayerTurn;
-    }
 
     void CallHandler(PlayerCallType callType)
     {

@@ -2,9 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
-using System.Drawing;
-using Unity.VisualScripting;
-using UnityEngine.Rendering;
 using System.Text;
 
 /// <summary>
@@ -48,17 +45,35 @@ public class UiWinInfo : MonoBehaviour
                 // break;
             }
         
-        // for(int i=0; i<info.yakues.Count; i++){
-        //     uiYakuPresets[i].UpdateInfo(yaku);
-        // }
-
             StringBuilder sb = new StringBuilder();
         foreach(var yaku in info.yakues){
             sb.Append(" " + yaku.ToString());
             // newPreset.UpdateInfo(yaku);
             // uiYakuPresets.Add(newPreset);
 
-            uiYakuPresets[index].UpdateInfo(yaku);
+            // if (yaku == Yaku.Dora)
+            // {
+            //     uiYakuPresets[index].UpdateDoraInfo(yaku, info.doraInfo.doraCount);
+            // }
+
+            switch (yaku)
+            {
+                case Yaku.Dora:
+                    uiYakuPresets[index].UpdateDoraInfo(yaku, info.doraInfo.doraCount);
+                    break;
+                case Yaku.AkaDora:
+                    uiYakuPresets[index].UpdateDoraInfo(yaku, info.doraInfo.akadoraCount);
+                    break;
+                case Yaku.NukiDora:
+                    // uiYakuPresets[index].UpdateDoraInfo(yaku, info.doraInfo.NukiDora);
+                    break;
+                case Yaku.UraDora:
+                    uiYakuPresets[index].UpdateDoraInfo(yaku, info.doraInfo.uradoraCount);
+                    break;
+                default:
+                    uiYakuPresets[index].UpdateInfo(yaku);
+                    break;
+            }
             uiYakuPresets[index].gameObject.SetActive(true);
             index++;
         }
@@ -77,9 +92,6 @@ public class UiWinInfo : MonoBehaviour
         gameObject.SetActive(true);
     }
 
-    private void Start() {
-        gameObject.SetActive(false);    
-    }
     void OnEnable()
     {
         

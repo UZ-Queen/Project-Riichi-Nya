@@ -29,12 +29,22 @@ public class UiYakuPreset : MonoBehaviour
     }
 
 
-    public void UpdateInfo(Yaku yaku){
+    public void UpdateInfo(Yaku yaku)
+    {
         MyLogger.Log($"yaku: {yaku.ToString()}");
         // YakuInfo.YakuData[yaku]
         uiYakuName.text = yaku.ToString();
         uiYakuHan.text = YakuInfo.YakuData[yaku].Han.ToString();
         uiHanText.text = "판"; // <----- 언어 모듈 연결해서 바꿔!
-            
+
+    }
+
+    public void UpdateDoraInfo(Yaku yaku, int doraCount)
+    {
+        MyLogger.Log($"yaku: {yaku.ToString()}");
+        // YakuInfo.YakuData[yaku]
+        uiYakuName.text = yaku.ToString();
+        uiYakuHan.text =doraCount.ToString();
+        uiHanText.text = "판"; // <----- 언어 모듈 연결해서 바꿔!
     }
 }

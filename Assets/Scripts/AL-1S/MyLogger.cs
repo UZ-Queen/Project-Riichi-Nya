@@ -21,13 +21,13 @@ using UnityEngine;
         static public void LogWarning(string log)
         {
 #if HIMARI
-            Debug.Log($"[경고] [{DateTime.Now:HH:mm:ss}] : {log}");
+            Debug.LogWarning($"[경고] [{DateTime.Now:HH:mm:ss}] : {log}");
 #endif
         }
                 static public void LogError(string log)
         {
 #if HIMARI
-            Debug.Log($"[경고] [{DateTime.Now:HH:mm:ss}] : {log}");
+            Debug.LogError($"[치명적 경고] [{DateTime.Now:HH:mm:ss}] : {log}");
 #endif
         }
     }

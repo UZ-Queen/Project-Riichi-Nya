@@ -112,11 +112,11 @@ public enum Yaku
             {Yaku.Ssukanzu, new YakuInfo(Yaku.Ssukanzu, 12, Condition.FuroOK)},
             {Yaku.Chuuren, new YakuInfo(Yaku.Chuuren, 12, Condition.MenzenOnly)},
 
-            // 도라네코 1판
-            {Yaku.Dora, new YakuInfo(Yaku.Dora, 1, Condition.FuroOK)},
-            {Yaku.AkaDora, new YakuInfo(Yaku.AkaDora, 1, Condition.FuroOK)},
-            {Yaku.UraDora, new YakuInfo(Yaku.UraDora, 1, Condition.FuroOK)},
-            {Yaku.NukiDora, new YakuInfo(Yaku.NukiDora, 1, Condition.FuroOK)},
+            // 도라네코
+            {Yaku.Dora, new YakuInfo(Yaku.Dora, 0, Condition.FuroOK)},
+            {Yaku.AkaDora, new YakuInfo(Yaku.AkaDora, 0, Condition.FuroOK)},
+            {Yaku.UraDora, new YakuInfo(Yaku.UraDora, 0, Condition.FuroOK)},
+            {Yaku.NukiDora, new YakuInfo(Yaku.NukiDora, 0, Condition.FuroOK)},
 
         };
 
@@ -203,57 +203,65 @@ public enum Yaku
             CheckChuuren(info, yakues);
         }
 
+    public static void GetDora(MahjongHandInfo info, SortedSet<Yaku> yakues)
+    {
+        CheckDora(info, yakues);
+        CheckAkaDora(info, yakues);
+        CheckUraDora(info, yakues);
+            CheckNukiDora(info,yakues);
+    }
+
 
         public static void IsSamSaek(MahjongWin winHand, out bool samsaekdongsun, out bool samsaekdonggak)
+    {
+        if (winHand.winType != MahjongWin.WinType.Normal)
         {
-            if(winHand.winType != MahjongWin.WinType.Normal)
-            {
-                samsaekdonggak = false;
-                samsaekdongsun = false;
-                return;
-            }
-            List<MahjongBlock> tmpBlocks;
-            foreach(var i in winHand.bodies)
-            {
-                bool allSequence = false;
-                bool alltriples = false;
-                tmpBlocks = new List<MahjongBlock>(winHand.bodies);
-                tmpBlocks.Remove(i);
-
-                //모두 커쯔 또는 슌쯔가 아니라면 조건에 맞지 않아.
-                int sequenceCount = tmpBlocks.Count(block => block.bodyType == MahjongBlock.BodyType.Sequence);
-                if (sequenceCount == 3) allSequence = true;
-                else if (sequenceCount == 0) alltriples = true;
-                else continue;
-
-
-                // 시작 번호가 모두 같아야겠지.
-                if (tmpBlocks[0].startingNumber != tmpBlocks[1].startingNumber) continue;
-                if (tmpBlocks[1].startingNumber != tmpBlocks[2].startingNumber) continue;
-
-                // 만수, 삭수, 통수가 모두 있어야겠지.
-                SortedSet<MahjongTile.TileType> tileTypeSet = new SortedSet<MahjongTile.TileType>();
-                foreach(var item in tmpBlocks)
-                {
-                    //자패면 스킵. 
-                    if (item.ContainsZapae) continue;
-                    tileTypeSet.Add(item.tileType);
-                }
-
-                if (tileTypeSet.Count != 3) continue;
-
-                samsaekdonggak = alltriples;
-                samsaekdongsun = allSequence;
-                return;
-
-
-
-            }
-
             samsaekdonggak = false;
             samsaekdongsun = false;
             return;
         }
+        List<MahjongBlock> tmpBlocks;
+        foreach (var i in winHand.bodies)
+        {
+            bool allSequence = false;
+            bool alltriples = false;
+            tmpBlocks = new List<MahjongBlock>(winHand.bodies);
+            tmpBlocks.Remove(i);
+
+            //모두 커쯔 또는 슌쯔가 아니라면 조건에 맞지 않아.
+            int sequenceCount = tmpBlocks.Count(block => block.bodyType == MahjongBlock.BodyType.Sequence);
+            if (sequenceCount == 3) allSequence = true;
+            else if (sequenceCount == 0) alltriples = true;
+            else continue;
+
+
+            // 시작 번호가 모두 같아야겠지.
+            if (tmpBlocks[0].startingNumber != tmpBlocks[1].startingNumber) continue;
+            if (tmpBlocks[1].startingNumber != tmpBlocks[2].startingNumber) continue;
+
+            // 만수, 삭수, 통수가 모두 있어야겠지.
+            SortedSet<MahjongTile.TileType> tileTypeSet = new SortedSet<MahjongTile.TileType>();
+            foreach (var item in tmpBlocks)
+            {
+                //자패면 스킵. 
+                if (item.ContainsZapae) continue;
+                tileTypeSet.Add(item.tileType);
+            }
+
+            if (tileTypeSet.Count != 3) continue;
+
+            samsaekdonggak = alltriples;
+            samsaekdongsun = allSequence;
+            return;
+
+
+
+        }
+
+        samsaekdonggak = false;
+        samsaekdongsun = false;
+        return;
+    }
         
         public static int IpekoCounter(MahjongWin info)
         {
@@ -368,250 +376,288 @@ public enum Yaku
 
     }
 
-    // 역 관리 - 1판역(IsTanYao 등)
-    public static partial class MahjongYakuSolver
+// 역 관리 - 1판역(IsTanYao 등)
+public static partial class MahjongYakuSolver
+{
+
+    //리치
+    static bool CheckRiichi(MahjongHandInfo info, SortedSet<Yaku> yakues)
     {
-
-        //리치
-        static bool CheckRiichi(MahjongHandInfo info, SortedSet<Yaku> yakues)
+        if (info.isRiichi)
         {
-            if (info.isRiichi)
+            yakues.Add(Yaku.Riichi);
+            return true;
+        }
+        return false;
+    }
+    //탕야오
+    static bool CheckTanyao(MahjongHandInfo info, SortedSet<Yaku> yakues)
+    {
+        if (info.isKokushimushou) return false;
+        if (info.bodyContains19 + info.headContains19 +
+            info.bodyContainsZapae + info.headContainsZapae == 0)
+        {
+            yakues.Add(Yaku.Tanyao);
+            return true;
+        }
+
+        return false;
+    }
+    //쯔모
+    static bool CheckTsumo(MahjongHandInfo info, SortedSet<Yaku> yakues)
+    {
+        if (info.isHandMenzen && info.isWinTileTsumo)
+        {
+            yakues.Add(Yaku.Tsumo);
+            return true;
+        }
+
+        return false;
+    }
+
+    //역패
+    static bool CheckTon(MahjongHandInfo info, SortedSet<Yaku> yakues)
+    {
+        if (info.doBodyContainsTon)
+        {
+            int count = 0;
+            count += info.windInfo.roundWind == Wind.Ton ? 1 : 0;
+            count += info.windInfo.playerWind == Wind.Ton ? 1 : 0;
+            if (count == 2)
+                yakues.Add(Yaku.DoubleTon);
+            else if (count == 1)
+                yakues.Add(Yaku.Ton);
+            else
             {
-                yakues.Add(Yaku.Riichi);
-                return true;
-            }
                 return false;
-        }
-        //탕야오
-        static bool CheckTanyao(MahjongHandInfo info, SortedSet<Yaku> yakues)
-        {
-            if (info.isKokushimushou) return false;
-            if (info.bodyContains19 + info.headContains19 +
-                info.bodyContainsZapae + info.headContainsZapae == 0)
-            {
-                yakues.Add(Yaku.Tanyao);
-                return true;
             }
-
-            return false;
+            return true;
         }
-        //쯔모
-        static bool CheckTsumo(MahjongHandInfo info, SortedSet<Yaku> yakues)
+
+        return false;
+    }
+    static bool CheckNan(MahjongHandInfo info, SortedSet<Yaku> yakues)
+    {
+        if (info.doBodyContainsNan)
         {
-            if (info.isHandMenzen && info.isWinTileTsumo)
+            int count = 0;
+            count += info.windInfo.roundWind == Wind.Nan ? 1 : 0;
+            count += info.windInfo.playerWind == Wind.Nan ? 1 : 0;
+            if (count == 2)
+                yakues.Add(Yaku.DoubleNan);
+            else if (count == 1)
+                yakues.Add(Yaku.Nan);
+            else
             {
-                yakues.Add(Yaku.Tsumo);
-                return true;
+                return false;
             }
-
-            return false;
+            return true;
         }
 
-        //역패
-        static bool CheckTon(MahjongHandInfo info, SortedSet<Yaku> yakues)
+        return false;
+    }
+    static bool CheckSha(MahjongHandInfo info, SortedSet<Yaku> yakues)
+    {
+        if (info.doBodyContainsSha)
         {
-            if (info.doBodyContainsTon)
+            int count = 0;
+            count += info.windInfo.roundWind == Wind.Sha ? 1 : 0;
+            count += info.windInfo.playerWind == Wind.Sha ? 1 : 0;
+            if (count == 2)
+                yakues.Add(Yaku.DoubleSha);
+            else if (count == 1)
+                yakues.Add(Yaku.Sha);
+            else
             {
-                int count = 0;
-                count += info.roundWind == Wind.Ton ? 1 : 0;
-                count += info.seatWind == Wind.Ton ? 1 : 0;
-                if (count == 2)
-                    yakues.Add(Yaku.DoubleTon);
-                else if(count == 1)
-                    yakues.Add(Yaku.Ton);
-                else
-                {
-                    return false;
-                }
-                return true;
+                return false;
             }
-
-            return false;
+            return true;
         }
-        static bool CheckNan(MahjongHandInfo info, SortedSet<Yaku> yakues)
+
+        return false;
+    }
+    static bool CheckPei(MahjongHandInfo info, SortedSet<Yaku> yakues)
+    {
+        if (info.doBodyContainsPei)
         {
-            if (info.doBodyContainsNan)
+            int count = 0;
+            count += info.windInfo.roundWind == Wind.Pei ? 1 : 0;
+            count += info.windInfo.playerWind == Wind.Pei ? 1 : 0;
+            if (count == 2)
+                yakues.Add(Yaku.DoublePei);
+            else if (count == 1)
+                yakues.Add(Yaku.Pei);
+            else
             {
-                int count = 0;
-                count += info.roundWind == Wind.Nan ? 1 : 0;
-                count += info.seatWind == Wind.Nan ? 1 : 0;
-                if (count == 2)
-                    yakues.Add(Yaku.DoubleNan);
-                else if (count == 1)
-                    yakues.Add(Yaku.Nan);
-                else
-                {
-                    return false;
-                }
-                return true;
+                return false;
             }
-
-            return false;
+            return true;
         }
-        static bool CheckSha(MahjongHandInfo info, SortedSet<Yaku> yakues)
+
+        return false;
+    }
+
+    static bool CheckHaku(MahjongHandInfo info, SortedSet<Yaku> yakues)
+    {
+        if (info.doBodyContainsHaku)
         {
-            if (info.doBodyContainsSha)
-            {
-                int count = 0;
-                count += info.roundWind == Wind.Sha ? 1 : 0;
-                count += info.seatWind == Wind.Sha ? 1 : 0;
-                if (count == 2)
-                    yakues.Add(Yaku.DoubleSha);
-                else if (count == 1)
-                    yakues.Add(Yaku.Sha);
-                else
-                {
-                    return false;
-                }
-                return true;
-            }
-
-            return false;
+            yakues.Add(Yaku.Haku);
+            return true;
         }
-        static bool CheckPei(MahjongHandInfo info, SortedSet<Yaku> yakues)
+
+        return false;
+    }
+    static bool CheckHatsu(MahjongHandInfo info, SortedSet<Yaku> yakues)
+    {
+        if (info.doBodyContainsHatsu)
         {
-            if (info.doBodyContainsPei)
-            {
-                int count = 0;
-                count += info.roundWind == Wind.Pei ? 1 : 0;
-                count += info.seatWind == Wind.Pei ? 1 : 0;
-                if (count == 2)
-                    yakues.Add(Yaku.DoublePei);
-                else if (count == 1)
-                    yakues.Add(Yaku.Pei);
-                else
-                {
-                    return false;
-                }
-                return true;
-            }
-
-            return false;
+            yakues.Add(Yaku.Hatsu);
+            return true;
         }
 
-        static bool CheckHaku(MahjongHandInfo info, SortedSet<Yaku> yakues)
+        return false;
+    }
+    static bool CheckChun(MahjongHandInfo info, SortedSet<Yaku> yakues)
+    {
+        if (info.doBodyContainsChun)
         {
-            if (info.doBodyContainsHaku)
-            {
-                yakues.Add(Yaku.Haku);
-                return true;
-            }
-
-            return false;
+            yakues.Add(Yaku.Chun);
+            return true;
         }
-        static bool CheckHatsu(MahjongHandInfo info, SortedSet<Yaku> yakues)
+
+        return false;
+    }
+
+    //[Obsolete("이 메서드는 아직 구현되지 않았으니 수정하세요!")]
+    static bool CheckPinfu(MahjongHandInfo info, SortedSet<Yaku> yakues)
+    {
+        if (info.isPinfu)
         {
-            if (info.doBodyContainsHatsu)
-            {
-                yakues.Add(Yaku.Hatsu);
-                return true;
-            }
-
-            return false;
+            yakues.Add(Yaku.Pinfu);
+            return true;
         }
-        static bool CheckChun(MahjongHandInfo info, SortedSet<Yaku> yakues)
+
+        return false;
+    }
+
+    static bool CheckIpeko(MahjongHandInfo info, SortedSet<Yaku> yakues)
+    {
+        if (info.ipekoCount == 1)
         {
-            if (info.doBodyContainsChun)
-            {
-                yakues.Add(Yaku.Chun);
-                return true;
-            }
-
-            return false;
+            yakues.Add(Yaku.Ipeko);
+            return true;
         }
 
-        //[Obsolete("이 메서드는 아직 구현되지 않았으니 수정하세요!")]
-        static bool CheckPinfu(MahjongHandInfo info, SortedSet<Yaku> yakues)
+        return false;
+    }
+    static bool CheckChanKan(MahjongHandInfo info, SortedSet<Yaku> yakues)
+    {
+        if (info.isChanKan)
         {
-            if (info.isPinfu)
-            {
-                yakues.Add(Yaku.Pinfu);
-                return true;
-            }
-
-            return false;
+            yakues.Add(Yaku.ChanKkan);
+            return true;
         }
 
-        static bool CheckIpeko(MahjongHandInfo info, SortedSet<Yaku> yakues)
+        return false;
+    }
+    static bool CheckRinshan(MahjongHandInfo info, SortedSet<Yaku> yakues)
+    {
+        if (info.isRinshan)
         {
-            if (info.ipekoCount == 1)
-            {
-                yakues.Add(Yaku.Ipeko);
-                return true;
-            }
-
-            return false;
+            yakues.Add(Yaku.Rinshan);
+            return true;
         }
-        static bool CheckChanKan(MahjongHandInfo info, SortedSet<Yaku> yakues)
+
+        return false;
+    }
+    static bool CheckHaitei(MahjongHandInfo info, SortedSet<Yaku> yakues)
+    {
+        if (info.isHaitei)
         {
-            if (info.isChanKan)
-            {
-                yakues.Add(Yaku.ChanKkan);
-                return true;
-            }
-
-            return false;
+            yakues.Add(Yaku.Haitei);
+            return true;
         }
-        static bool CheckRinshan(MahjongHandInfo info, SortedSet<Yaku> yakues)
+
+        return false;
+    }
+    static bool CheckHoutei(MahjongHandInfo info, SortedSet<Yaku> yakues)
+    {
+        if (info.isHoutei)
         {
-            if (info.isRinshan)
-            {
-                yakues.Add(Yaku.Rinshan);
-                return true;
-            }
-
-            return false;
+            yakues.Add(Yaku.Houtei);
+            return true;
         }
-        static bool CheckHaitei(MahjongHandInfo info, SortedSet<Yaku> yakues)
+
+        return false;
+    }
+    static bool CheckItpatsu(MahjongHandInfo info, SortedSet<Yaku> yakues)
+    {
+        if (info.isItpatsu)
         {
-            if (info.isHaitei)
-            {
-                yakues.Add(Yaku.Haitei);
-                return true;
-            }
-
-            return false;
-        }
-        static bool CheckHoutei(MahjongHandInfo info, SortedSet<Yaku> yakues)
-        {
-            if (info.isHoutei)
-            {
-                yakues.Add(Yaku.Houtei);
-                return true;
-            }
-
-            return false;
-        }
-        static bool CheckItpatsu(MahjongHandInfo info, SortedSet<Yaku> yakues)
-        {
-            if (info.isItpatsu)
-            {
-                yakues.Add(Yaku.Itpatsu);
-                return true;
-            }
-
-            return false;
+            yakues.Add(Yaku.Itpatsu);
+            return true;
         }
 
+        return false;
+    }
 
+    // static bool CheckDora(MahjongHandInfo info, SortedSet<Yaku> yakues)
+    // {
+    //     if (info.doraCount > 0)
+    //     {
+    //         yakues.Add(Yaku.Dora);
+    //         return true;
+    //     }
 
+    //     return false;
+    // }
+    // static bool CheckAkaDora(MahjongHandInfo info, SortedSet<Yaku> yakues)
+    // {
+    //     if (info.akadoraCount > 0)
+    //     {
+    //         yakues.Add(Yaku.AkaDora);
+    //         return true;
+    //     }
+
+    //     return false;
+    // }
+    // static bool CheckNukidora(MahjongHandInfo info, SortedSet<Yaku> yakues)
+    // {
+    //     if (info.nukidoraCount > 0)
+    //     {
+    //         yakues.Add(Yaku.NukiDora);
+    //         return true;
+    //     }
+
+    //     return false;
+    // }
+    //     static bool CheckUraDora(MahjongHandInfo info, SortedSet<Yaku> yakues)
+    // {
+    //     if (info.isItpatsu)
+    //     {
+    //         yakues.Add(Yaku.Itpatsu);
+    //         return true;
+    //     }
+
+    //     return false;
+    // }
 
 
 
         //템플런
-        //static bool Check_(MahjongHandInfo info, SortedSet<Yaku> yakues)
-        //{
-        //    if (condition)
-        //    {
-        //        yakues.Add();
-        //        return true;
-        //    }
+    //static bool Check_(MahjongHandInfo info, SortedSet<Yaku> yakues)
+    //{
+    //    if (condition)
+    //    {
+    //        yakues.Add();
+    //        return true;
+    //    }
 
-        //    return false;
-        //}
+    //    return false;
+    //}
 
 
-    } 
+} 
     //2~6판역, 도라
     public static partial class MahjongYakuSolver
     {
@@ -803,7 +849,7 @@ public enum Yaku
         }
         static bool CheckUraDora(MahjongHandInfo info, SortedSet<Yaku> yakues)
         {
-            if (info.uradoraCount > 0 && info.isRiichi)
+            if (info.isRiichi)
             {
                 yakues.Add(Yaku.UraDora);
                 return true;
@@ -821,7 +867,7 @@ public enum Yaku
 
             return false;
         }
-        static bool CheckNukidora(MahjongHandInfo info, SortedSet<Yaku> yakues)
+        static bool CheckNukiDora(MahjongHandInfo info, SortedSet<Yaku> yakues)
         {
             if (info.nukidoraCount > 0)
             {

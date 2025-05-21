@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Unity.VisualScripting;
 
 public class MahjongHand
 {
@@ -25,8 +26,9 @@ public class MahjongWin : MahjongHand
     public List<MahjongBlock> availableWaitingBlocks = new List<MahjongBlock>();
     public bool isWaitingTileTsumo;
 
-    public Wind roundWind = Wind.MOLLU;
-    public Wind playerWind = Wind.MOLLU;
+    // public Wind roundWind = Wind.MOLLU;
+    // public Wind playerWind = Wind.MOLLU;
+    public WindInfo windInfo = WindInfo.NullInfo();
     public bool IsHandConcealed
     {
         get
@@ -64,10 +66,18 @@ public class MahjongWin : MahjongHand
     /// </summary>
     /// <param name="roundWind"></param>
     /// <param name="playerWind"></param>
-    public void UpdateRoundWindInfo(Wind roundWind, Wind playerWind)
+    // public void UpdateRoundWindInfo(Wind roundWind, Wind playerWind)
+    // {
+    //     this.roundWind = roundWind;
+    //     this.playerWind = playerWind;
+    // }
+    public void UpdateRoundWindInfo(WindInfo info)
     {
-        this.roundWind = roundWind;
-        this.playerWind = playerWind;
+        // this.roundWind = info.roundWind;
+        // this.playerWind = info.playerWind;
+        MyLogger.LogWarning($"MahjongWIN -> 플레이어 {info.playerWind} / 라운드 {info.roundWind}");
+        windInfo = info;
+        MyLogger.LogWarning($"MahjongWIN -> 플레이어 {windInfo.playerWind} / 라운드 {windInfo.roundWind}");
     }
     //일반 화료
     public MahjongWin(MahjongBlock head, List<MahjongBlock> bodies, MahjongTile agariTile, bool isTsumo)
@@ -154,8 +164,9 @@ public struct MahjongHandInfo
     public bool doBodyContainsPei;
     public bool doHeadContainsWindTile;
 
-    public Wind seatWind;
-    public Wind roundWind;
+    // public Wind seatWind;
+    // public Wind roundWind;
+    public WindInfo windInfo;
     // public bool isSeatWind;
     // public bool isRoundWind;
 
@@ -236,8 +247,10 @@ public struct MahjongHandInfo
                             && block.tileType <= MahjongTile.TileType.Pei
                             && block.blockType == MahjongBlock.BlockType.Head) == 1;
 
-        seatWind = winHand.playerWind;
-        roundWind = winHand.roundWind;
+        // seatWind = winHand.playerWind;
+        // roundWind = winHand.roundWind;
+        windInfo = winHand.windInfo;
+        MyLogger.LogWarning($"플레이어 {windInfo.playerWind} / 라운드 {windInfo.roundWind}");
         // isSeatWind = true;
         // isRoundWind = true;
 
@@ -270,7 +283,7 @@ public struct MahjongHandInfo
         isKokushimushou = winHand.winType == MahjongWin.WinType.Kokushimusou;
         isChuuren = MahjongYakuSolver.IsChuuren(winHand);
 
-        doraCount = winHand.GetAllTiles().Count(tile => tile.isDora);
+        doraCount = winHand.GetAllTiles().Sum(tile => tile.doraCount);
         uradoraCount = 0;
 
         akadoraCount = winHand.GetAllTiles().Count(tile => tile.isAkaDora);
@@ -285,15 +298,9 @@ public struct MahjongHandInfo
 /// <summary>
 /// MahjongHandInfo는 Winhand를 받아서 역, 판수, 부수를 계산하고 저장한다.
 /// </summary>
-public struct MahjongWinInfo : IComparable<MahjongWinInfo>
+public class MahjongWinInfo : IComparable<MahjongWinInfo>
+
 {
-    // public enum UniqueName
-    // {
-    //     Jjuna, Nyangan, Henenyan, Bainyan, Sanbainyan,
-    //     Yakunyan, DoubleYakunyan, TripleYakunyan, YonbaiYakunyan, GobaiYakunyan, RyokubaiYakunyan,
-    // }
-
-
     public UniqueName GetUniqueName
     {
         get
@@ -330,10 +337,6 @@ public struct MahjongWinInfo : IComparable<MahjongWinInfo>
     }
 
 
-    // public Nyangan GetNyangan(){
-
-    // }
-
     public struct ScoreTable
     {
         public int baseScore;
@@ -359,7 +362,7 @@ public struct MahjongWinInfo : IComparable<MahjongWinInfo>
         }
     }
 
-    // public WindInfo windInfo;// = WindInfo.NullInfo();
+    public WindInfo windInfo = WindInfo.NullInfo();
 
     public ScoreTable scoreTable { get; private set; }
 
@@ -375,16 +378,8 @@ public struct MahjongWinInfo : IComparable<MahjongWinInfo>
         get;
     }
 
-    public struct DoraInfo{
-    public int doraCount;
-    public int akadoraCount;
-    public int uradoraCount;
-    public DoraInfo(int doraCount, int akadoraCount, int uradoraCount){
-        this.doraCount =doraCount;
-        this.akadoraCount = akadoraCount;
-        this.uradoraCount = uradoraCount;
-    }
-    }
+
+    public DoraInfo doraInfo;
 
     // public int doraCount;
     // public int akadoraCount;
@@ -393,31 +388,39 @@ public struct MahjongWinInfo : IComparable<MahjongWinInfo>
     public MahjongTile winTile;
     public MahjongWinInfo(MahjongWin winHand)
     {
-
         MahjongHandInfo info = new MahjongHandInfo(winHand);
+        this.windInfo = winHand.windInfo;
         winTile = info.winTile;
 
         yakues = new SortedSet<Yaku>();
 
-        Fu = MahjongUtility.GetFu(winHand, ref info.isPinfu);
-
+        Fu = MahjongUtility.GetFu(winHand, windInfo, ref info.isPinfu);
         MahjongYakuSolver.Get1HanYakues(info, yakues);
         MahjongYakuSolver.Get2HanYakues(info, yakues);
         MahjongYakuSolver.Get3orHigherHanYakues(info, yakues);
         MahjongYakuSolver.GetYakumanYakues(info, yakues);
+        MahjongYakuSolver.GetDora(info, yakues);
         MahjongUtility.RemoveLowerYakues(yakues);
-
-        // doraCount = info.dora
-
-
-        Han = MahjongUtility.GetHan(yakues);
-
+        MyLogger.LogWarning("아직 우라도라는 포함 안되었습니다. 여기서 추가하세요");
+        doraInfo = new DoraInfo(info.doraCount, info.akadoraCount, 0);
+        Han = MahjongUtility.GetHan(yakues, doraInfo);
+        
         int baseScore = MahjongUtility.GetBaseScoreByHanAndFu(Han, Fu);
         scoreTable = new ScoreTable(baseScore);
 
     }
 
+    public void UpdateDora()
+    {
+        
+    }
 
+    void UpdateYakuInfo()
+    {
+        
+
+
+    }
 
     public override string ToString()
     {
@@ -439,6 +442,8 @@ public struct MahjongWinInfo : IComparable<MahjongWinInfo>
 
     public static bool operator ==(MahjongWinInfo himari, MahjongWinInfo rio)
     {
+        if (ReferenceEquals(himari, rio)) return true;
+        if (himari is null || rio is null) return false;
         if (himari.Han != rio.Han) return false;
         if (himari.Fu != rio.Fu) return false;
         if (!himari.yakues.SetEquals(rio.yakues)) return false;
