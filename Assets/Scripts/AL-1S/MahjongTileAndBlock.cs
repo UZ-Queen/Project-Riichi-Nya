@@ -270,12 +270,21 @@ public partial struct MahjongTile : IComparable<MahjongTile>
 
     public bool isAkaDora;
     public bool isDora;
+    public int doraCount;
 
-    public int DoraTileID{
-        get{
-            if(number == 9) return (int)tileType + 1;
-            if(tileType == TileType.Pei) return (int)TileType.Ton;
-            if(tileType == TileType.Chun) return (int)TileType.Haku;
+    public void AddDora()
+    {
+        isDora = true;
+        doraCount++;
+    }
+
+    public int DoraTileID
+    {
+        get
+        {
+            if (number == 9) return (int)tileType + 1;
+            if (tileType == TileType.Pei) return (int)TileType.Ton;
+            if (tileType == TileType.Chun) return (int)TileType.Haku;
             return TileID + 1;
         }
     }
@@ -299,6 +308,7 @@ public partial struct MahjongTile : IComparable<MahjongTile>
 
         this.isAkaDora = isAkaDora;
         this.isDora = false;
+        doraCount = 0;
     }
 
 
@@ -320,7 +330,7 @@ public partial struct MahjongTile : IComparable<MahjongTile>
     public override int GetHashCode()
     {
         //return base.GetHashCode();
-        int hash = Utilities.HashCombine(TileID, isAkaDora);
+        int hash = Utilities.HashCombine(TileID);
         return hash;
     }
     public override string ToString()
@@ -485,12 +495,12 @@ public partial struct MahjongTile : IComparable<MahjongTile>
         }
         else
         {
-            newTile = new MahjongTile((TileType)(((int)input / 10) * 10), input % 10);
+            newTile = new MahjongTile((TileType)(((int)input / 10) * 10), input % 10, akadora);
         }
         return newTile;
     }
 
-    public static List<MahjongTile> GetAllTiles()
+    public static List<MahjongTile> GetAllTiles(bool includeAkadora = false)
     {
         List<MahjongTile> tiles = new List<MahjongTile>();
         for (int i = 0; i < 10; i++)
@@ -504,12 +514,14 @@ public partial struct MahjongTile : IComparable<MahjongTile>
 
             for (int k = 1; k <= 9; k++)
             {
-                tiles.Add(TileIDToTile(k + i * 10));
+                if(k == 5 && includeAkadora) tiles.Add(TileIDToTile(k + i * 10, true));
+                tiles.Add(TileIDToTile(k + i * 10, false));
+                
             }
         }
         return tiles;
     }
-
+    // public static List<MahjongTile>
     public static List<MahjongTile> GetAllAkadoras()
     {
         List<MahjongTile> tiles = StringToTiles("0m0p0s");

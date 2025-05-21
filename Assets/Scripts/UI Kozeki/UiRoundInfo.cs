@@ -15,11 +15,12 @@ public class UiRoundInfo : MonoBehaviour
 
 
     public void UpdateUIInfo(MahjongRoundInfo info){
-        
+
+        MyLogger.Log("라운드 정보가 업데이트되었습니다..\n" + info.ToString());
         uiDoraTile.SetTile(info.doraTiles[0]);
         uiRoundWind.SetTile(MahjongTile.WindToTile(info.RoundWind));
         uiPlayerWind.SetTile(MahjongTile.WindToTile(info.playerWind));
-        uiGuk.text = (info.guk%4+1).ToString();
+        uiGuk.text = (info.guk % 4 + 1).ToString();
     }
 
     // Start is called before the first frame update

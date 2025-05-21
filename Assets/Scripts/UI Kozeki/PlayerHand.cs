@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Text;
 public class PlayerHand : MonoBehaviour
 {
     [SerializeField] private MahjongTileGameObject tilePrefap;
@@ -16,16 +17,20 @@ public class PlayerHand : MonoBehaviour
     public MahjongTileGameObject tileTsumo;
     public bool hasTsumoTileInHand = false;
 
-
+    DasArrInput dasArrInput;
 
 
     bool callRiichiNya = false;
-    void Start()
+    void Awake()
     {
+        
+
         tilesInHand = new MahjongTileGameObject[13];
         currentIndex = 6;
         InitialzeHand();
         UpdateHand();
+        dasArrInput = new DasArrInput();
+        MyLogger.Log("손 초기화 완료!");
     }
 
     void UpdateHand(){
@@ -63,6 +68,15 @@ public class PlayerHand : MonoBehaviour
     public void FillHand(List<MahjongTile> tiles){
         int index = 0;
         foreach(var i in tiles){
+            if (index >= tilesInHand.Length)
+            {
+                StringBuilder sb = new StringBuilder();
+                foreach(var k in tiles){
+                    sb.Append($"[{k.ToChoboFriendlyString()}]");
+                }
+                MyLogger.LogError($"손패 길이: {tiles.Count}해당 손패예요. 13개가 아닌지 확인해보세요.\n{sb.ToString()}");
+                // break;
+            }
             tilesInHand[index].SetTileImage(i);
             tilesInHand[index].SetDora(i.isDora || i.isAkaDora);
             tilesInHand[index].enabled = false;
@@ -100,16 +114,34 @@ public class PlayerHand : MonoBehaviour
 
 
 
+    int das = 133;
+    int arr = 17;
 
     
     void Update()
     {
+        // // float hInput = Input.GetAxisRaw("Horizontal");
+        // if(Input.GetKeyDown(InputPreset.left)){
+        //     // MoveHand(-1);
+        //     MoveHandToLeft();
+        // }
+        // if(Input.GetKeyDown(InputPreset.right)){
+        //     // MoveHand(1);
+        //     MoveHandToRight();
+        // }
+        // if(Input.GetKeyDown(InputPreset.discard)){
+        //     DiscardSelectedTile();
+        // }
+        // else if(Input.GetKeyDown(InputPreset.discardTsumoTile)){
+        //     DiscardTsumoTile();
+        // }
+
         // float hInput = Input.GetAxisRaw("Horizontal");
-        if(Input.GetKeyDown(InputPreset.left)){
+        if(dasArrInput.GetInput(InputPreset.left)){
             // MoveHand(-1);
             MoveHandToLeft();
         }
-        if(Input.GetKeyDown(InputPreset.right)){
+        if(dasArrInput.GetInput(InputPreset.right)){
             // MoveHand(1);
             MoveHandToRight();
         }
@@ -121,10 +153,12 @@ public class PlayerHand : MonoBehaviour
         }
 
 
-        if(Input.GetKeyDown(InputPreset.riichi)){
+        if (Input.GetKeyDown(InputPreset.riichi))
+        {
             callRiichiNya = true;
         }
-        else if(Input.GetKeyDown(InputPreset.tsumoAgari)){
+        else if (Input.GetKeyDown(InputPreset.tsumoAgari))
+        {
             OnPlayerCall(PlayerCallType.Tsumo);
         }
 
@@ -153,14 +187,19 @@ public class PlayerHand : MonoBehaviour
     public event Action<int> OnPlayerDiscard = delegate{};
     public event Action<PlayerCallType> OnPlayerCall = delegate{};
 
-    void DiscardSelectedTile(){
+    void DiscardSelectedTile()
+    {
         HideRiichiNyaButtons();
         OnPlayerDiscard(currentIndex);
-        
+        currentIndex = 6;
+        UpdateHand();
     }
-    void DiscardTsumoTile(){
+    void DiscardTsumoTile()
+    {
         HideRiichiNyaButtons();
         OnPlayerDiscard(13);
+        currentIndex = 6;
+        UpdateHand();
     }
     // public event Action OnPlayerCallRiichi = delegate{};
     // public event Action OnPlayerCallTsumoAgari = delegate{};

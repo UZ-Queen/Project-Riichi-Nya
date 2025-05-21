@@ -9,8 +9,17 @@ using UnityEngine;
 
 public class MahjongPlayer
 {
+
+    public void ManipulateHand(string code)
+    {
+        List<MahjongTile> list = MahjongTile.StringToTiles(code);
+        Hand = new List<MahjongTile>(list);
+    }
+
     public Wind Seat { get; private set; }
-    public bool IsOya{get{return Seat == Wind.Ton;}}
+
+    public WindInfo windInfo{ get; private set; }
+    public bool IsOya { get { return Seat == Wind.Ton; } }
     // public int Score { get; private set; }
     public int Score{get;private set;}
 
@@ -24,6 +33,7 @@ public class MahjongPlayer
         River = new LinkedList<MahjongTile>();
         Hand = new List<MahjongTile>();
         tsumoTile = MahjongTile.NullTile();
+        windInfo = WindInfo.NullInfo();
     }
 
     public void SetPlayerHand(List<MahjongTile> newHand)
@@ -43,8 +53,15 @@ public class MahjongPlayer
     {
         Seat = (Wind)(((int)Seat + 1)%4);
     }
+    public void UpdateWindInfo(Wind roundWind)
+    {
+        windInfo = new WindInfo(roundWind, Seat);
+ MyLogger.LogWarning($"플레이어 {windInfo.playerWind} / 라운드 {windInfo.roundWind}");
+    }
+    
 
-    public void AlterScore(int delta){
+    public void AlterScore(int delta)
+    {
         Score += delta;
     }
     // public bool IsRiichiAble{
@@ -108,15 +125,21 @@ public class MahjongPlayer
     {
         List<MahjongTile> handCopy = new List<MahjongTile>(Hand);
         handCopy.Add(targetTile);
-        winInfos = MahjongUtility.CheckWinnableHashSet(handCopy, targetTile);
+        winInfos = MahjongUtility.CheckWinnableHashSet(handCopy, targetTile, windInfo);
         return winInfos.Count > 0;
     }
-    public bool IsTsumoAble(out HashSet<MahjongWinInfo> winInfos)
+    public bool IsTsumoAble( out HashSet<MahjongWinInfo> winInfos)
     {
         return IsTsumoAble(tsumoTile, out winInfos);
     }
+    // public bool IsTsumoAble(out HashSet<MahjongWinInfo> winInfos)
+    // {
+    //     return IsTsumoAble(tsumoTile, out winInfos);
+    // }
 
-    public bool IsTenpai(){
+
+    public bool IsTenpai()
+    {
         var winInfo = MahjongUtility.FindAgariTiles(Hand);
         return winInfo.Count > 0;
 
@@ -181,10 +204,11 @@ public class MahjongRound
         doraTiles = new List<MahjongTile>();
         uradoraTiles = new List<MahjongTile>();
         kanCount = 0;
-
+        var yamatoCannon = MahjongTile.GetAllTiles().SelectMany(tile => Enumerable.Repeat(tile, 3)).ToList();
+        yamatoCannon.AddRange(MahjongTile.GetAllTiles(true));
         //패산 생성
         yama = new LinkedList<MahjongTile>
-            (Utilities.ShuffleArray(MahjongTile.GetAllTiles().SelectMany(tile => Enumerable.Repeat(tile, 4)).ToArray(), prng.Next()));
+            (Utilities.ShuffleArray(yamatoCannon.ToArray(), prng.Next()));
         originalYama = new List<MahjongTile>(yama);
 
         //린샹패
@@ -199,7 +223,8 @@ public class MahjongRound
             uradoraTiles.Add(GetTileFromYamaLast());
         }
 
-        currentRoundInfo.AddNewDoraTiles(doraTiles[0]);
+        
+        UpdateDora(0);
 
         //이후 플레이어에게 패 나눔. 이때 패는 fisrt부터 뽑아서 나눈다.
         for (int i = 0; i < 13; i++)
@@ -209,7 +234,6 @@ public class MahjongRound
         }
         player.Hand.Sort();
 
-        UpdateDora(0);
         OnRoundInfoUpdate(currentRoundInfo);
         //손패를 고쳤다고 이벤트 실행
         OnHandUpdate();
@@ -258,15 +282,20 @@ public class MahjongRound
         Tsumo();
     }
 
-    void UpdateDora(int doraIndex = 0){
-        
+    void UpdateDora(int doraIndex = 0)
+    {
+        currentRoundInfo.AddNewDoraTiles(doraTiles[doraIndex]);
+
         UpdateDoraFromList(yama, doraTiles[doraIndex]);
         UpdateDoraFromList(linshan, doraTiles[doraIndex]);
         UpdateDoraFromList(player.River, doraTiles[doraIndex]);
-        for(int i=0; i<player.Hand.Count; i++){
-            if(doraTiles[doraIndex].DoraTileID == player.Hand[i].TileID){
+        for (int i = 0; i < player.Hand.Count; i++)
+        {
+            if (doraTiles[doraIndex].DoraTileID == player.Hand[i].TileID)
+            {
                 var tmpTile = player.Hand[i];
-                tmpTile.isDora = true;
+                // tmpTile.isDora = true;
+                tmpTile.AddDora();
                 player.Hand[i] = tmpTile;
             }
         }
@@ -279,7 +308,8 @@ public class MahjongRound
         while(node != null){
             if(target.DoraTileID == node.Value.TileID){
                 var tmpTile = node.Value;
-                tmpTile.isDora = true;
+                // tmpTile.isDora = true;
+                tmpTile.AddDora();
                 node.Value = tmpTile;
             }
             node = node.Next;
@@ -350,20 +380,23 @@ public class MahjongRound
     //     MahjongRoundInfo newInfo = MahjongRoundInfo.NewRound(0, seed);
     //     return new MahjongRound(newInfo, player);
     // }
-    
+
     /// <summary>
     /// 초기화용 생성자
     /// </summary>
     /// <param name="seed"></param>
     /// <param name="player"></param>
-    private MahjongRound(int seed, out MahjongPlayer player){
+    private MahjongRound(int seed, out MahjongPlayer player)
+    {
         prng = new System.Random(seed);
         Wind playerWind = GetRandomWind();
         MahjongRoundInfo newInfo = MahjongRoundInfo.NewRound(playerWind);
         this.currentRoundInfo = newInfo;
 
         player = new MahjongPlayer(playerWind);
+        player.UpdateWindInfo(newInfo.RoundWind);
         this.player = player;
+        // player.windInfo = currentRoundInfo.windInfo;
     }
 
 
@@ -415,6 +448,7 @@ public class MahjongRound
             player.ChangeSeat(); //<-- 사실 본장 따라서 자동으로 바뀌게 하고 싶은데.. 그만두자.
         }
 
+        player.UpdateWindInfo(info.RoundWind);        
         return new MahjongRound(info, player, prng.Next());
         // ...
     }
