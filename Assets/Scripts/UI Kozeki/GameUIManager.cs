@@ -8,7 +8,7 @@ using UnityEngine;
 using System.Threading;
 using Unity.VisualScripting;
 
-public enum GameUIState { RoundInfo, Score, PlayerHand, WinInfo, RiichiTsumo }
+public enum GameUIState { RoundInfo, Score, PlayerHand, WinInfo, RiichiTsumo, Distance, Time}
 public class GameUIManager : MonoBehaviour
 {
     public static GameUIManager Instance { get; private set; }
@@ -71,7 +71,9 @@ public class GameUIManager : MonoBehaviour
         gameCanvas.SetActive(true);
         TogglePanel(GameUIState.RoundInfo);
         TogglePanel(GameUIState.PlayerHand);
-        TogglePanel(GameUIState.Score);
+        // TogglePanel(GameUIState.Score);
+        ActivePanel(GameUIState.Distance);
+        ActivePanel(GameUIState.Time);
     }
 
     private Tween currentVolatileTween = null;
