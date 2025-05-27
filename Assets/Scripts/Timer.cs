@@ -14,17 +14,27 @@ public class Timer : MonoBehaviour
     {
         RemainingTime = time;
         isRunning = true;
+        _paused = false;
     }
     public void AddTime(float time)
     {
         if (!isRunning) return;
         CheckTimerTick(-time);
     }
+    private bool _paused = false;
+    public void TaimuSutopu()
+    {
+        _paused = true;
+    }
+    public void Resume()
+    {
+        _paused = false;
+    }
 
     void Update()
     {
         if (!isRunning) return;
-
+        if (_paused) return;
         CheckTimerTick(Time.deltaTime);
 
         if (RemainingTime <= 0f)

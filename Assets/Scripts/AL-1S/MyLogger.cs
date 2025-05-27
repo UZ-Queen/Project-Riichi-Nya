@@ -1,5 +1,5 @@
 #define HIMARI
-
+#undef HIMARI
 
 using System;
 using System.Collections.Generic;
@@ -10,8 +10,8 @@ using UnityEngine;
 
 
 
-    static public class MyLogger
-    {
+static public class MyLogger
+{
         static public void Log(string log)
         {
 #if HIMARI
@@ -24,11 +24,11 @@ using UnityEngine;
             Debug.LogWarning($"[경고] [{DateTime.Now:HH:mm:ss}] : {log}");
 #endif
         }
-                static public void LogError(string log)
+        static public void LogError(string log)
         {
 #if HIMARI
             Debug.LogError($"[치명적 경고] [{DateTime.Now:HH:mm:ss}] : {log}");
 #endif
         }
-    }
+}
 

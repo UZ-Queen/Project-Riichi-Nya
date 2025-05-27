@@ -35,6 +35,12 @@ public class InputSettings
         public float ARR = 0.017f;
 }
 
+[Serializable]
+public class GeneralData
+{
+    public float highScore;
+    
+}
 
 
 [Serializable]
@@ -45,3 +51,27 @@ public class GameSettings
     public InputSettings    input    = new InputSettings();
 }
 
+
+[Serializable]
+public class PetitGameSaveData
+{
+    public float highScore;
+    public SoundSettings sound;
+    public InputSettings input;
+    public StatisticsData statistics;
+
+
+    public PetitGameSaveData()
+    {
+        highScore = 155.7f;
+        sound = new SoundSettings();
+        input = new InputSettings();
+        statistics = new StatisticsData();
+    }
+}
+
+[Serializable]
+public class StatisticsData
+{
+    
+}

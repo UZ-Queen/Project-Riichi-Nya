@@ -15,18 +15,18 @@ public class ScoreManagerDistance : MonoBehaviour, IScoreDistanceService
     [SerializeField] private float speedBoostUnit = 0.5f;
     // 부스트 감소 계수
     [SerializeField] private float boostDecayCoef = 0.0333f;
-    [SerializeField] private float minDecayCoef    = 0.01f;   // 레벨 0일 때 감쇠 계수
-    [SerializeField] private float maxDecayCoef    = 0.05f;   // 레벨 max일 때 감쇠 계수
+    [SerializeField] private float minDecayCoef = 0.01f;   // 레벨 0일 때 감쇠 계수
+    [SerializeField] private float maxDecayCoef = 0.05f;   // 레벨 max일 때 감쇠 계수
 
     // 이 단위당 부스트 레벨 1
     [SerializeField] private float boostLevelStep = 1.0f;
     // [SerializeField] private float boostDecayPerLevel = 0.007f;
 
     [SerializeField] private int boostLevelMax = 10;
-    
+
     // 이 수치를 매 프레임 누적된 거리에서 실제 거리에 더해줄 거임.
     [SerializeField] private float distanceMinUnit = 0.1f;
-
+    public float DistanceWithAccumulated => Distance + accumulatedScore;
     public int BoostLevel => Mathf.Clamp((int)(boost / boostLevelStep), 0, boostLevelMax);
     public float FinalDistance => baseSpeed + speedBoostUnit * BoostLevel;
 
@@ -50,20 +50,25 @@ public class ScoreManagerDistance : MonoBehaviour, IScoreDistanceService
         }
     }
 
+
+
     float accumulatedScore = 0;
     float boost = 0f;
-    
 
 
-    public void Initialize() {
+
+    public void Initialize()
+    {
         Distance = 0;
         accumulatedScore = 0;
         boost = 0;
+        _isGameOver = false;
     }
 
 
     void Update()
     {
+        if (_isGameOver) return;
         float dt = Time.deltaTime;
 
         DecayBoost(dt);
@@ -72,6 +77,7 @@ public class ScoreManagerDistance : MonoBehaviour, IScoreDistanceService
 
     void GetDistance(float deltaTime)
     {
+        if (_isGameOver) return;
         accumulatedScore += (FinalDistance * deltaTime);
 
 
@@ -86,6 +92,7 @@ public class ScoreManagerDistance : MonoBehaviour, IScoreDistanceService
 
     void DecayBoost(float dt)
     {
+        if (_isGameOver) return;
         float t = BoostLevel / (float)boostLevelMax;
         int beforeBoostRank = BoostLevel;
 
@@ -102,6 +109,7 @@ public class ScoreManagerDistance : MonoBehaviour, IScoreDistanceService
 
     public void GetBoostAndDistance(int score)
     {
+        if (_isGameOver) return;
         // float amount = ScoreToBoost(score);
         GetBoost(ScoreToBoost(score));
         GetInstantDistance(ScoreToDistance(score));
@@ -112,6 +120,8 @@ public class ScoreManagerDistance : MonoBehaviour, IScoreDistanceService
 
     public void GetBoost(float amount)
     {
+        if (_isGameOver) return;
+
         int beforeBoostRank = BoostLevel;
         boost += amount;
         if (BoostLevel != beforeBoostRank)
@@ -121,10 +131,14 @@ public class ScoreManagerDistance : MonoBehaviour, IScoreDistanceService
     }
     public void GetInstantDistance(float amount)
     {
+        if (_isGameOver) return;
         accumulatedScore += amount;
     }
 
-
-
-
+    public void OnGameOver()
+    {
+        _isGameOver = true;
+        // throw new NotImplementedException();
+    }
+    bool _isGameOver = false;
 }

@@ -10,8 +10,10 @@ public interface IScoreDistanceService
     public int BoostLevel { get; }
     public float Distance { get; }
     public float InterpolatedBoostValue { get; }
+    public float DistanceWithAccumulated{ get; }
 
     //쓰게 메서드, 차후 IScoreDistanceWriter로 분리하자!
+    public void OnGameOver();
     public void GetBoostAndDistance(int score);
     public void GetBoost(float amount);
     public void GetInstantDistance(float amount);

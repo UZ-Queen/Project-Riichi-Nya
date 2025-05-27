@@ -77,6 +77,7 @@ public class UiScoreDistanceInfo : MonoBehaviour, IScoreDistanceConsumer
     //색깔을 바꾸고 스케일 값을 초기화한다.
     void OnBoostRankAlters(int newRank)
     {
+        
         currentLevelGauge.localScale = new Vector3(1, 1, 1);
         ChangeColor(newRank);
         uiLevelIndicator.text = newRank.ToString();

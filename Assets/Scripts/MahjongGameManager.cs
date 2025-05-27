@@ -1,5 +1,5 @@
 #define IROHA
-// #undef IROHA
+#undef IROHA
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,6 +9,10 @@ using UnityEngine;
 public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
 {
     public static MahjongGameManager Instance { get; private set; }
+
+    public event Action<GameState> OnStateChange = delegate { };
+    public event Action OnGameOver = delegate { };
+    public event Action OnGameStart = delegate { };
 
     [Header("엑스트라 유틸리티 2")]
     [SerializeField] private ScoreManagerDistance scoreManagerDistance;
@@ -22,6 +26,7 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
 
     [SerializeField] private UiWinInfo uiWininfo;
     [SerializeField] private UiRemainingTimeIndicator uiRemainingTime;
+    [SerializeField] private UiGameOver uiGameOver;
 
     [Header("몰름보")]
     public GameState currentState = GameState.Initializing;
@@ -30,11 +35,11 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
     MahjongRound currentRound;
     MahjongPlayer player;
     int seed = 1557;
-
+    // bool _isGameOver = false;
 
     public void StartNewGame()
     {
-        
+        OnGameStart();
         currentState = GameState.Initializing;
         GameUIManager.Instance.Initialize();
         
@@ -61,10 +66,56 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
         uiScoreDistanceInfo.Construct(svcScoreManager);
         //타이머 생성 후..
         redstoneClock.StartTimer(180);
+        redstoneClock.OnTimerFinished += HandleGameOver;
         uiRemainingTime?.Construct(redstoneClock);
         
         currentState = GameState.PlayerTurn;
         // currentRound = new MahjongRound(prng.Next(), player);
+    }
+
+    void StartNextRound(MahjongRound nextRound){
+        currentState = GameState.Processing;
+        DetachRoundEvent();
+        currentRound = nextRound;
+        AttachRoundEvent();
+        currentRound.GenerateYama();
+        
+        currentState = GameState.PlayerTurn;
+
+        
+    }
+
+    
+    void HandleGameOver()
+    {
+        redstoneClock.OnTimerFinished -= HandleGameOver;
+        redstoneClock.TaimuSutopu();
+        DetachRoundEvent();
+        
+        currentState = GameState.GameOver;
+        svcScoreManager.OnGameOver();
+
+        float yourScore = svcScoreManager.DistanceWithAccumulated;
+
+        var saveData = SettingsManager.Load();
+        uiGameOver.Initialize(yourScore, saveData.highScore);
+        // uiGameOver.gameObject.SetActive(true);
+        if (yourScore > saveData.highScore)
+        {
+            saveData.highScore = yourScore;
+        }
+        SettingsManager.Save(saveData);
+        
+
+        OnGameOver(); // UI 요소가 켜질 거임
+
+    }
+
+
+    void ChangeState(GameState state)
+    {
+        currentState = state;
+        OnStateChange(state);
     }
 
     void AttachRoundEvent()
@@ -115,17 +166,10 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
         // GameUIManager.Instance.DeactivePanel(GameUIState.RiichiTsumo);
         currentState = GameState.PlayerTurn;
     }
-    void StartNextRound(MahjongRound nextRound){
-        currentState = GameState.Processing;
-        DetachRoundEvent();
-        currentRound = nextRound;
-        AttachRoundEvent();
-        currentRound.GenerateYama();
-        
-        currentState = GameState.PlayerTurn;
 
-        
-    }
+
+
+
 
     /// <summary>
     /// 플레이어의 점수에서 변경된 수치를 받습니다. 
@@ -206,11 +250,13 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
     {
 #if IROHA
         GetScore();
+        CheatHandler();
 #endif
     }
 
     void CallHandler(PlayerCallType callType)
     {
+        if (currentState != GameState.PlayerTurn) return;
         switch (callType)
         {
             case PlayerCallType.Riichi:
@@ -228,6 +274,9 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
             case PlayerCallType.Kan:
                 break;
             case PlayerCallType.Nukidora:
+                break;
+            case PlayerCallType.Forfeit:
+                HandleGameOver();
                 break;
             default:
                 break;
@@ -281,4 +330,14 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
         }
 #endif
     }
+
+#if IROHA
+    public void CheatHandler()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha0))
+        {
+            HandleGameOver();
+        }
+    }
+#endif
 }
