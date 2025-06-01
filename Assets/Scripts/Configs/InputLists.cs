@@ -4,7 +4,6 @@ using UnityEngine;
 
 public static class InputLists
 {
-
     public const string MoveLeft = "MoveLeft";
     public const string MoveRight = "MoveRight";
     public const string Tsumogiri = "Tsumogiri";

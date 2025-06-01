@@ -56,7 +56,7 @@ Material:
     - _Some_Value: 1.57
     - _Speed: 0.41
     m_Colors:
-    - _Light_Color: {r: 0.7924528, g: 0.7924528, b: 0.7924528, a: 1}
+    - _Light_Color: {r: 1, g: 1, b: 1, a: 1}
     - _Ratio: {r: 0, g: 0, b: 0, a: 0}
     - _TEst: {r: 1, g: 1, b: 1, a: 0}
     - _offset: {r: 1, g: 0, b: 0, a: 0}

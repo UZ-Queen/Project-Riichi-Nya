@@ -41,14 +41,14 @@ public enum Yaku
     public class YakuInfo
     {
         public enum Condition { MenzenOnly, DecreaseHanWhenFuro, FuroOK};
-
         public readonly Yaku yaku;
         public int Han { get; }
         Condition condition { get; }
         public SortedSet<Yaku> lowerYakues; // 이 역이 성립한다면, 다음 역들은 무시된다
                                             //public string FlavorText { get; }
-                                            //예: 치또이는 량페코를 무시한다. 량페코도 치또이를 무시한다.
+                                            //예: 량페코는 이페코를 무시한다.
                                             // 청일색은 혼일색을 무시한다.
+                                            // 혼노두는 챤타를 무시한다.
 
         public static readonly Dictionary<Yaku, YakuInfo> YakuData = new Dictionary<Yaku, YakuInfo>
         {

@@ -21,7 +21,7 @@ public enum UniqueName
 
 public enum PlayerCallType
 {
-    Riichi, Tsumo, Ron, Chii, Pon, Kan, Nukidora
+    Riichi, Tsumo, Ron, Chii, Pon, Kan, Nukidora, Forfeit
 }
 
 public enum GameState{

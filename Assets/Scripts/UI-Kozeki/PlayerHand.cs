@@ -21,6 +21,16 @@ public class PlayerHand : MonoBehaviour
 
 
     bool callRiichiNya = false;
+    bool _isGameOver = false;
+    void HandleGameOver()
+    {
+        _isGameOver = true;
+    }
+    void HandleGameStart()
+    {
+        _isGameOver = false;
+        currentIndex = 6;
+    }
     void Awake()
     {
         
@@ -32,7 +42,11 @@ public class PlayerHand : MonoBehaviour
         dasArrInput = new DasArrInput();
         MyLogger.Log("손 초기화 완료!");
     }
-
+    void Start()
+    {
+        MahjongGameManager.Instance.OnGameOver += HandleGameOver;
+        MahjongGameManager.Instance.OnGameOver += HandleGameStart;
+    }
     void UpdateHand(){
         for(int i=0; i<13; i++){
             bool doSelect = false;
@@ -117,7 +131,7 @@ public class PlayerHand : MonoBehaviour
     int das = 133;
     int arr = 17;
 
-    
+
     void Update()
     {
         // // float hInput = Input.GetAxisRaw("Horizontal");
@@ -137,18 +151,22 @@ public class PlayerHand : MonoBehaviour
         // }
 
         // float hInput = Input.GetAxisRaw("Horizontal");
-        if(dasArrInput.GetInput(InputPreset.left)){
+        if (dasArrInput.GetInput(InputPreset.left))
+        {
             // MoveHand(-1);
             MoveHandToLeft();
         }
-        if(dasArrInput.GetInput(InputPreset.right)){
+        if (dasArrInput.GetInput(InputPreset.right))
+        {
             // MoveHand(1);
             MoveHandToRight();
         }
-        if(Input.GetKeyDown(InputPreset.discard)){
+        if (Input.GetKeyDown(InputPreset.discard))
+        {
             DiscardSelectedTile();
         }
-        else if(Input.GetKeyDown(InputPreset.discardTsumoTile)){
+        else if (Input.GetKeyDown(InputPreset.discardTsumoTile))
+        {
             DiscardTsumoTile();
         }
 
@@ -160,6 +178,10 @@ public class PlayerHand : MonoBehaviour
         else if (Input.GetKeyDown(InputPreset.tsumoAgari))
         {
             OnPlayerCall(PlayerCallType.Tsumo);
+        }
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            OnPlayerCall(PlayerCallType.Forfeit);
         }
 
         

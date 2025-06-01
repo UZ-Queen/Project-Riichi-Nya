@@ -8,7 +8,7 @@ using System;
 using System.IO;
 public class MahjongTileDataGenerator : EditorWindow
 {
-    [MenuItem("Datsui_Mahjong/MahjongTileDataGenerator")]
+    [MenuItem("Tools/MahjongTileDataGenerator")]
     private static void ShowWindow()
     {
         var window = GetWindow<MahjongTileDataGenerator>();
@@ -62,7 +62,6 @@ public class MahjongTileDataGenerator : EditorWindow
             MahjongTileDatabase.MahjongTileData newData = new MahjongTileDatabase.MahjongTileData(tile);
             if (File.Exists(Path.Combine(Application.dataPath, spriteRelativeDirectory, fileName)))
             {
-                
                 string realImagePath = Path.Combine("Assets",spriteRelativeDirectory,fileName);
                 Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(realImagePath);
                 // MyLogger.Log($"이미지 로드 시도 중.. {spriteRelativeDirectory + '/' + fileName}");

@@ -9,7 +9,7 @@ using Unity.VisualScripting;
 
 public enum UIState
 {
-    MOLLU, Loading, MainMenu, PlayMode, PlayModeConstrains, Config, Statistics, Back,
+    MOLLU, Loading, MainMenu, PlayMode, PlayModeConstrains, Config, Statistics, Back, ERROR,
     InGame,
 }
 
@@ -117,6 +117,41 @@ public partial class UiManager : MonoBehaviour
 
 
     }
+    Tween _currentVolatileTween;
+    public void VolatileTurnOn(UIState state, float volatileTime)
+    {
+        if (_currentVolatileTween != null && _currentVolatileTween.IsActive())
+            _currentVolatileTween.Kill();
+
+
+        // GamePanelEntry panel;
+        if (!panelMap.TryGetValue(state, out var panel))
+            return;
+
+        panel.rect.gameObject.SetActive(true);
+        panel.rect
+        .SlideInAndFade(panel.group, panel.appearFromWhere.ToVector2(), distance, duration, ease);
+        _currentVolatileTween = DOVirtual.DelayedCall(volatileTime, () =>
+        {
+            _currentVolatileTween = null;
+            DeactivePanel(state);
+        });
+    }
+
+    public void DeactivePanel(UIState state)
+    {
+        if (!panelMap.TryGetValue(state, out var panel))
+            return;
+        panel.rect.SlideOutAndFade(panel.group, panel.appearFromWhere.ToVector2(), distance, duration, ease)
+        .OnComplete(() =>
+                {
+                    panel.rect.anchoredPosition = panel.originalPosition;
+                    panel.rect.gameObject.SetActive(false);
+                });
+    }
+
+
+
     void ToInGameState()
     {
         // historyStack.Push(currentState);
@@ -171,8 +206,12 @@ public partial class UiManager : MonoBehaviour
     }
     public void OnBBagguButton()
     {
-        if (historyStack.Count == 0) return;
 
+        if (historyStack.Count == 0) return;
+        if (currentState == UIState.InGame)
+        {
+            GameUIManager.Instance.HideAllPanels();
+        }
         ShowPanel(historyStack.Pop(), false);
     }
 
@@ -181,7 +220,10 @@ public partial class UiManager : MonoBehaviour
 
         ToInGameState();
     }
-
+    public void ShowError()
+    {
+        VolatileTurnOn(UIState.ERROR, 2);
+    }
 }
 
 

@@ -100,7 +100,6 @@ public class MahjongWin : MahjongHand
     public MahjongWin(List<MahjongBlock> heads, MahjongTile agariTile, bool isTsumo)
     {
         this.heads = new List<MahjongBlock>(heads);
-
         this.bodies = new List<MahjongBlock>();
         this.waitingTile = agariTile;
         GenerateAvailableWaitingBlocks();
@@ -209,7 +208,6 @@ public struct MahjongHandInfo
     [Obsolete("아직 미구현된 역들이 많아요! 여기서 조건을 수정해주세요.")]
     public MahjongHandInfo(MahjongWin winHand)
     {
-        //throw new NotImplementedException();
         isHandMenzen = winHand.IsHandConcealed;
         isWinTileTsumo = winHand.isWaitingTileTsumo;
         winTile = winHand.waitingTile;

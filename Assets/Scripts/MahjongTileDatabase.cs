@@ -68,7 +68,7 @@ public class MahjongTileDatabase : ScriptableObject
     public void SetTileAssets(Dictionary<string, MahjongTileData> newTileAssets){
         tileAssets = newTileAssets;
     }
-        public void SetTileAssets(List<MahjongTileData> newTileAssets){
+    public void SetTileAssets(List<MahjongTileData> newTileAssets){
         greatAssets = newTileAssets;
     }
     #endif

@@ -8,7 +8,11 @@ using UnityEngine;
 using System.Threading;
 using Unity.VisualScripting;
 
-public enum GameUIState { RoundInfo, Score, PlayerHand, WinInfo, RiichiTsumo }
+public enum GameUIState
+{
+    RoundInfo, Score, PlayerHand, WinInfo, RiichiTsumo, Distance, Time
+    , GameOver, BBaggu
+}
 public class GameUIManager : MonoBehaviour
 {
     public static GameUIManager Instance { get; private set; }
@@ -66,12 +70,34 @@ public class GameUIManager : MonoBehaviour
         // TogglePanel();
     }
 
+    void Start()
+    {
+        MahjongGameManager.Instance.OnGameOver += HandleGameOver;
+    }
+
     public void Initialize()
     {
         gameCanvas.SetActive(true);
         TogglePanel(GameUIState.RoundInfo);
         TogglePanel(GameUIState.PlayerHand);
-        TogglePanel(GameUIState.Score);
+        // TogglePanel(GameUIState.Score);
+        ActivePanel(GameUIState.Distance);
+        ActivePanel(GameUIState.Time);
+
+    }
+
+    void HandleGameOver()
+    {
+        ActivePanel(GameUIState.GameOver);
+        ActivePanel(GameUIState.BBaggu);
+    }
+
+    public void HideAllPanels()
+    {
+        foreach (var i in panels)
+        {
+            DeactivePanel(i.state);
+        }
     }
 
     private Tween currentVolatileTween = null;
