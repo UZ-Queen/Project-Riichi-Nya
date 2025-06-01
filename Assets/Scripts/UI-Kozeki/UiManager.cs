@@ -118,31 +118,37 @@ public partial class UiManager : MonoBehaviour
 
     }
     Tween _currentVolatileTween;
+    Tween _currentTween;
+    Tween _deactivingTween;
     public void VolatileTurnOn(UIState state, float volatileTime)
     {
         if (_currentVolatileTween != null && _currentVolatileTween.IsActive())
+        {
             _currentVolatileTween.Kill();
+            _currentTween.Kill();
+            _deactivingTween.Kill();
+        }
 
 
         // GamePanelEntry panel;
         if (!panelMap.TryGetValue(state, out var panel))
             return;
-
+        panel.rect.anchoredPosition = panel.originalPosition;
         panel.rect.gameObject.SetActive(true);
-        panel.rect
-        .SlideInAndFade(panel.group, panel.appearFromWhere.ToVector2(), distance, duration, ease);
+        _currentTween = panel.rect
+        .SlideInAndFade(panel.group, panel.appearFromWhere.ToVector2(), distance, duration, ease).OnComplete(() => _currentTween = null);
         _currentVolatileTween = DOVirtual.DelayedCall(volatileTime, () =>
         {
             _currentVolatileTween = null;
-            DeactivePanel(state);
+            _deactivingTween = DeactivePanel(state);
         });
     }
 
-    public void DeactivePanel(UIState state)
+    public Tween DeactivePanel(UIState state)
     {
         if (!panelMap.TryGetValue(state, out var panel))
-            return;
-        panel.rect.SlideOutAndFade(panel.group, panel.appearFromWhere.ToVector2(), distance, duration, ease)
+            return null;
+        return panel.rect.SlideOutAndFade(panel.group, panel.appearFromWhere.ToVector2(), distance, duration, ease)
         .OnComplete(() =>
                 {
                     panel.rect.anchoredPosition = panel.originalPosition;

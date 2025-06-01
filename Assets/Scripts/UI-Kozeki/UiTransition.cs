@@ -46,7 +46,7 @@ public static class UITransitions
         rt.anchoredPosition = original + offset;
         cg.alpha = 0f;
 
-        
+
         var seq = DOTween.Sequence();
 
         seq.Join(rt.DOAnchorPos(original, duration)
@@ -56,4 +56,32 @@ public static class UITransitions
 
         return seq;
     }
+    
+    
+    //     public static Sequence SlideInAndFade(this RectTransform rt,
+    //                                   CanvasGroup cg,
+    //                                   Vector2 originalPos,
+    //                                   Vector2 direction,
+    //                                   float distance,
+    //                                   float duration,
+    //                                   Ease ease = Ease.InOutCubic)
+    // {
+    //     Vector2 offset = direction.normalized * distance;
+
+    //     Vector2 original = rt.anchoredPosition;
+
+    //     // 시작 위치로 강제 이동(화면 밖)
+    //     rt.anchoredPosition = original + offset;
+    //     cg.alpha = 0f;
+
+
+    //     var seq = DOTween.Sequence();
+
+    //     seq.Join(rt.DOAnchorPos(original, duration)
+    //                .SetEase(ease));
+    //     seq.Join(cg.DOFade(1f, duration)
+    //                .SetEase(ease));
+
+    //     return seq;
+    // }
 }
