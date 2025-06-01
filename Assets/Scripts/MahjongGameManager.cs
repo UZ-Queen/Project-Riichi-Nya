@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 
 public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
@@ -47,6 +48,7 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
 #if IROHA
         prng = new System.Random(seed);
 #endif
+        Profiler.BeginSample("마작라운드 생성");
         currentRound = MahjongRound.NewRound(prng.Next(), out player);
         //라운드 생성 후 꼭 패산을 수동으로 생성해야 라운드가 시작한다.
         AttachRoundEvent();
@@ -57,7 +59,7 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
         player.ManipulateHand("1z1z1z2z2z2z3z3z3z4z4z4z2p");
         #endif
         UpdatePlayerHand();
-
+        Profiler.EndSample();
 
         //스코어매니저 생성
         Construct(scoreManagerDistance);
@@ -145,6 +147,7 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
     }
     void LetPlayerTsumoTile(TsumoInfo tsumoInfo)
     {
+        
         playerHand.TsumoTile(tsumoInfo);
         if (uiCallHolder.UpdateInfo(tsumoInfo.isRiichiAble, tsumoInfo.isTsumoAble))
         { 

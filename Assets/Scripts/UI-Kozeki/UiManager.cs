@@ -136,8 +136,6 @@ public partial class UiManager : MonoBehaviour
             _currentVolatileTween = null;
             DeactivePanel(state);
         });
-
-
     }
 
     public void DeactivePanel(UIState state)
