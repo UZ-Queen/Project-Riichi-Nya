@@ -12,7 +12,7 @@ public class DasArrInput
     private Dictionary<KeyCode, float> _nextRepeat = new Dictionary<KeyCode, float>();
 
     /// <summary>
-    /// key에 대해 “눌렀다면 즉시 true, 누르고 있으면 DAS 이후 ARR 간격으로 true 반환
+    /// 어떤 키가 눌렀다면 즉시 true, 누르고 있으면 DAS 이후 ARR 간격으로 true 반환
     /// </summary>
     public bool GetInput(KeyCode key)
     {

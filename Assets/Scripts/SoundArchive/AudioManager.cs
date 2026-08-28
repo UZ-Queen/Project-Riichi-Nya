@@ -14,7 +14,10 @@ public class AudioManager : MonoBehaviour
     [SerializeField] public float musicVolume { get; private set; } = 0.6f;
     [SerializeField] public float sfxVolume { get; private set; } = 1.0f;
 
-
+    public void SomeMethod()
+    {
+        
+    }
 
     SoundArchive soundArchive;
     private Transform audioListener;
@@ -31,12 +34,12 @@ public class AudioManager : MonoBehaviour
         if (instance == null)
         {
             instance = this;
-            DontDestroyOnLoad(gameObject);
         }
         else
         {
             Destroy(gameObject);
         }
+        // Do Something
         soundArchive = GetComponent<SoundArchive>();
 
         audioListener = FindObjectOfType<AudioListener>().transform;
