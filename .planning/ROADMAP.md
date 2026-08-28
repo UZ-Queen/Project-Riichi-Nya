@@ -6,13 +6,13 @@
 
 ## Phases
 
-- [ ] **Phase 1: 실행 기준선과 검증 경로** - 기존 솔로 플레이를 재현하고 테스트·Windows 빌드·재시작 검증이 가능한 기준선을 만든다.
-- [ ] **Phase 2: 정확한 공유 규칙 코어** - 두 모드가 같은 결정론적 패산·화료·역·부·지불 결과를 사용하게 한다.
-- [ ] **Phase 3: 독립 솔로 모드와 완전한 리치** - 기존 180초 점수·부스트·거리 경험을 보존하면서 리치 전 과정을 완성한다.
-- [ ] **Phase 4: 헤드리스 고정 기본 반장전** - UI 없이도 한 사람과 쯔모기리 더미 세 좌석의 동1국~남4국 대국을 끝까지 검증한다.
-- [ ] **Phase 5: Unity 반장전 통합** - 검증된 반장전을 기존 Unity 실행 흐름에서 선택하고 플레이하고 결과까지 확인할 수 있게 한다.
-- [ ] **Phase 6: 사람 후로·열린 손·모든 깡 (조건부 Stage 3)** - 치·퐁·대명깡·암깡·가깡과 관련 규칙을 완전한 단일 묶음으로 제공한다.
-- [ ] **Phase 7: 포트폴리오 릴리스와 증거** - Stage 2를 확정 출하하고 Stage 3 공개 여부와 모든 주장을 태그·테스트·빌드·시연으로 증명한다.
+- [ ] **Phase 1: Executable Baseline — 실행 기준선과 검증 경로** - 기존 솔로 플레이를 재현하고 테스트·Windows 빌드·재시작 검증이 가능한 기준선을 만든다.
+- [ ] **Phase 2: Shared Rules Core — 정확한 공유 규칙 코어** - 두 모드가 같은 결정론적 패산·화료·역·부·지불 결과를 사용하게 한다.
+- [ ] **Phase 3: Solo Preservation and Riichi — 독립 솔로 모드와 완전한 리치** - 기존 180초 점수·부스트·거리 경험을 보존하면서 리치 전 과정을 완성한다.
+- [ ] **Phase 4: Headless Hanchan — 헤드리스 고정 기본 반장전** - UI 없이도 한 사람과 쯔모기리 더미 세 좌석의 동1국~남4국 대국을 끝까지 검증한다.
+- [ ] **Phase 5: Unity Hanchan Integration — Unity 반장전 통합** - 검증된 반장전을 기존 Unity 실행 흐름에서 선택하고 플레이하고 결과까지 확인할 수 있게 한다.
+- [ ] **Phase 6: Complete Calls and Kans — 사람 후로·열린 손·모든 깡 (조건부 Stage 3)** - 치·퐁·대명깡·암깡·가깡과 관련 규칙을 완전한 단일 묶음으로 제공한다.
+- [ ] **Phase 7: Portfolio Release Evidence — 포트폴리오 릴리스와 증거** - Stage 2를 확정 출하하고 Stage 3 공개 여부와 모든 주장을 태그·테스트·빌드·시연으로 증명한다.
 
 ## Release Policy
 
@@ -23,7 +23,7 @@
 
 ## Phase Details
 
-### Phase 1: 실행 기준선과 검증 경로
+### Phase 1: Executable Baseline — 실행 기준선과 검증 경로
 **Goal**: 플레이어와 개발자가 기존 솔로 경험을 반복 재현하고 안전하게 변경 여부를 판별할 수 있다.
 **Mode:** mvp
 **Depends on**: Nothing (first phase)
@@ -35,7 +35,7 @@
   4. 개발자는 Unity Test Framework의 프로젝트 EditMode 테스트를 배치 실행하고 결과 파일을 확인할 수 있다.
 **Plans**: TBD
 
-### Phase 2: 정확한 공유 규칙 코어
+### Phase 2: Shared Rules Core — 정확한 공유 규칙 코어
 **Goal**: 솔로와 4인 모드가 동일하고 정확하며 자동 검증되는 마작 규칙 결과를 사용한다.
 **Mode:** mvp
 **Depends on**: Phase 1
@@ -48,7 +48,7 @@
   5. 교정된 규칙을 사용하는 솔로 모드가 기존 실행 경로에서 계속 시작되고 Windows Player가 빌드·실행된다.
 **Plans**: TBD
 
-### Phase 3: 독립 솔로 모드와 완전한 리치
+### Phase 3: Solo Preservation and Riichi — 독립 솔로 모드와 완전한 리치
 **Goal**: 플레이어가 기존의 시간제 조패 게임을 독립된 완전한 플레이 경험으로 계속 즐길 수 있다.
 **Mode:** mvp
 **Depends on**: Phase 2
@@ -61,7 +61,7 @@
   5. 리치 화료에는 조건에 맞는 일발·우라도라가 반영되고, 유국 리치봉은 다음 손으로 이월되지만 시간 종료 거리 보상에는 포함되지 않는다.
 **Plans**: TBD
 
-### Phase 4: 헤드리스 고정 기본 반장전
+### Phase 4: Headless Hanchan — 헤드리스 고정 기본 반장전
 **Goal**: 개발자가 UI와 무관하게 정확한 한 사람 대 세 쯔모기리 더미 반장전을 동1국부터 고정된 남4국 종료까지 실행하고 검증할 수 있다.
 **Mode:** mvp
 **Depends on**: Phase 3
@@ -74,7 +74,7 @@
   5. 론·쯔모·본장·리치봉·0~4명 텐파이 노텐벌부 정산은 총점을 보존하고, 친 연장/회전과 동1국~남4국 진행 후 남4국 친이 넘어갈 때 미회수 리치봉을 별도 결과로 남기며 종료된다.
 **Plans**: TBD
 
-### Phase 5: Unity 반장전 통합
+### Phase 5: Unity Hanchan Integration — Unity 반장전 통합
 **Goal**: 플레이어가 기존 Unity 실행 화면에서 솔로와 고정 기본 반장전을 선택하고, 반장전을 이해하며 끝까지 플레이할 수 있다.
 **Mode:** mvp
 **Depends on**: Phase 4
@@ -88,7 +88,7 @@
 **Plans**: TBD
 **UI hint**: yes
 
-### Phase 6: 사람 후로·열린 손·모든 깡 (조건부 Stage 3)
+### Phase 6: Complete Calls and Kans — 사람 후로·열린 손·모든 깡 (조건부 Stage 3)
 **Goal**: Stage 2가 완전히 안정된 경우에만 플레이어가 치·퐁과 세 종류의 깡을 열린 손 점수까지 포함해 완전하게 사용할 수 있다.
 **Mode:** mvp
 **Depends on**: Phase 5 quality gate
@@ -104,7 +104,7 @@
 
 **Stage 3 gate:** Phase 1-5의 자동 테스트, PlayMode 수명주기, Windows 빌드가 모두 통과하고 위 다섯 기준 전체를 구현·검증할 수 있을 때만 이 Phase를 출하 대상으로 진행한다. 하나라도 충족하지 못하면 `CALL-01`~`CALL-18` 전체를 v2로 이동하고 Phase 7은 Phase 5의 Stage 2 빌드에서 계속한다.
 
-### Phase 7: 포트폴리오 릴리스와 증거
+### Phase 7: Portfolio Release Evidence — 포트폴리오 릴리스와 증거
 **Goal**: 사용자가 실제 제출 태그의 Windows 빌드를 실행하고, 포트폴리오의 모든 개선 주장을 재현 가능한 증거로 확인할 수 있다.
 **Mode:** mvp
 **Depends on**: Phase 5; Phase 6 only when the Stage 3 gate passes
@@ -123,10 +123,10 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. 실행 기준선과 검증 경로 | 0/TBD | Not started | - |
-| 2. 정확한 공유 규칙 코어 | 0/TBD | Not started | - |
-| 3. 독립 솔로 모드와 완전한 리치 | 0/TBD | Not started | - |
-| 4. 헤드리스 고정 기본 반장전 | 0/TBD | Not started | - |
-| 5. Unity 반장전 통합 | 0/TBD | Not started | - |
-| 6. 사람 후로·열린 손·모든 깡 | 0/TBD | Conditional | - |
-| 7. 포트폴리오 릴리스와 증거 | 0/TBD | Not started | - |
+| 1. Executable Baseline — 실행 기준선과 검증 경로 | 0/TBD | Not started | - |
+| 2. Shared Rules Core — 정확한 공유 규칙 코어 | 0/TBD | Not started | - |
+| 3. Solo Preservation and Riichi — 독립 솔로 모드와 완전한 리치 | 0/TBD | Not started | - |
+| 4. Headless Hanchan — 헤드리스 고정 기본 반장전 | 0/TBD | Not started | - |
+| 5. Unity Hanchan Integration — Unity 반장전 통합 | 0/TBD | Not started | - |
+| 6. Complete Calls and Kans — 사람 후로·열린 손·모든 깡 | 0/TBD | Conditional | - |
+| 7. Portfolio Release Evidence — 포트폴리오 릴리스와 증거 | 0/TBD | Not started | - |

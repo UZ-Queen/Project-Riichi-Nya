@@ -16,11 +16,11 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-28)
 
 **Core value:** 기존 마작 로직을 정확하고 테스트 가능한 공유 규칙 엔진으로 개선하고, 독립 솔로와 고정 4인 반장전에서 재사용되는 과정을 증거로 보여준다.
-**Current focus:** Phase 1 — 실행 기준선과 검증 경로
+**Current focus:** Phase 1 — Executable Baseline / 실행 기준선과 검증 경로
 
 ## Current Position
 
-Phase: 1 of 7 (실행 기준선과 검증 경로)
+Phase: 1 of 7 (Executable Baseline / 실행 기준선과 검증 경로)
 Plan: 0 of TBD in current phase
 Status: Ready to plan
 Last activity: 2026-08-28 — 82개 v1 요구사항을 7개 Vertical MVP Phase에 매핑했다.
