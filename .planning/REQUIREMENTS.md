@@ -159,11 +159,93 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
+| BASE-01 | Phase 1 | Pending |
+| BASE-02 | Phase 1 | Pending |
+| BASE-03 | Phase 1 | Pending |
+| BASE-04 | Phase 1 | Pending |
+| BASE-05 | Phase 1 | Pending |
+| RULE-01 | Phase 2 | Pending |
+| RULE-02 | Phase 2 | Pending |
+| RULE-03 | Phase 2 | Pending |
+| RULE-04 | Phase 2 | Pending |
+| RULE-05 | Phase 2 | Pending |
+| RULE-06 | Phase 2 | Pending |
+| RULE-07 | Phase 2 | Pending |
+| RULE-08 | Phase 2 | Pending |
+| RULE-09 | Phase 2 | Pending |
+| RULE-10 | Phase 2 | Pending |
+| SOLO-01 | Phase 3 | Pending |
+| SOLO-02 | Phase 3 | Pending |
+| SOLO-03 | Phase 3 | Pending |
+| SOLO-04 | Phase 3 | Pending |
+| SOLO-05 | Phase 3 | Pending |
+| SOLO-06 | Phase 3 | Pending |
+| SOLO-07 | Phase 3 | Pending |
+| SOLO-08 | Phase 3 | Pending |
+| SOLO-09 | Phase 3 | Pending |
+| TABL-01 | Phase 4 | Pending |
+| TABL-02 | Phase 4 | Pending |
+| TABL-03 | Phase 4 | Pending |
+| TABL-04 | Phase 4 | Pending |
+| TABL-05 | Phase 4 | Pending |
+| DUMY-01 | Phase 4 | Pending |
+| DUMY-02 | Phase 4 | Pending |
+| DUMY-03 | Phase 4 | Pending |
+| DUMY-04 | Phase 4 | Pending |
+| DUMY-05 | Phase 5 | Pending |
+| HUMN-01 | Phase 4 | Pending |
+| HUMN-02 | Phase 4 | Pending |
+| HUMN-03 | Phase 4 | Pending |
+| HUMN-04 | Phase 4 | Pending |
+| HUMN-05 | Phase 4 | Pending |
+| HUMN-06 | Phase 4 | Pending |
+| HUMN-07 | Phase 4 | Pending |
+| MTCH-01 | Phase 4 | Pending |
+| MTCH-02 | Phase 4 | Pending |
+| MTCH-03 | Phase 4 | Pending |
+| MTCH-04 | Phase 4 | Pending |
+| MTCH-05 | Phase 4 | Pending |
+| MTCH-06 | Phase 4 | Pending |
+| MTCH-07 | Phase 4 | Pending |
+| MTCH-08 | Phase 4 | Pending |
+| MTCH-09 | Phase 4 | Pending |
+| MTCH-10 | Phase 4 | Pending |
+| HUI-01 | Phase 5 | Pending |
+| HUI-02 | Phase 5 | Pending |
+| HUI-03 | Phase 5 | Pending |
+| HUI-04 | Phase 5 | Pending |
+| HUI-05 | Phase 5 | Pending |
+| CALL-01 | Phase 6 | Pending |
+| CALL-02 | Phase 6 | Pending |
+| CALL-03 | Phase 6 | Pending |
+| CALL-04 | Phase 6 | Pending |
+| CALL-05 | Phase 6 | Pending |
+| CALL-06 | Phase 6 | Pending |
+| CALL-07 | Phase 6 | Pending |
+| CALL-08 | Phase 6 | Pending |
+| CALL-09 | Phase 6 | Pending |
+| CALL-10 | Phase 6 | Pending |
+| CALL-11 | Phase 6 | Pending |
+| CALL-12 | Phase 6 | Pending |
+| CALL-13 | Phase 6 | Pending |
+| CALL-14 | Phase 6 | Pending |
+| CALL-15 | Phase 6 | Pending |
+| CALL-16 | Phase 6 | Pending |
+| CALL-17 | Phase 6 | Pending |
+| CALL-18 | Phase 6 | Pending |
+| PORT-01 | Phase 7 | Pending |
+| PORT-02 | Phase 7 | Pending |
+| PORT-03 | Phase 7 | Pending |
+| PORT-04 | Phase 7 | Pending |
+| PORT-05 | Phase 7 | Pending |
+| PORT-06 | Phase 7 | Pending |
+| PORT-07 | Phase 7 | Pending |
+| PORT-08 | Phase 7 | Pending |
 
 **Coverage:**
 - v1 requirements: 82 total
-- Mapped to phases: 0
-- Unmapped: 82 ⚠️
+- Mapped to phases: 82
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-08-28*
