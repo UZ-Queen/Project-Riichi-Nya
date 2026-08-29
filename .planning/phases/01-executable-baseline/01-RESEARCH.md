@@ -56,7 +56,7 @@ Phase 1은 새 게임 모드나 리플레이 시스템을 만드는 일이 아�
 
 가장 큰 계획 리스크는 기능 부재보다 수명주기와 빌드 경계다. `StartNewGame`은 실게임에서 새 `System.Random()`을 만들고, `PlayerHand`·`UiScoreDistanceInfo`·`UiRemainingTimeIndicator`의 구독 및 `GameUIManager.Initialize`가 반복 실행 시 누적되거나 토글 상태를 뒤집을 수 있다. 또한 `Assets/Scripts/AL-1S/MahjongTileAndBlock.cs`와 `Assets/Scripts/UI-Kozeki/UiScoreDistanceInfo.cs`가 런타임 파일에서 `UnityEditor` namespace를 import한다. `[VERIFIED: Assets/Scripts/MahjongGameManager.cs:41-74; Assets/Scripts/UI-Kozeki/PlayerHand.cs:45-49; Assets/Scripts/UI-Kozeki/UiScoreDistanceInfo.cs:48-75; Assets/Scripts/UI-Kozeki/UiRemainingTimeIndicator.cs:16-27; Assets/Scripts/AL-1S/MahjongTileAndBlock.cs:1-10]`
 
-**Primary recommendation:** 기존 `Assembly-CSharp`를 Phase 1에서 대규모로 분리하지 말고 `Assets/Tests/EditMode`의 Editor-only test assembly, `Assets/Editor`의 최소 Windows build entry point, 명시적 session reset/forfeit reason 경계를 추가한 뒤 `Temp/phase1` 및 `Builds/phase1`에 raw 결과를 남기고 한 개의 사람이 읽는 Markdown 요약만 커밋한다. `[ASSUMED]` 이 선택은 Phase 2의 순수 도메인 assembly 이동을 앞당기지 않으면서 BASE 요구를 가장 적은 파일로 충족한다.
+**Primary recommendation (corrected after Unity assembly-boundary verification):** 기존 `Assembly-CSharp`를 Phase 1에서 분리하지 말고, 두 test fixture를 `Assets/Editor/Tests`에 두어 predefined `Assembly-CSharp-Editor`로 컴파일한다. Phase 1은 새 `.asmdef`/`.asmref`를 추가하지 않고 `b18320e`의 기존 descriptor path/blob을 그대로 보존한다. `Assets/Editor`의 Windows build entry point과 명시적 session reset/forfeit reason 경계를 추가한 뒤 `Temp/phase1` 및 `Builds/phase1`에 raw 결과를 남기고 한 개의 사람이 읽는 Markdown 요약만 커밋한다. 이 경로는 asmdef assembly가 predefined `Assembly-CSharp`를 참조할 수 없는 Unity 2022.3 제약을 지킨다.
 
 ## Architectural Responsibility Map
 
@@ -101,7 +101,7 @@ Phase 1은 새 게임 모드나 리플레이 시스템을 만드는 일이 아�
 
 | Instead of | Could Use | Tradeoff |
 |------------|-----------|----------|
-| 기존 `Assembly-CSharp`를 참조하는 Phase 1 test asmdef | Phase 1에서 pure domain asmdef로 전면 이동 | `[ASSUMED]` pure assembly는 장기 경계에는 좋지만 `_Structs.cs`·`MahjongRound.cs`의 Unity 의존까지 동시에 재배치하여 baseline 범위를 키운다. 순수 domain boundary는 Phase 2로 남긴다. |
+| `Assets/Editor/Tests` predefined `Assembly-CSharp-Editor` 경로 | Phase 1에서 pure domain asmdef로 전면 이동 | Predefined Editor assembly는 현재 runtime `Assembly-CSharp`를 사용할 수 있지만, 새 asmdef test assembly에서 predefined assembly를 참조하는 방식은 유효하지 않다. Pure domain boundary는 Phase 2로 남긴다. |
 | 작은 고정 action trace | replay UI / 범용 기록 시스템 | locked D-01에 어긋나고 evidence 관리 표면적만 늘린다. `[VERIFIED: 01-CONTEXT.md:16-20]` |
 | `Assets/Editor` build method | 수동 Editor 창 클릭만 기록 | 정확한 실행 명령과 재현성이 약해진다. `[ASSUMED]` CLI entry point가 D-10/D-11 evidence를 단순화한다. |
 
@@ -142,11 +142,10 @@ The domain trace enters through the existing public round API; the GUI path ente
 ```text
 Assets/
 ├── Editor/
-│   └── Phase1Build.cs                 # Windows BuildPipeline entry point
-├── Tests/
-│   └── EditMode/
-│       ├── ProjectRiichiNya.EditModeTests.asmdef
-│       └── MahjongRoundTraceTests.cs  # seeded trace only; no score golden tests
+│   ├── Phase1Build.cs                 # Windows BuildPipeline entry point
+│   └── Tests/
+│       ├── MahjongRoundTraceTests.cs  # predefined Assembly-CSharp-Editor
+│       └── SoloSessionLifecycleTests.cs
 └── Scripts/
     ├── MahjongGameManager.cs          # session/forfeit/reset integration
     ├── Timer.cs
@@ -158,7 +157,7 @@ Builds/phase1/                          # Player output, ignored
 .planning/phases/01-executable-baseline/01-BASELINE.md  # one committed summary
 ```
 
-`Assets/Editor` is already the project’s editor-only location, `Assets/Tests` and test assemblies are absent, and `/Builds/` plus `/Temp/` are ignored by the existing `.gitignore`. `[VERIFIED: .planning/codebase/STRUCTURE.md:1-18; .planning/codebase/TESTING.md:1-24; .gitignore:5-11]` The exact summary filename is discretionary; the path above is a plan recommendation. `[ASSUMED]`
+`Assets/Editor` is already the project's editor-only location, and fixtures below `Assets/Editor/Tests` compile through predefined `Assembly-CSharp-Editor`. `/Builds/` and `/Temp/` are ignored by the existing `.gitignore`. `[VERIFIED: .planning/codebase/STRUCTURE.md:1-18; .planning/codebase/TESTING.md:1-24; .gitignore:5-11]` The exact summary filename is discretionary; the path above is a plan recommendation. `[ASSUMED]`
 
 ### Pattern 1: Seed + accepted-action trace
 
@@ -189,23 +188,9 @@ The names and values in this skeleton are existing public API/fields: `NewRound(
 
 Run the same trace twice for the same seed and compare compact summaries. A failure should identify first action index plus expected/actual summary; success prints seed, action count, next-round first draw, and `PASS`. Do not assert yaku/han/fu/payment values here. `[VERIFIED: 01-CONTEXT.md:16-20]`
 
-### Pattern 2: Editor-only test assembly
+### Pattern 2: Predefined Editor test boundary (supersedes the asmdef proposal)
 
-Use one assembly definition below `Assets/Tests/EditMode` with `includePlatforms: ["Editor"]`, `optionalUnityReferences: ["TestAssemblies"]`, and a reference to the existing `Assembly-CSharp`. `[CITED: https://docs.unity3d.com/Manual/test-framework/workflow-create-test-assembly.html; https://docs.unity3d.com/Manual/test-framework/edit-mode-vs-play-mode-tests.html]` Keep the test synchronous `[Test]`; the trace consumes a synchronous domain API and does not need PlayMode frame waits. `[VERIFIED: Assets/Scripts/AL-1S/MahjongRound.cs:248-283; .planning/codebase/TESTING.md:1-24]`
-
-```json
-{
-  "name": "ProjectRiichiNya.EditModeTests",
-  "references": ["Assembly-CSharp"],
-  "optionalUnityReferences": ["TestAssemblies"],
-  "includePlatforms": ["Editor"],
-  "excludePlatforms": []
-}
-```
-
-`Assembly-CSharp` is the current generated runtime assembly, not a hand-maintained `.csproj`; do not add or commit generated solution/project files. `[VERIFIED: AGENTS.md:81; .planning/codebase/ARCHITECTURE.md:293-303]`
-
-`ProjectRiichiNya.EditModeTests`, `Assembly-CSharp`, `TestAssemblies`, and the `Editor` platform entry in the JSON are proposed assembly configuration values for this phase; the first, second, and third are not currently present in the repository. Confirm them in Unity’s Assembly Definition inspector before implementation. `[ASSUMED]`
+Place synchronous NUnit fixtures directly under `Assets/Editor/Tests`. Unity compiles them into predefined `Assembly-CSharp-Editor`, which is ordered after and can use the existing runtime `Assembly-CSharp`. Do not add a Phase 1 `.asmdef` or `.asmref`: an asmdef-defined test assembly cannot reference the predefined runtime assembly used by this project. The first Unity command proves discovery by requiring the three exact trace cases once; later gates require the lifecycle fixture and final 3 + 13 case set. Enumerate every descriptor below `Assets` and compare both path and blob hash to `b18320e` so an alternate filename or modification cannot bypass the contract. Keep the tests synchronous `[Test]`; the trace consumes a synchronous domain API and does not need PlayMode frame waits. `[VERIFIED: Assets/Editor/MahjongTileDataGenerator.cs; Assets/Scripts/AL-1S/MahjongRound.cs:248-283; .planning/codebase/TESTING.md:1-24]`
 
 ### Pattern 3: Idempotent session lifecycle
 
@@ -347,7 +332,7 @@ Keep success concise and preserve raw output paths only as links/locations; on f
 
 | Old approach | Current Phase 1 approach | Impact |
 |--------------|--------------------------|--------|
-| no first-party test assembly or test files | Editor-only EditMode asmdef + NUnit trace + XML output | BASE-04 becomes a repeatable command, not a manual assertion. `[VERIFIED: .planning/codebase/TESTING.md:1-24]` |
+| no first-party test files | `Assets/Editor/Tests` predefined Editor fixtures + NUnit trace/lifecycle XML output, with no new descriptor | BASE-04 becomes repeatable while preserving the legacy assembly graph. `[VERIFIED: .planning/codebase/TESTING.md:1-24]` |
 | direct Esc -> `HandleGameOver` | pending confirmation -> reasoned finalization | protects D-08/D-09 and separates forfeit from timeout. `[VERIFIED: Assets/Scripts/MahjongGameManager.cs:260-283; 01-CONTEXT.md:22-27]` |
 | `TogglePanel` used as session initialization | explicit panel reset before each session | avoids second-start inversion. `[VERIFIED: Assets/Scripts/UI-Kozeki/GameUIManager.cs:78-87]` |
 | runtime imports `UnityEditor` | Editor-only build code under `Assets/Editor`, clean runtime imports | Player compilation can enforce the boundary. `[VERIFIED: Assets/Scripts/AL-1S/MahjongTileAndBlock.cs:9; Assets/Scripts/UI-Kozeki/UiScoreDistanceInfo.cs:9; CITED: https://docs.unity3d.com/Manual/SpecialFolders.html]` |
@@ -359,16 +344,16 @@ Keep success concise and preserve raw output paths only as links/locations; on f
 
 | # | Claim | Section | Risk if Wrong |
 |---|-------|---------|---------------|
-| A1 | Phase 1 test assembly should reference the existing generated `Assembly-CSharp`; pure domain assembly extraction remains Phase 2. `[ASSUMED]` | Standard Stack / Architecture | A broad assembly migration could become necessary and consume the 9-day window. |
-| A2 | A small confirmation panel/label can be integrated into the existing game canvas and result flow without a new scene. `[ASSUMED]` | Pattern 4 | Scene serialization/UI work may exceed the baseline slice; planner must inspect the actual canvas before locking files. |
+| A1 | `[RESOLVED]` Phase 1 tests use predefined `Assembly-CSharp-Editor` under `Assets/Editor/Tests`; Phase 1 adds no asmdef/asmref, and pure domain extraction remains Phase 2. | Standard Stack / Architecture | Descriptor additions or runtime assembly migration would violate the verified Unity boundary and expand scope. |
+| A2 | A small confirmation panel/label can be integrated into the existing game canvas and result flow without a new scene. `[RESOLVED]` The scene inspection found no confirmation object, confirmed game canvas fileID `1225745916`, panel states 0-7, and existing GameOver fileID `1563807079`; the plan adds one `ForfeitConfirmation` child and one GameOver reason label. | Pattern 4 | Fixed by the concrete `01-03` scene assignment; no generic modal or new scene is needed. |
 | A3 | A fixed action cap is only a hang guard and should not be asserted as the correct wall length before Phase 2. `[ASSUMED]` | Pattern 1 / Pitfall 2 | A test could accidentally freeze the known 139-tile/biased-wall behavior as a permanent contract. |
 | A4 | The host’s Unity licensing IPC failure is an environment blocker, not a source-code result. `[ASSUMED]` | Environment Availability | Automated EditMode/build verification cannot be marked PASS until licensing is repaired or a licensed Unity host is used. |
 
-## Open Questions
+## Open Questions — RESOLVED
 
-1. **Which exact confirmation UI object should be reused or added?** Existing `GameUIManager` maps states 0-7 and the scene has a `GameOver` panel, but no source-level forfeit confirmation contract was found. `[VERIFIED: Assets/Scenes/SampleScene.unity:2148-2189; Assets/Scripts/UI-Kozeki/GameUIManager.cs:11-15]` Planner should inspect the live canvas and choose one minimal serialized panel/label; do not add a generic pause/settings system. `[VERIFIED: 01-CONTEXT.md:92-97]`
-2. **What compact trace fields become the stable comparison contract?** Seed, accepted action count, initial/next-round first tsumo, hand/river counts, and round transition are available; exact state serialization is discretionary. `[VERIFIED: Assets/Scripts/AL-1S/_Structs.cs:195-210; Assets/Scripts/AL-1S/MahjongRound.cs:156-166; 01-CONTEXT.md:35-38]`
-3. **Can this host execute Unity?** Unity and Windows support are installed, but the bounded batch attempt ended before project load because LicensingClient IPC timed out and Unity exited with return code 199; no XML was produced. `[VERIFIED: Temp/phase1-baseline-editmode.log local output 2026-08-29]` Repair license/IPC or delegate the test/build to a licensed host before claiming BASE-03/04/05 PASS. `[ASSUMED]`
+1. **Confirmation UI target — RESOLVED:** `Assets/Scenes/SampleScene.unity` has no confirmation object. Add exactly one initially inactive `ForfeitConfirmation` child under the existing game canvas fileID `1225745916`, append it to `GameUIManager.panels`, and wire its two buttons to `MahjongGameManager.ConfirmForfeit` / `CancelForfeit`. Extend existing GameOver fileID `1563807079` with one reason label. No generic pause/settings/modal system or new scene is introduced. `[VERIFIED: Assets/Scenes/SampleScene.unity:2148-2189,7906-7976; repository-wide confirmation search 2026-08-29]`
+2. **Compact trace contract — RESOLVED:** compare exactly seed; accepted action index/count; ordered hand tile codes; current drawn/discarded tile code; river count; a first-round/next-round transition marker; and the next round's first drawn tile. Report the first differing action with expected/actual records. Exclude `remainingTsumoCount`, wall length, yaku, han, fu, and payment values so D-04 defects are not frozen as correct. `[VERIFIED: Assets/Scripts/AL-1S/MahjongRound.cs:19-35,156-166,248-283; Assets/Scripts/AL-1S/_Structs.cs:195-210]`
+3. **Unity execution gate — RESOLVED:** the host has Unity and Windows support, but the observed LicensingClient IPC timeout/exit 199 is a hard environment gate. Execution remains `BLOCKED` until LicensingClient is repaired/activated or the same commands run on a licensed Windows host. Missing XML, BuildReport, executable launch, or D-13 observation can never be converted to PASS. `[VERIFIED: Temp/phase1-baseline-editmode.log local output 2026-08-29; 01-CONTEXT.md D-12/D-13]`
 
 ## Environment Availability
 
@@ -392,20 +377,20 @@ Keep success concise and preserve raw output paths only as links/locations; on f
 | Property | Value |
 |----------|-------|
 | Framework | Unity Test Framework `1.1.33` + NUnit extension `1.0.6` |
-| Config file | `Assets/Tests/EditMode/ProjectRiichiNya.EditModeTests.asmdef` (Wave 0) |
+| Config file | 없음 — `Assets/Editor/Tests/*.cs`가 predefined `Assembly-CSharp-Editor`로 컴파일되며 Phase 1은 `.asmdef`/`.asmref`를 추가하지 않음 |
 | Quick run command | `Unity.exe -batchmode -nographics -projectPath . -runTests -testPlatform EditMode -testResults Temp/phase1/editmode.xml -quit -logFile Temp/phase1/editmode.log` |
 | Full suite command | same command after all Phase 1 EditMode tests are present; inspect XML and exit code |
 
-The EditMode assembly must target Editor and include the Unity test assembly references; the test runner command writes XML to the requested path. `[CITED: https://docs.unity3d.com/Manual/test-framework/edit-mode-vs-play-mode-tests.html; https://docs.unity3d.com/Manual/test-framework/run-tests-from-command-line.html]`
+The reserved `Assets/Editor` path supplies the predefined Editor compilation boundary; exact XML discovery proves that NUnit/Test Framework recognized the fixtures. The test runner command writes XML to the requested path. `[CITED: https://docs.unity3d.com/Manual/test-framework/edit-mode-vs-play-mode-tests.html; https://docs.unity3d.com/Manual/test-framework/run-tests-from-command-line.html]`
 
 ### Phase Requirements -> Test Map
 
 | Req ID | Behavior | Test Type | Automated Command | File Exists? |
 |--------|----------|-----------|-------------------|-------------|
 | BASE-01 | `portfolio-baseline` annotated tag resolves to `b18320ec1d9d647900d2173049819bab6bd47175` and remains a tag object | shell/manual Git check | `git cat-file -t refs/tags/portfolio-baseline; git rev-parse refs/tags/portfolio-baseline^{}` | ❌ Wave 0 / tag operation |
-| BASE-02 | same seed + same tsumogiri actions produce same trace through exhaustive draw and next-round first draw | EditMode `[Test]` | Unity EditMode quick command above | ❌ `Assets/Tests/EditMode/MahjongRoundTraceTests.cs` Wave 0 |
+| BASE-02 | same seed + same tsumogiri actions produce same trace through exhaustive draw and next-round first draw | EditMode `[Test]` | Unity EditMode quick command above | ❌ `Assets/Editor/Tests/MahjongRoundTraceTests.cs` Wave 0 |
 | BASE-03 | runtime source has no `UnityEditor` import and StandaloneWindows64 build succeeds | static scan + Player build | `rg -n --glob '*.cs' 'using UnityEditor(\.|;)' Assets/Scripts` (must return none); then Editor build CLI | ❌ `Assets/Editor/Phase1Build.cs` Wave 0 |
-| BASE-04 | project EditMode suite runs and produces XML | batch integration | Unity EditMode quick command above | ❌ asmdef/tests Wave 0 |
+| BASE-04 | project EditMode suite runs and produces XML | batch integration | Unity EditMode quick command above | ❌ predefined Editor fixtures Wave 0 |
 | BASE-05 | start -> Esc confirm -> cancel/confirm -> result/menu -> restart in one Player process with no duplicate events/stale panels | Windows Player smoke (manual, optionally PlayMode helper) | built Player + D-13 checklist | ❌ Wave 0 evidence and scene/UI changes |
 
 BASE-05 remains manual because it requires a real Windows Player, keyboard/UI interaction, and visual state confirmation; do not replace it with a scene-only test and call the GUI path proven. `[VERIFIED: 01-CONTEXT.md:29-33]`
@@ -418,8 +403,9 @@ BASE-05 remains manual because it requires a real Windows Player, keyboard/UI in
 
 ### Wave 0 Gaps
 
-- [ ] `Assets/Tests/EditMode/ProjectRiichiNya.EditModeTests.asmdef` — Editor-only test assembly referencing `Assembly-CSharp` and TestAssemblies.
-- [ ] `Assets/Tests/EditMode/MahjongRoundTraceTests.cs` — BASE-02 bounded seeded trace and first-mismatch output.
+- [ ] `Assets/Editor/Tests/MahjongRoundTraceTests.cs` — predefined `Assembly-CSharp-Editor` BASE-02 bounded seeded trace and first-mismatch output.
+- [ ] `Assets/Editor/Tests/SoloSessionLifecycleTests.cs` — same predefined Editor boundary, beginning with two tracer cases and extending to thirteen.
+- [ ] Enumerate all `Assets/**/*.asmdef` and `Assets/**/*.asmref`; require path/blob equality with `b18320e` so Phase 1 adds no descriptor and preserves any baseline descriptor.
 - [ ] `Assets/Editor/Phase1Build.cs` — deterministic scene list, StandaloneWindows64 target, ignored output path, BuildReport failure propagation.
 - [ ] `Assets/Scripts/MahjongGameManager.cs`, `PlayerHand.cs`, `UiScoreDistanceInfo.cs`, `UiRemainingTimeIndicator.cs`, `GameUIManager.cs`, `UiGameOver.cs` — minimal forfeit reason, input gate, reset and symmetric subscription edits.
 - [ ] `.planning/phases/01-executable-baseline/01-BASELINE.md` — one committed before/after evidence summary.

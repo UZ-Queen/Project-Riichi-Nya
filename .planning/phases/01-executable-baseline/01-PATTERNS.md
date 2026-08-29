@@ -1,8 +1,8 @@
 # Phase 1: Executable Baseline - Pattern Map
 
 **Mapped:** 2026-08-29
-**Files analyzed:** 15 new/modified files
-**Analogs found:** 13 / 15
+**Files analyzed:** 14 new/modified files
+**Analogs found:** 12 / 14
 
 ## Scope Guard
 
@@ -19,10 +19,9 @@ Phase 1 should reuse the current single-scene application, `MahjongRound` public
 | New/Modified File | Role | Data Flow | Closest Analog | Match Quality |
 |---|---|---|---|---|
 | `Assets/Editor/Phase1Build.cs` | utility | batch, file-I/O | `Assets/Editor/MahjongTileDataGenerator.cs` | role-match |
-| `Assets/Tests/EditMode/ProjectRiichiNya.EditModeTests.asmdef` | config | batch | none | no analog |
-| `Assets/Tests/EditMode/MahjongRoundTraceTests.cs` | test | event-driven, batch | none; exercise `Assets/Scripts/AL-1S/MahjongRound.cs` | no analog |
+| `Assets/Editor/Tests/MahjongRoundTraceTests.cs` | test | event-driven, batch | `Assets/Editor/MahjongTileDataGenerator.cs` for predefined Editor placement; exercises `Assets/Scripts/AL-1S/MahjongRound.cs` | role-match |
+| `Assets/Editor/Tests/SoloSessionLifecycleTests.cs` | test | event-driven, batch | same predefined Editor placement and repository NUnit shape | role-match |
 | `Assets/Scripts/GameEndReason.cs` | model | event-driven | `Assets/Scripts/AL-1S/_Enums_Ecchi_Nun_Mari.cs` | role-match |
-| `Assets/Scripts/AL-1S/_Enums_Ecchi_Nun_Mari.cs` | model | event-driven | same file's `GameState` / `PlayerCallType` | exact |
 | `Assets/Scripts/MahjongGameManager.cs` | controller | event-driven, request-response | same file's session/event coordinator | exact |
 | `Assets/Scripts/UI-Kozeki/PlayerHand.cs` | component | event-driven | same file's input-to-intent path | exact |
 | `Assets/Scripts/UI-Kozeki/GameUIManager.cs` | controller | event-driven | same file's enum-to-panel map | exact |
@@ -80,27 +79,15 @@ For the non-interactive build, hard-code `Assets/Scenes/SampleScene.unity` and `
 
 ---
 
-### `Assets/Tests/EditMode/ProjectRiichiNya.EditModeTests.asmdef` (config, batch)
+### `Assets/Editor/Tests/` predefined Editor test boundary (config, batch)
 
-**Analog:** None in the repository.
+**Analog:** `Assets/Editor/MahjongTileDataGenerator.cs` proves that this legacy project already compiles Editor-only sources into the predefined `Assembly-CSharp-Editor` assembly.
 
-Use the exact minimal configuration researched for Unity Test Framework 1.1.33:
-
-```json
-{
-  "name": "ProjectRiichiNya.EditModeTests",
-  "references": ["Assembly-CSharp"],
-  "optionalUnityReferences": ["TestAssemblies"],
-  "includePlatforms": ["Editor"],
-  "excludePlatforms": []
-}
-```
-
-Confirm the reference names in Unity's Assembly Definition inspector during implementation. Do not move runtime code into a new domain assembly in Phase 1.
+Place both Phase 1 fixtures directly under `Assets/Editor/Tests/`. Phase 1 adds no `.asmdef` or `.asmref`, and it preserves every descriptor path/blob already present at `b18320e`: Unity asmdef assemblies cannot reference the predefined `Assembly-CSharp`, while predefined `Assembly-CSharp-Editor` is compiled after and can use the runtime types in `Assembly-CSharp`. The first test command is a compile/discovery gate, not an assumption: it must produce XML containing each of the three exact trace cases once, otherwise execution halts. The final full-suite gate similarly requires all 3 trace and 13 lifecycle cases. Do not move runtime code into a new domain assembly in Phase 1.
 
 ---
 
-### `Assets/Tests/EditMode/MahjongRoundTraceTests.cs` (test, event-driven/batch)
+### `Assets/Editor/Tests/MahjongRoundTraceTests.cs` (test, event-driven/batch)
 
 **Analog:** No project-authored test exists. Use the repository's documented NUnit shape and the real round API.
 
@@ -188,11 +175,11 @@ Copy the simple global enum style, but follow the project convention that a new 
 
 ---
 
-### `Assets/Scripts/AL-1S/_Enums_Ecchi_Nun_Mari.cs` (model, event-driven)
+### Existing `GameState.Processing` plus private pending-forfeit discriminator (model, event-driven)
 
-**Analog:** The existing `GameState` definition at lines 27-29.
+**Analog:** `Assets/Scripts/AL-1S/_Enums_Ecchi_Nun_Mari.cs:27-29` already defines `GameState.Processing`, and `MahjongGameManager` already uses it for next-round transition, discard, and tsumo processing.
 
-Add only the pending-confirmation state needed to block gameplay input while leaving the timer running. Preserve `PlayerCallType.Forfeit` as the input intent at lines 22-25. Do not add a second UI-owned state machine.
+Keep `Processing` as the shared non-input state, preserve `PlayerCallType.Forfeit` as the existing input intent, and add one private manager-owned pending-forfeit flag to disambiguate the confirmation from round transition/discard/tsumo work. A PlayerTurn Esc sets the flag and enters Processing; a second Esc cancels only while the flag is true. Esc received during other Processing work is ignored. Keep timer ownership in `MahjongGameManager`; no enum edit or second UI-owned state machine is needed.
 
 ---
 
@@ -284,7 +271,7 @@ void CallHandler(PlayerCallType callType)
 }
 ```
 
-Replace only the direct `HandleGameOver()` call with entry into the confirmation state. Confirmation, cancellation, second `Esc`, and timer expiry should all route back to this owner. Finalization must be idempotent; timeout wins if it races confirmation. Pass `GameEndReason` to one finalization method, skip high-score mutation for `Forfeit`, and retain current distance for the result presenter.
+Replace only the direct `HandleGameOver()` call with entry into the confirmation state. Confirmation, cancellation, second `Esc`, and timer expiry should all route back to this owner. The private pending-forfeit flag determines whether an Esc in Processing cancels a confirmation; Processing without that flag ignores Esc. Finalization must be idempotent; timeout wins if it races confirmation. Pass `GameEndReason` to one finalization method, skip high-score mutation for `Forfeit`, and retain current distance for the result presenter.
 
 ---
 
@@ -565,7 +552,7 @@ Add one initially inactive confirmation panel under the existing game canvas, wi
 - No checked-in PowerShell, batch, CI, or package script wraps these commands.
 ````
 
-Keep one short before/after document containing: annotated tag and baseline commit, target commit, Unity version, exact EditMode/build commands, test count/result, seed and accepted-action summary, build result/path, GUI checklist result, and raw local artifact paths. Record licensing or visual-verification failures as failures/blockers, never as PASS.
+Keep one short before/after document containing: annotated tag and baseline commit, target commit, Unity version, exact EditMode/build commands, test count/result, seed and accepted-action summary, build result/path, GUI checklist result, and raw local artifact paths. Record licensing or visual-verification failures as failures/blockers before validation; only an explicitly APPROVED checkpoint with GUI PASS may complete its plan, and every other result must exit nonzero until the same path is repaired and re-observed.
 
 Use ignored `Temp/phase1/` for XML/log/BuildReport and `Builds/phase1/` for the Player. `.gitignore:5-10` already covers these roots; do not add another evidence-output directory or commit raw outputs.
 
@@ -644,8 +631,8 @@ Success is no matches, followed by an actual `StandaloneWindows64` build.
 
 | File | Role | Data Flow | Reason / Planner Source |
 |---|---|---|---|
-| `Assets/Tests/EditMode/ProjectRiichiNya.EditModeTests.asmdef` | config | batch | No `.asmdef` exists under `Assets/`; use `01-RESEARCH.md:192-208` and verify in Unity Inspector. |
-| `Assets/Tests/EditMode/MahjongRoundTraceTests.cs` | test | event-driven, batch | No project-authored tests exist; use `.planning/codebase/TESTING.md:40-63` for NUnit shape and `MahjongRound.cs:156-166,195-283,389-489` for the real API. |
+| `Assets/Editor/Tests/MahjongRoundTraceTests.cs` | test | event-driven, batch | No project-authored test exists; use the predefined Editor placement above, `.planning/codebase/TESTING.md:40-63` for NUnit shape, and `MahjongRound.cs:156-166,195-283,389-489` for the real API. |
+| `Assets/Editor/Tests/SoloSessionLifecycleTests.cs` | test | event-driven, batch | No lifecycle-test analog exists; reuse the same predefined Editor boundary and verify exact discovery from XML. |
 
 `Assets/Editor/Phase1Build.cs` has an Editor-role analog but no same-flow build analog. Use the installed Unity `BuildPipeline`/`BuildReport` pattern from `01-RESEARCH.md:309-327`, not custom process or file-copy code.
 

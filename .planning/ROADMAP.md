@@ -33,7 +33,15 @@
   2. 플레이어는 같은 실행 세션에서 솔로 게임을 시작하고 정상 종료 또는 포기한 뒤 다시 시작해도 이전 상태나 이벤트가 중복되지 않는다.
   3. Windows Player가 런타임 `UnityEditor` 참조 없이 컴파일되고 실행되어 대표 솔로 경로를 시작할 수 있다.
   4. 개발자는 Unity Test Framework의 프로젝트 EditMode 테스트를 배치 실행하고 결과 파일을 확인할 수 있다.
-**Plans**: TBD
+**Plans**: 3 plans
+**Wave 1**
+- [ ] 01-01-PLAN.md — 고정 시드 trace, 포기·재시작 walking skeleton, Windows Player gate
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [ ] 01-02-PLAN.md — lifecycle race·구독·입력·재시작 회귀 검증 확장
+
+**Wave 3** *(blocked on Wave 2 completion)*
+- [ ] 01-03-PLAN.md — 실제 Windows Player GUI와 동일 프로세스 재시작 최종 검증
 
 ### Phase 2: Shared Rules Core — 정확한 공유 규칙 코어
 **Goal**: 솔로와 4인 모드가 동일하고 정확하며 자동 검증되는 마작 규칙 결과를 사용한다.
