@@ -12,6 +12,17 @@ public class SoundArchive : MonoBehaviour
     void Awake()
     {
         foreach(AudioGroup audioGroup in audioGroups){
+            if (audioGroup == null || string.IsNullOrWhiteSpace(audioGroup.groupName))
+            {
+                continue;
+            }
+
+            if (audioArchive.ContainsKey(audioGroup.groupName))
+            {
+                Debug.LogWarning($"중복된 사운드 그룹을 건너뜁니다: {audioGroup.groupName}");
+                continue;
+            }
+
             audioArchive.Add(audioGroup.groupName, audioGroup.clips);
         }
     }
