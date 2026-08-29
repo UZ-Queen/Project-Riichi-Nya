@@ -1,0 +1,116 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-08-29T08:49:24.709Z",
+  "phase": "01",
+  "phase_name": "Executable Baseline — 실행 기준선과 검증 경로",
+  "phase_dir": ".planning/phases/01-executable-baseline",
+  "plan": 0,
+  "task": 0,
+  "total_tasks": 0,
+  "status": "paused",
+  "completed_tasks": [
+    {
+      "id": 1,
+      "name": "Phase 1 context, research, validation strategy, and pattern map",
+      "status": "done",
+      "commit": "60fe303"
+    },
+    {
+      "id": 2,
+      "name": "Draft three executable plans and walking skeleton",
+      "status": "done_unverified",
+      "commit": null
+    },
+    {
+      "id": 3,
+      "name": "Run planner/checker revision loop",
+      "status": "done_with_open_issues",
+      "progress": "Three automatic revisions completed. Final checker reports 3 BLOCKER and 3 WARNING issues."
+    }
+  ],
+  "remaining_tasks": [
+    {
+      "id": 4,
+      "name": "Repair the final checker issues in PLAN/PATTERNS/RESEARCH/VALIDATION",
+      "status": "not_started"
+    },
+    {
+      "id": 5,
+      "name": "Run a fresh gsd-plan-checker and obtain VERIFICATION PASSED",
+      "status": "not_started"
+    },
+    {
+      "id": 6,
+      "name": "Run requirements and decision coverage gates, update STATE/ROADMAP, and commit final planning artifacts",
+      "status": "not_started"
+    }
+  ],
+  "blockers": [
+    {
+      "description": "Phase 1 plan verification has not passed: 3 BLOCKER and 3 WARNING findings remain.",
+      "type": "technical",
+      "workaround": "Resume in a fresh context, make one targeted planning repair pass, then run a fresh plan-checker. Do not execute the phase before it passes."
+    },
+    {
+      "description": "The final evidence validator is fail-open for some live Git, Unity, XML, BuildReport, PID, and GUI state relationships.",
+      "type": "technical",
+      "workaround": "Reuse the complete 01-01-T3 live-source checks in 01-03-T3, extend them to the full 16-case suite, and validate every automated status independently of GUI status."
+    },
+    {
+      "description": "Scene wiring verification currently checks YAML strings rather than exact object, panel-map, and persistent callback structure.",
+      "type": "technical",
+      "workaround": "Extend the Editor UI test to load SampleScene.unity and assert one ForfeitConfirmation entry plus exact ConfirmForfeit/CancelForfeit persistent targets and methods."
+    },
+    {
+      "description": "Unity LicensingClient IPC timed out during research, so later EditMode/build/Player verification cannot be called PASS on this host until repaired or run on a licensed host.",
+      "type": "external",
+      "workaround": "Keep execution status BLOCKED/NOT OBSERVED until licensing is working; never infer PASS from files alone."
+    }
+  ],
+  "async_jobs": [],
+  "human_actions_pending": [
+    {
+      "action": "Repair Unity LicensingClient IPC or provide a licensed Windows Unity host before execution verification.",
+      "context": "Research batch run exited before project load; this does not block plan repair but blocks BASE-03 through BASE-05 execution PASS.",
+      "blocking": false
+    },
+    {
+      "action": "Approve or reject the D-13 Windows Player same-process lifecycle checkpoint during execute-phase.",
+      "context": "GUI PASS requires observed build, launch, solo start, Esc forfeit, result, menu return, and restart in one process.",
+      "blocking": false
+    }
+  ],
+  "decisions": [
+    {
+      "decision": "Pause with option 3 and resume planning in a fresh context.",
+      "rationale": "The current context is saturated and the automatic three-revision plan-checker loop ended with open findings.",
+      "phase": "01"
+    },
+    {
+      "decision": "Do not begin implementation until gsd-plan-checker returns VERIFICATION PASSED and coverage gates pass.",
+      "rationale": "Current plans contain fail-open verification paths and stale task mappings.",
+      "phase": "01"
+    },
+    {
+      "decision": "Use predefined Assembly-CSharp-Editor tests under Assets/Editor/Tests and do not add a Phase 1 asmdef/asmref that attempts to reference Assembly-CSharp.",
+      "rationale": "Unity 2022.3 asmdef assemblies cannot reference predefined Assembly-CSharp; broad runtime asmdef migration is outside Phase 1.",
+      "phase": "01"
+    },
+    {
+      "decision": "Keep three tracer-first plans in waves 1 through 3 unless the fresh checker proves a smaller safe split.",
+      "rationale": "01-01 establishes the minimum D-13 vertical path; 01-02 hardens lifecycle/UI behavior; 01-03 reruns the full suite and seals evidence after human verification.",
+      "phase": "01"
+    }
+  ],
+  "uncommitted_files": [
+    ".planning/phases/01-executable-baseline/01-01-PLAN.md",
+    ".planning/phases/01-executable-baseline/01-02-PLAN.md",
+    ".planning/phases/01-executable-baseline/01-03-PLAN.md",
+    ".planning/phases/01-executable-baseline/01-SKELETON.md",
+    ".planning/phases/01-executable-baseline/01-PATTERNS.md",
+    ".planning/phases/01-executable-baseline/01-RESEARCH.md",
+    ".planning/phases/01-executable-baseline/01-VALIDATION.md"
+  ],
+  "next_action": "Run $gsd-resume-work, acknowledge the blocking constraints, read the final checker findings in .continue-here.md, repair only those six findings, then run a fresh gsd-plan-checker. Do not execute Phase 1 yet.",
+  "context_notes": "Planning only; no source implementation was performed. Research, validation, and pattern mapping were committed earlier. Planner subagents repeatedly wrote files but failed to return completion markers after roughly ten minutes; files were recovered from disk and checked. The final plan checker remains authoritative."
+}
