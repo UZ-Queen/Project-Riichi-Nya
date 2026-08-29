@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using UnityEditor.Rendering;
 
 
 public struct MahjongBlock : IComparable<MahjongBlock>

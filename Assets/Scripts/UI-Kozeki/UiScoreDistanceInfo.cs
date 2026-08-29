@@ -6,7 +6,6 @@ using UnityEngine;
 using TMPro;
 using DG.Tweening;
 using UnityEngine.UI;
-using UnityEditor;
 public class UiScoreDistanceInfo : MonoBehaviour, IScoreDistanceConsumer
 {
     IScoreDistanceService _scv;
