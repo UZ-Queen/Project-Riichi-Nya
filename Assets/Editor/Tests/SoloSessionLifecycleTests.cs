@@ -26,6 +26,7 @@ public class SoloSessionLifecycleTests
     public void ConfirmForfeit_FinalizesOnceWithoutSavingHighScore()
     {
         AssertPlayerHandRenderingBoundary();
+        Type controllerType = AssertPlayerHandInputBoundary();
 
         MethodInfo confirmForfeit = GetMethod(typeof(MahjongGameManager), "ConfirmForfeit");
         FieldInfo lastEndReason = GetField(typeof(MahjongGameManager), "lastEndReason");
@@ -40,15 +41,21 @@ public class SoloSessionLifecycleTests
         {
             SettingsManager.Save(new PetitGameSaveData { highScore = 4321f });
             byte[] expectedSave = File.ReadAllBytes(savePath);
-            MahjongGameManager manager = CreateManager();
+            Component controller = CreateInactiveObject("PlayerHandController").AddComponent(controllerType);
+            MahjongGameManager manager = CreateManager(controller);
             int gameOverCount = 0;
             manager.OnGameOver += () => gameOverCount++;
 
             manager.currentState = GameState.PlayerTurn;
-            Invoke(manager, "CallHandler", PlayerCallType.Forfeit);
+            RaiseEvent(controller, "ForfeitRequested");
             Assert.That(manager.currentState, Is.EqualTo(GameState.Processing));
             Assert.That(GetFieldValue<bool>(manager, "pendingForfeit"), Is.True);
 
+            RaiseEvent(controller, "ForfeitRequested");
+            Assert.That(manager.currentState, Is.EqualTo(GameState.PlayerTurn));
+            Assert.That(GetFieldValue<bool>(manager, "pendingForfeit"), Is.False);
+
+            RaiseEvent(controller, "ForfeitRequested");
             confirmForfeit.Invoke(manager, null);
             confirmForfeit.Invoke(manager, null);
 
@@ -73,6 +80,7 @@ public class SoloSessionLifecycleTests
     public void StartNewGame_Twice_DetachesAndResetsSession()
     {
         AssertPlayerHandRenderingBoundary();
+        AssertPlayerHandInputBoundary();
 
         Assert.That(GetField(typeof(MahjongGameManager), "pendingForfeit"), Is.Not.Null);
         Assert.That(GetField(typeof(MahjongGameManager), "sessionFinalized"), Is.Not.Null);
@@ -93,7 +101,7 @@ public class SoloSessionLifecycleTests
         Assert.That(GetFieldValue<bool>(manager, "sessionFinalized"), Is.False);
     }
 
-    private MahjongGameManager CreateManager()
+    private MahjongGameManager CreateManager(Component playerHandController = null)
     {
         GameObject uiObject = CreateInactiveObject("GameUIManager");
         GameUIManager gameUIManager = uiObject.AddComponent<GameUIManager>();
@@ -108,6 +116,11 @@ public class SoloSessionLifecycleTests
         Timer timer = managerObject.AddComponent<Timer>();
         SetField(manager, "scoreManagerDistance", score);
         SetField(manager, "redstoneClock", timer);
+        if (playerHandController != null)
+        {
+            SetField(manager, "playerHand", playerHandController);
+        }
+
         manager.Construct(score);
         score.Initialize();
         managerObject.SetActive(true);
@@ -116,16 +129,39 @@ public class SoloSessionLifecycleTests
 
     private static void AssertPlayerHandRenderingBoundary()
     {
-        Type viewType = typeof(PlayerHand).Assembly.GetType("PlayerHandView");
+        Assembly runtimeAssembly = typeof(MahjongGameManager).Assembly;
+        Type controllerType = runtimeAssembly.GetType("PlayerHandController") ?? runtimeAssembly.GetType("PlayerHand");
+        Type viewType = runtimeAssembly.GetType("PlayerHandView");
 
         Assert.That(viewType, Is.Not.Null, "PlayerHandView must own hand rendering.");
-        Assert.That(GetField(typeof(PlayerHand), "playerHandView"), Is.Not.Null,
+        Assert.That(controllerType, Is.Not.Null, "The hand input owner must exist.");
+        Assert.That(GetField(controllerType, "playerHandView"), Is.Not.Null,
             "PlayerHand must delegate presentation to one serialized PlayerHandView.");
-        Assert.That(GetField(typeof(PlayerHand), "tilePrefap"), Is.Null,
+        Assert.That(GetField(controllerType, "tilePrefap"), Is.Null,
             "PlayerHand must not retain the tile prefab after rendering extraction.");
         Assert.That(GetMethod(viewType, "FillHand"), Is.Not.Null);
         Assert.That(GetMethod(viewType, "TsumoTile"), Is.Not.Null);
         Assert.That(GetMethod(viewType, "UpdateSelectedIndex"), Is.Not.Null);
+    }
+
+    private static Type AssertPlayerHandInputBoundary()
+    {
+        Type controllerType = typeof(MahjongGameManager).Assembly.GetType("PlayerHandController");
+
+        Assert.That(controllerType, Is.Not.Null, "The input owner must be named PlayerHandController.");
+        Assert.That(GetField(typeof(MahjongGameManager), "playerHand").FieldType, Is.EqualTo(controllerType));
+        Assert.That(controllerType.GetEvent("ForfeitRequested"), Is.Not.Null,
+            "Forfeit must use a separate session-intent event.");
+        Assert.That(Enum.GetNames(typeof(PlayerCallType)), Does.Not.Contain("Forfeit"),
+            "PlayerCallType must contain mahjong actions only.");
+        return controllerType;
+    }
+
+    private static void RaiseEvent(Component source, string eventName)
+    {
+        Delegate handlers = GetField(source.GetType(), eventName).GetValue(source) as Delegate;
+        Assert.That(handlers, Is.Not.Null, $"{eventName} must have an invokable backing delegate.");
+        handlers.DynamicInvoke();
     }
 
     private GameObject CreateInactiveObject(string name)
