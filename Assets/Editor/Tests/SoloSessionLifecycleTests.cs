@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using NUnit.Framework;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -217,10 +218,18 @@ public class SoloSessionLifecycleTests
         string scenePath = Path.Combine(Application.dataPath, "Scenes", "SampleScene.unity");
         string scene = File.ReadAllText(scenePath);
         Type uiManagerType = typeof(SoloScoringGameManager).Assembly.GetType("UiManager");
+        SceneAsset sceneAsset = AssetDatabase.LoadAssetAtPath<SceneAsset>("Assets/Scenes/SampleScene.unity");
+        MonoScript managerScript = AssetDatabase.LoadAssetAtPath<MonoScript>("Assets/Scripts/SoloScoringGameManager.cs");
 
+        Assert.That(sceneAsset, Is.Not.Null, "The edited scene YAML must remain importable.");
+        Assert.That(managerScript, Is.Not.Null);
+        Assert.That(managerScript.GetClass(), Is.EqualTo(typeof(SoloScoringGameManager)),
+            "The preserved manager GUID must resolve to the renamed MonoBehaviour.");
         Assert.That(GetField(uiManagerType, "soloScoringModeRoot"), Is.Not.Null,
             "UiManager must own the serialized solo mode root activation boundary.");
         Assert.That(CountOccurrences(scene, "m_Name: SoloScoringModeRoot"), Is.EqualTo(1));
+        Assert.That(scene, Does.Match("m_Name: SoloScoringModeRoot[\\s\\S]*?m_IsActive: 0"),
+            "The solo mode root must be inactive at lobby startup.");
         Assert.That(scene, Does.Contain("soloScoringModeRoot: {fileID: 1987654321}"));
         Assert.That(scene, Does.Contain("m_Name: SoloScoringGameManager"));
         Assert.That(CountOccurrences(scene, "m_Name: EventSystem"), Is.EqualTo(1));

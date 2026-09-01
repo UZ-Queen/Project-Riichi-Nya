@@ -16,6 +16,9 @@ public partial class UiManager : MonoBehaviour
     [Header("패널 매핑")]
     [SerializeField] List<PanelEntry> panels;
 
+    [Header("모드 Root")]
+    [SerializeField] private GameObject soloScoringModeRoot;
+
     [Header("트랜지션 설정")]
     // public Vector2 direction = Vector2.left;
     public float distance = 500f;
@@ -153,6 +156,7 @@ public partial class UiManager : MonoBehaviour
         // historyStack.Push(currentState);
         HidePanel();
         currentState = UIState.InGame;
+        soloScoringModeRoot.SetActive(true);
         SoloScoringGameManager.Instance.StartNewGame();
     }
 
@@ -207,6 +211,7 @@ public partial class UiManager : MonoBehaviour
         if (currentState == UIState.InGame)
         {
             SoloScoringUIController.Instance.HideAllPanels();
+            soloScoringModeRoot.SetActive(false);
         }
         ShowPanel(historyStack.Pop(), false);
     }

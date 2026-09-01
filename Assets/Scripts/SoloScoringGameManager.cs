@@ -43,7 +43,6 @@ public partial class SoloScoringGameManager : MonoBehaviour, IScoreDistanceConsu
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);
     }
 
     void OnEnable()
