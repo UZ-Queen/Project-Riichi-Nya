@@ -37,9 +37,8 @@ public class PlayerHandController : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (HandleEscape(Input.GetKeyDown(KeyCode.Escape)))
         {
-            ForfeitRequested();
             return;
         }
 
@@ -86,6 +85,17 @@ public class PlayerHandController : MonoBehaviour
             OnPlayerCall(PlayerCallType.Tsumo);
         }
 
+    }
+
+    private bool HandleEscape(bool escapePressed)
+    {
+        if (!escapePressed)
+        {
+            return false;
+        }
+
+        ForfeitRequested();
+        return true;
     }
 
     void OnDisable()
