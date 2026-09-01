@@ -43,7 +43,7 @@ public class PlayerHandController : MonoBehaviour
             return;
         }
 
-        if (MahjongGameManager.Instance == null)
+        if (SoloScoringGameManager.Instance == null)
         {
             return;
         }
@@ -53,7 +53,7 @@ public class PlayerHandController : MonoBehaviour
             return;
         }
 
-        if (MahjongGameManager.Instance.currentState != GameState.PlayerTurn)
+        if (SoloScoringGameManager.Instance.currentState != GameState.PlayerTurn)
         {
             return;
         }
@@ -90,13 +90,13 @@ public class PlayerHandController : MonoBehaviour
 
     void OnDisable()
     {
-        if (MahjongGameManager.Instance == null)
+        if (SoloScoringGameManager.Instance == null)
         {
             return;
         }
 
-        MahjongGameManager.Instance.OnGameOver -= HandleGameOver;
-        MahjongGameManager.Instance.OnGameStart -= HandleGameStart;
+        SoloScoringGameManager.Instance.OnGameOver -= HandleGameOver;
+        SoloScoringGameManager.Instance.OnGameStart -= HandleGameStart;
     }
 
     /// <summary>
@@ -155,15 +155,15 @@ public class PlayerHandController : MonoBehaviour
 
     private void AttachManagerEvents()
     {
-        if (MahjongGameManager.Instance == null)
+        if (SoloScoringGameManager.Instance == null)
         {
             return;
         }
 
-        MahjongGameManager.Instance.OnGameOver -= HandleGameOver;
-        MahjongGameManager.Instance.OnGameStart -= HandleGameStart;
-        MahjongGameManager.Instance.OnGameOver += HandleGameOver;
-        MahjongGameManager.Instance.OnGameStart += HandleGameStart;
+        SoloScoringGameManager.Instance.OnGameOver -= HandleGameOver;
+        SoloScoringGameManager.Instance.OnGameStart -= HandleGameStart;
+        SoloScoringGameManager.Instance.OnGameOver += HandleGameOver;
+        SoloScoringGameManager.Instance.OnGameStart += HandleGameStart;
     }
 
     private void UpdateHand()

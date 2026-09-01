@@ -153,7 +153,7 @@ public partial class UiManager : MonoBehaviour
         // historyStack.Push(currentState);
         HidePanel();
         currentState = UIState.InGame;
-        MahjongGameManager.Instance.StartNewGame();
+        SoloScoringGameManager.Instance.StartNewGame();
     }
 
     void CheckBbagu()

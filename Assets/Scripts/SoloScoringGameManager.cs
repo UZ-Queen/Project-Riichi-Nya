@@ -447,11 +447,3 @@ public partial class SoloScoringGameManager : MonoBehaviour, IScoreDistanceConsu
     }
 #endif
 }
-
-/// <summary>
-/// 호출자 마이그레이션 동안 기존 정적 진입점만 전달하는 임시 호환 계층입니다.
-/// </summary>
-public static class MahjongGameManager
-{
-    public static SoloScoringGameManager Instance => SoloScoringGameManager.Instance;
-}

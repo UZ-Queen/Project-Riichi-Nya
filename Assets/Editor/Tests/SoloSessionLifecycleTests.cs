@@ -191,8 +191,8 @@ public class SoloSessionLifecycleTests
         Assert.That(soloManagerType, Is.Not.Null,
             "The solo lifecycle owner must be named SoloScoringGameManager.");
         Assert.That(typeof(MonoBehaviour).IsAssignableFrom(soloManagerType), Is.True);
-        Assert.That(typeof(MonoBehaviour).IsAssignableFrom(compatibilityType), Is.False,
-            "The temporary compatibility facade must not own Unity lifecycle state.");
+        Assert.That(compatibilityType, Is.Null,
+            "The temporary compatibility facade must be removed after caller migration.");
     }
 
     private static void AssertSoloUiOwnershipBoundary()

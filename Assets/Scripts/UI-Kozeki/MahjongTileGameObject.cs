@@ -36,7 +36,7 @@ public class MahjongTileGameObject : MonoBehaviour
     {
         //DB에서 이미지를 가져온다.
         //tileImage.sprite에 가져온 이미지를 할당한다.
-        tileImage.sprite = MahjongGameManager.Instance?.TileDB.GetImage(tile);
+        tileImage.sprite = SoloScoringGameManager.Instance?.TileDB.GetImage(tile);
 
     }
     public void SetTile(MahjongTile tile)
