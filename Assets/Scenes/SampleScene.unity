@@ -1021,6 +1021,7 @@ GameObject:
   m_Component:
   - component: {fileID: 199402664}
   - component: {fileID: 199402665}
+  - component: {fileID: 199402667}
   - component: {fileID: 199402666}
   m_Layer: 5
   m_Name: Hand Tile Holder
@@ -1062,16 +1063,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f741381e994254649afad56bd8fdc47a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerHandView: {fileID: 199402667}
+  currentIndex: 0
+--- !u!114 &199402667
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 199402663}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f60fd58a78747a78a7f3c3a8a9c8e32, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
   tilePrefap: {fileID: 152377591191754884, guid: a1d391c445d69a341ba78241ca2be01f,
     type: 3}
   handTilesHolder: {fileID: 1698740208}
   tsumoTileHolder: {fileID: 299085271}
   RiichiNya: {fileID: 556768051}
   TsumoNya: {fileID: 560278826}
-  currentIndex: 0
-  tilesInHand: []
-  tileTsumo: {fileID: 0}
-  hasTsumoTileInHand: 0
 --- !u!225 &199402666
 CanvasGroup:
   m_ObjectHideFlags: 0

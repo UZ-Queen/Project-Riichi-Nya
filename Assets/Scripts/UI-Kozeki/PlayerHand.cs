@@ -1,47 +1,29 @@
-
+using System;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
-using System.Text;
+
+/// <summary>
+/// 솔로 손패 입력과 선택 상태를 관리하고 플레이 의도를 발행합니다.
+/// </summary>
 public class PlayerHand : MonoBehaviour
 {
-    [SerializeField] private MahjongTileGameObject tilePrefap;
-    [SerializeField] private GameObject handTilesHolder;
-    [SerializeField] private GameObject tsumoTileHolder;
-
-    [SerializeField] private GameObject RiichiNya;
-    [SerializeField] private GameObject TsumoNya;
+    [SerializeField] private PlayerHandView playerHandView;
 
     public int currentIndex;
-    public MahjongTileGameObject[] tilesInHand;
-    public MahjongTileGameObject tileTsumo;
-    public bool hasTsumoTileInHand = false;
 
-    DasArrInput dasArrInput;
+    private DasArrInput dasArrInput;
+    private bool callRiichiNya;
+    private bool isGameOver;
 
-
-    bool callRiichiNya = false;
-    bool _isGameOver = false;
-    void HandleGameOver()
-    {
-        _isGameOver = true;
-    }
-    void HandleGameStart()
-    {
-        _isGameOver = false;
-        currentIndex = 6;
-    }
     void Awake()
     {
-        
-
-        tilesInHand = new MahjongTileGameObject[13];
         currentIndex = 6;
-        InitialzeHand();
+        playerHandView.Initialize();
         UpdateHand();
         dasArrInput = new DasArrInput();
         MyLogger.Log("손 초기화 완료!");
     }
+
     void OnEnable()
     {
         AttachManagerEvents();
@@ -51,114 +33,6 @@ public class PlayerHand : MonoBehaviour
     {
         AttachManagerEvents();
     }
-
-    void OnDisable()
-    {
-        if (MahjongGameManager.Instance == null)
-        {
-            return;
-        }
-
-        MahjongGameManager.Instance.OnGameOver -= HandleGameOver;
-        MahjongGameManager.Instance.OnGameStart -= HandleGameStart;
-    }
-
-    void AttachManagerEvents()
-    {
-        if (MahjongGameManager.Instance == null)
-        {
-            return;
-        }
-
-        MahjongGameManager.Instance.OnGameOver -= HandleGameOver;
-        MahjongGameManager.Instance.OnGameStart -= HandleGameStart;
-        MahjongGameManager.Instance.OnGameOver += HandleGameOver;
-        MahjongGameManager.Instance.OnGameStart += HandleGameStart;
-    }
-    void UpdateHand(){
-        for(int i=0; i<13; i++){
-            bool doSelect = false;
-            if(i == currentIndex) doSelect = true;
-            tilesInHand[i].SetSelected(doSelect);
-        }
-    }
-
-    void InitialzeHand(){
-        List<MahjongTile> list = MahjongTile.StringToTiles("1m1m1m2m3m4m0m6m7m8m9m9m9m");
-        int index = 0;
-        foreach(var i in list){
-            // MahjongTileGameObject newTile = Instantiate(tilePrefap, tilePrefap.transform.position, tilePrefap.transform.rotation, handTilesHolder.transform);
-            MahjongTileGameObject newTile = Instantiate(tilePrefap, handTilesHolder.transform);
-
-            newTile.SetTileImage(i);
-            newTile.SetDora(i.isDora || i.isAkaDora);
-            newTile.enabled = false;
-            tilesInHand[index] = newTile;
-            index++;
-        }
-        tileTsumo = Instantiate(tilePrefap, tsumoTileHolder.transform);
-        tileTsumo.SetTileImage(MahjongTile.StringToTile("1m"));
-        tileTsumo.enabled = false;
-
-        RiichiNya.SetActive(false);
-        TsumoNya.SetActive(false);
-
-    }
-
-    //데이터 조작 가능성이 있을 것 같은데... 일단 패스.
-    //또한, 가능하다면 계속 Instantiate를 하지 말고 풀링했으면 좋겠다. 이건 욕심이니 나중에.
-    public void FillHand(List<MahjongTile> tiles){
-        int index = 0;
-        foreach(var i in tiles){
-            if (index >= tilesInHand.Length)
-            {
-                StringBuilder sb = new StringBuilder();
-                foreach(var k in tiles){
-                    sb.Append($"[{k.ToChoboFriendlyString()}]");
-                }
-                MyLogger.LogError($"손패 길이: {tiles.Count}해당 손패예요. 13개가 아닌지 확인해보세요.\n{sb.ToString()}");
-                // break;
-            }
-            tilesInHand[index].SetTileImage(i);
-            tilesInHand[index].SetDora(i.isDora || i.isAkaDora);
-            tilesInHand[index].enabled = false;
-            index++;
-        }
-        foreach(var tileInstance in tilesInHand){
-            tileInstance.enabled = true;
-        }
-    }
-    // public void TsumoTile(MahjongTile tile){
-    //     tileTsumo.SetTile(tile);
-    //     tileTsumo.enabled = true;
-
-    // }
-
-    public void TsumoTile(TsumoInfo tsumoInfo){
-        tileTsumo.SetTile(tsumoInfo.tsumoTile);
-        tileTsumo.enabled = true;
-        ShowRiichiNyaButtons(tsumoInfo);
-
-
-    }
-
-    void ShowRiichiNyaButtons(TsumoInfo tsumoInfo){
-        // MyLogger.Log($"리치냐를 킬까요? {tsumoInfo.isRiichiAble}/{tsumoInfo.isTsumoAble}");
-        RiichiNya.SetActive(tsumoInfo.isRiichiAble);
-        TsumoNya.SetActive(tsumoInfo.isTsumoAble);
-        // MyLogger.Log("업데이트했습니다!");
-    }
-    void HideRiichiNyaButtons(){
-        RiichiNya.SetActive(false);
-        TsumoNya.SetActive(false);
-        // MyLogger.Log("패를 버렸으니 리치냐 버튼을 가릴게요.");
-    }
-
-
-
-    int das = 133;
-    int arr = 17;
-
 
     void Update()
     {
@@ -177,33 +51,16 @@ public class PlayerHand : MonoBehaviour
             return;
         }
 
-        // // float hInput = Input.GetAxisRaw("Horizontal");
-        // if(Input.GetKeyDown(InputPreset.left)){
-        //     // MoveHand(-1);
-        //     MoveHandToLeft();
-        // }
-        // if(Input.GetKeyDown(InputPreset.right)){
-        //     // MoveHand(1);
-        //     MoveHandToRight();
-        // }
-        // if(Input.GetKeyDown(InputPreset.discard)){
-        //     DiscardSelectedTile();
-        // }
-        // else if(Input.GetKeyDown(InputPreset.discardTsumoTile)){
-        //     DiscardTsumoTile();
-        // }
-
-        // float hInput = Input.GetAxisRaw("Horizontal");
         if (dasArrInput.GetInput(InputPreset.left))
         {
-            // MoveHand(-1);
             MoveHandToLeft();
         }
+
         if (dasArrInput.GetInput(InputPreset.right))
         {
-            // MoveHand(1);
             MoveHandToRight();
         }
+
         if (Input.GetKeyDown(InputPreset.discard))
         {
             DiscardSelectedTile();
@@ -213,7 +70,6 @@ public class PlayerHand : MonoBehaviour
             DiscardTsumoTile();
         }
 
-
         if (Input.GetKeyDown(InputPreset.riichi))
         {
             callRiichiNya = true;
@@ -222,51 +78,118 @@ public class PlayerHand : MonoBehaviour
         {
             OnPlayerCall(PlayerCallType.Tsumo);
         }
+
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             OnPlayerCall(PlayerCallType.Forfeit);
         }
+    }
 
-        
+    void OnDisable()
+    {
+        if (MahjongGameManager.Instance == null)
+        {
+            return;
+        }
+
+        MahjongGameManager.Instance.OnGameOver -= HandleGameOver;
+        MahjongGameManager.Instance.OnGameStart -= HandleGameStart;
     }
 
     /// <summary>
-    /// 새로운 Index값으로 변경.(clamp 해줌 걱정 ㄴㄴ)
+    /// 플레이어가 선택한 손패 인덱스를 전달합니다.
     /// </summary>
-    /// <param name="value"></param>
-    void MoveHand(int newIndex){
+    public event Action<int> OnPlayerDiscard = delegate { };
+
+    /// <summary>
+    /// 플레이어가 선택한 마작 행동을 전달합니다.
+    /// </summary>
+    public event Action<PlayerCallType> OnPlayerCall = delegate { };
+
+    /// <summary>
+    /// 현재 손패를 View에 표시합니다.
+    /// </summary>
+    /// <param name="tiles">표시할 열세 장의 손패입니다.</param>
+    public void FillHand(List<MahjongTile> tiles)
+    {
+        playerHandView.FillHand(tiles);
+    }
+
+    /// <summary>
+    /// 쯔모패와 가능한 행동을 View에 표시합니다.
+    /// </summary>
+    /// <param name="tsumoInfo">쯔모패와 선언 가능 정보입니다.</param>
+    public void TsumoTile(TsumoInfo tsumoInfo)
+    {
+        playerHandView.TsumoTile(tsumoInfo);
+    }
+
+    private void HandleGameOver()
+    {
+        isGameOver = true;
+    }
+
+    private void HandleGameStart()
+    {
+        isGameOver = false;
+        currentIndex = 6;
+    }
+
+    private void AttachManagerEvents()
+    {
+        if (MahjongGameManager.Instance == null)
+        {
+            return;
+        }
+
+        MahjongGameManager.Instance.OnGameOver -= HandleGameOver;
+        MahjongGameManager.Instance.OnGameStart -= HandleGameStart;
+        MahjongGameManager.Instance.OnGameOver += HandleGameOver;
+        MahjongGameManager.Instance.OnGameStart += HandleGameStart;
+    }
+
+    private void UpdateHand()
+    {
+        playerHandView.UpdateSelectedIndex(currentIndex);
+    }
+
+    /// <summary>
+    /// 새 인덱스를 손패 범위로 제한하여 선택합니다.
+    /// </summary>
+    /// <param name="newIndex">새로 선택할 손패 인덱스입니다.</param>
+    private void MoveHand(int newIndex)
+    {
         int beforeValue = currentIndex;
-        currentIndex =  UnityEngine.Mathf.Clamp(newIndex, 0, 12);
-        if(beforeValue != currentIndex){
+        currentIndex = Mathf.Clamp(newIndex, 0, 12);
+        if (beforeValue != currentIndex)
+        {
             UpdateHand();
         }
     }
 
-    void MoveHandToLeft(){
+    private void MoveHandToLeft()
+    {
         MoveHand(currentIndex - 1);
     }
-    void MoveHandToRight(){
-        MoveHand(currentIndex +1);
 
-    }
-    public event Action<int> OnPlayerDiscard = delegate{};
-    public event Action<PlayerCallType> OnPlayerCall = delegate{};
-
-    void DiscardSelectedTile()
+    private void MoveHandToRight()
     {
-        HideRiichiNyaButtons();
+        MoveHand(currentIndex + 1);
+    }
+
+    private void DiscardSelectedTile()
+    {
+        playerHandView.HideActionButtons();
         OnPlayerDiscard(currentIndex);
         currentIndex = 6;
         UpdateHand();
     }
-    void DiscardTsumoTile()
+
+    private void DiscardTsumoTile()
     {
-        HideRiichiNyaButtons();
+        playerHandView.HideActionButtons();
         OnPlayerDiscard(13);
         currentIndex = 6;
         UpdateHand();
     }
-    // public event Action OnPlayerCallRiichi = delegate{};
-    // public event Action OnPlayerCallTsumoAgari = delegate{};
-
 }
