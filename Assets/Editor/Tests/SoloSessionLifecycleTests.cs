@@ -4,6 +4,8 @@ using System.IO;
 using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class SoloSessionLifecycleTests
 {
@@ -30,6 +32,8 @@ public class SoloSessionLifecycleTests
     public void ConfirmForfeit_FinalizesOnceWithoutSavingHighScore()
     {
         AssertSoloUiRenameBoundary();
+        AssertSoloUiOwnershipBoundary();
+        AssertForfeitOverlaySceneContract();
         AssertPlayerHandRenderingBoundary();
         Type controllerType = AssertPlayerHandInputBoundary();
 
@@ -57,6 +61,8 @@ public class SoloSessionLifecycleTests
             RaiseEvent(controller, "ForfeitRequested");
             Assert.That(manager.currentState, Is.EqualTo(GameState.Processing));
             Assert.That(GetFieldValue<bool>(manager, "pendingForfeit"), Is.True);
+            Assert.That(GetFieldValue<bool>(controller, "gameplayInputEnabled"), Is.False,
+                "Gameplay input must be blocked synchronously before overlay animation can complete.");
 
             RaiseEvent(controller, "ForfeitRequested");
             Assert.That(manager.currentState, Is.EqualTo(GameState.PlayerTurn));
@@ -87,6 +93,8 @@ public class SoloSessionLifecycleTests
     public void StartNewGame_Twice_DetachesAndResetsSession()
     {
         AssertSoloUiRenameBoundary();
+        AssertSoloUiOwnershipBoundary();
+        AssertForfeitOverlaySceneContract();
         AssertPlayerHandRenderingBoundary();
         AssertPlayerHandInputBoundary();
 
@@ -149,10 +157,60 @@ public class SoloSessionLifecycleTests
 
         Assert.That(soloUiType, Is.Not.Null, "The solo presentation owner must be named SoloScoringUIController.");
         Assert.That(typeof(MonoBehaviour).IsAssignableFrom(soloUiType), Is.True);
-        Assert.That(compatibilityType, Is.Not.Null, "Task 1 keeps a bounded compatibility facade for untouched callers.");
-        Assert.That(typeof(MonoBehaviour).IsAssignableFrom(compatibilityType), Is.False,
-            "The compatibility facade must not own Unity lifecycle or state.");
-        Assert.That(compatibilityType.GetProperty("Instance", BindingFlags.Static | BindingFlags.Public), Is.Not.Null);
+        Assert.That(compatibilityType, Is.Null, "The bounded Task 1 compatibility facade must be removed after caller migration.");
+    }
+
+    private static void AssertSoloUiOwnershipBoundary()
+    {
+        Type soloUiType = typeof(MahjongGameManager).Assembly.GetType("SoloScoringUIController");
+        string[] movedFields =
+        {
+            "playerHandView", "uiScoreDistanceInfo", "uiScoreInfo", "uiRoundInfo", "uiCallHolder",
+            "uiWininfo", "uiRemainingTime", "uiGameOver", "forfeitConfirmation", "confirmButton", "cancelButton"
+        };
+
+        foreach (string fieldName in movedFields)
+        {
+            Assert.That(GetField(soloUiType, fieldName), Is.Not.Null, $"Solo UI must own {fieldName}.");
+            Assert.That(GetField(typeof(MahjongGameManager), fieldName), Is.Null, $"Game manager must not own {fieldName} presentation state.");
+        }
+
+        Assert.That(soloUiType.GetEvent("ConfirmRequested"), Is.Not.Null);
+        Assert.That(soloUiType.GetEvent("CancelRequested"), Is.Not.Null);
+        Assert.That(GetMethod(soloUiType, "ShowForfeitConfirmation"), Is.Not.Null);
+        Assert.That(GetMethod(soloUiType, "HideForfeitConfirmation"), Is.Not.Null);
+        Assert.That(Enum.GetNames(typeof(GameUIState)), Does.Not.Contain("ForfeitConfirmation"));
+    }
+
+    private static void AssertForfeitOverlaySceneContract()
+    {
+        string scenePath = Path.Combine(Application.dataPath, "Scenes", "SampleScene.unity");
+        string scene = File.ReadAllText(scenePath);
+
+        Assert.That(CountOccurrences(scene, "m_Name: ForfeitConfirmation"), Is.EqualTo(1));
+        Assert.That(scene, Does.Not.Contain("\n  - state: 9\n"),
+            "The forfeit overlay must not remain in the mutually exclusive panel map.");
+        Assert.That(scene, Does.Not.Contain("m_MethodName: ConfirmForfeit"));
+        Assert.That(scene, Does.Not.Contain("m_MethodName: CancelForfeit"));
+        Assert.That(scene, Does.Contain("forfeitConfirmation: {fileID: 1412270343}"));
+        Assert.That(scene, Does.Contain("confirmButton: {fileID: 294217836}"));
+        Assert.That(scene, Does.Contain("cancelButton: {fileID: 1444117286}"));
+        Assert.That(scene, Does.Contain("m_SelectOnRight: {fileID: 1444117286}"));
+        Assert.That(scene, Does.Contain("m_SelectOnLeft: {fileID: 294217836}"));
+        Assert.That(scene, Does.Contain("m_Name: EventSystem"));
+    }
+
+    private static int CountOccurrences(string source, string value)
+    {
+        int count = 0;
+        int index = 0;
+        while ((index = source.IndexOf(value, index, StringComparison.Ordinal)) >= 0)
+        {
+            count++;
+            index += value.Length;
+        }
+
+        return count;
     }
 
     private static void AssertPlayerHandRenderingBoundary()
