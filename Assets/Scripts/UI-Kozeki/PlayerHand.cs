@@ -42,10 +42,38 @@ public class PlayerHand : MonoBehaviour
         dasArrInput = new DasArrInput();
         MyLogger.Log("손 초기화 완료!");
     }
+    void OnEnable()
+    {
+        AttachManagerEvents();
+    }
+
     void Start()
     {
+        AttachManagerEvents();
+    }
+
+    void OnDisable()
+    {
+        if (MahjongGameManager.Instance == null)
+        {
+            return;
+        }
+
+        MahjongGameManager.Instance.OnGameOver -= HandleGameOver;
+        MahjongGameManager.Instance.OnGameStart -= HandleGameStart;
+    }
+
+    void AttachManagerEvents()
+    {
+        if (MahjongGameManager.Instance == null)
+        {
+            return;
+        }
+
+        MahjongGameManager.Instance.OnGameOver -= HandleGameOver;
+        MahjongGameManager.Instance.OnGameStart -= HandleGameStart;
         MahjongGameManager.Instance.OnGameOver += HandleGameOver;
-        MahjongGameManager.Instance.OnGameOver += HandleGameStart;
+        MahjongGameManager.Instance.OnGameStart += HandleGameStart;
     }
     void UpdateHand(){
         for(int i=0; i<13; i++){
@@ -134,6 +162,21 @@ public class PlayerHand : MonoBehaviour
 
     void Update()
     {
+        if (MahjongGameManager.Instance == null)
+        {
+            return;
+        }
+
+        if (MahjongGameManager.Instance.currentState != GameState.PlayerTurn)
+        {
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                OnPlayerCall(PlayerCallType.Forfeit);
+            }
+
+            return;
+        }
+
         // // float hInput = Input.GetAxisRaw("Horizontal");
         // if(Input.GetKeyDown(InputPreset.left)){
         //     // MoveHand(-1);

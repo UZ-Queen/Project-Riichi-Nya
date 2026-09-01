@@ -11,7 +11,7 @@ using Unity.VisualScripting;
 public enum GameUIState
 {
     RoundInfo, Score, PlayerHand, WinInfo, RiichiTsumo, Distance, Time
-    , GameOver, BBaggu
+    , GameOver, BBaggu, ForfeitConfirmation
 }
 public class GameUIManager : MonoBehaviour
 {
@@ -78,9 +78,15 @@ public class GameUIManager : MonoBehaviour
     public void Initialize()
     {
         gameCanvas.SetActive(true);
-        TogglePanel(GameUIState.RoundInfo);
-        TogglePanel(GameUIState.PlayerHand);
-        // TogglePanel(GameUIState.Score);
+        foreach (var panel in panels)
+        {
+            panel.rect.DOKill();
+            panel.rect.anchoredPosition = panel.originalPosition;
+            panel.rect.gameObject.SetActive(false);
+        }
+
+        ActivePanel(GameUIState.RoundInfo);
+        ActivePanel(GameUIState.PlayerHand);
         ActivePanel(GameUIState.Distance);
         ActivePanel(GameUIState.Time);
 
@@ -88,6 +94,7 @@ public class GameUIManager : MonoBehaviour
 
     void HandleGameOver()
     {
+        DeactivePanel(GameUIState.ForfeitConfirmation);
         ActivePanel(GameUIState.GameOver);
         ActivePanel(GameUIState.BBaggu);
     }

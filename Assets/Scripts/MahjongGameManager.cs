@@ -36,13 +36,72 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
     MahjongRound currentRound;
     MahjongPlayer player;
     int seed = 1557;
-    // bool _isGameOver = false;
+    bool pendingForfeit;
+    bool sessionFinalized;
+    GameEndReason lastEndReason;
+
+    void Awake()
+    {
+        if (Instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+
+    void OnEnable()
+    {
+        if (playerHand != null)
+        {
+            playerHand.OnPlayerDiscard += PlayerDiscardTile;
+            playerHand.OnPlayerCall += CallHandler;
+        }
+    }
+
+    void Start()
+    {
+    }
+
+    void Update()
+    {
+#if IROHA
+        GetScore();
+        CheatHandler();
+#endif
+    }
+
+    void OnDisable()
+    {
+        if (playerHand != null)
+        {
+            playerHand.OnPlayerDiscard -= PlayerDiscardTile;
+            playerHand.OnPlayerCall -= CallHandler;
+        }
+
+        if (redstoneClock != null)
+        {
+            redstoneClock.OnTimerFinished -= HandleTimerFinished;
+        }
+
+        DetachRoundEvent();
+    }
 
     public void StartNewGame()
     {
-        OnGameStart();
+        DetachRoundEvent();
+        if (redstoneClock != null)
+        {
+            redstoneClock.OnTimerFinished -= HandleTimerFinished;
+        }
+
         currentState = GameState.Initializing;
-        GameUIManager.Instance.Initialize();
+        pendingForfeit = false;
+        sessionFinalized = false;
+        OnGameStart();
+        GameUIManager.Instance?.Initialize();
         
         prng = new System.Random();
 #if IROHA
@@ -65,17 +124,23 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
         Construct(scoreManagerDistance);
         svcScoreManager.Initialize();
         //UI에 뿌려줌
-        uiScoreDistanceInfo.Construct(svcScoreManager);
+        uiScoreDistanceInfo?.Construct(svcScoreManager);
         //타이머 생성 후..
         redstoneClock.StartTimer(180);
-        redstoneClock.OnTimerFinished += HandleGameOver;
+        redstoneClock.OnTimerFinished += HandleTimerFinished;
         uiRemainingTime?.Construct(redstoneClock);
         
         currentState = GameState.PlayerTurn;
         // currentRound = new MahjongRound(prng.Next(), player);
     }
 
-    void StartNextRound(MahjongRound nextRound){
+    void StartNextRound(MahjongRound nextRound)
+    {
+        if (sessionFinalized)
+        {
+            return;
+        }
+
         currentState = GameState.Processing;
         DetachRoundEvent();
         currentRound = nextRound;
@@ -88,28 +153,83 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
     }
 
     
-    void HandleGameOver()
+    void HandleTimerFinished()
     {
-        redstoneClock.OnTimerFinished -= HandleGameOver;
+        FinalizeGame(GameEndReason.TimeExpired);
+    }
+
+    /// <summary>
+    /// 대기 중인 포기를 확정합니다.
+    /// </summary>
+    public void ConfirmForfeit()
+    {
+        if (!pendingForfeit)
+        {
+            return;
+        }
+
+        FinalizeGame(GameEndReason.Forfeit);
+    }
+
+    /// <summary>
+    /// 대기 중인 포기를 취소하고 플레이어 입력으로 돌아갑니다.
+    /// </summary>
+    public void CancelForfeit()
+    {
+        if (!pendingForfeit || sessionFinalized)
+        {
+            return;
+        }
+
+        pendingForfeit = false;
+        GameUIManager.Instance?.DeactivePanel(GameUIState.ForfeitConfirmation);
+        ChangeState(GameState.PlayerTurn);
+    }
+
+    void RequestForfeit()
+    {
+        if (pendingForfeit || sessionFinalized)
+        {
+            return;
+        }
+
+        pendingForfeit = true;
+        ChangeState(GameState.Processing);
+        GameUIManager.Instance?.ActivePanel(GameUIState.ForfeitConfirmation);
+    }
+
+    void FinalizeGame(GameEndReason reason)
+    {
+        if (sessionFinalized)
+        {
+            return;
+        }
+
+        sessionFinalized = true;
+        pendingForfeit = false;
+        lastEndReason = reason;
+        redstoneClock.OnTimerFinished -= HandleTimerFinished;
         redstoneClock.TaimuSutopu();
         DetachRoundEvent();
-        
-        currentState = GameState.GameOver;
+
+        ChangeState(GameState.GameOver);
         svcScoreManager.OnGameOver();
 
         float yourScore = svcScoreManager.DistanceWithAccumulated;
 
         var saveData = SettingsManager.Load();
-        uiGameOver.Initialize(yourScore, saveData.highScore);
-        // uiGameOver.gameObject.SetActive(true);
-        if (yourScore > saveData.highScore)
+        uiGameOver?.Initialize(yourScore, saveData.highScore, reason);
+        if (reason == GameEndReason.TimeExpired)
         {
-            saveData.highScore = yourScore;
-        }
-        SettingsManager.Save(saveData);
-        
+            if (yourScore > saveData.highScore)
+            {
+                saveData.highScore = yourScore;
+            }
 
-        OnGameOver(); // UI 요소가 켜질 거임
+            SettingsManager.Save(saveData);
+        }
+
+        OnGameOver();
 
     }
 
@@ -132,6 +252,11 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
     }
     void DetachRoundEvent()
     {
+        if (currentRound == null)
+        {
+            return;
+        }
+
         currentRound.OnHandUpdate -= UpdatePlayerHand;
         currentRound.OnTsumoTile -= LetPlayerTsumoTile;
         currentRound.OnNewRoundStart -=StartNextRound;
@@ -143,13 +268,12 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
 
     void UpdatePlayerHand()
     {
-        playerHand.FillHand(player.Hand);
+        playerHand?.FillHand(player.Hand);
     }
     void LetPlayerTsumoTile(TsumoInfo tsumoInfo)
     {
-        
-        playerHand.TsumoTile(tsumoInfo);
-        if (uiCallHolder.UpdateInfo(tsumoInfo.isRiichiAble, tsumoInfo.isTsumoAble))
+        playerHand?.TsumoTile(tsumoInfo);
+        if (uiCallHolder != null && uiCallHolder.UpdateInfo(tsumoInfo.isRiichiAble, tsumoInfo.isTsumoAble))
         { 
            GameUIManager.Instance.ActivePanel(GameUIState.RiichiTsumo);
         }
@@ -213,53 +337,19 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
 
 
 
-    void OnEnable()
-    {
-        if (playerHand != null)
-        {
-            playerHand.OnPlayerDiscard += PlayerDiscardTile;
-            playerHand.OnPlayerCall += CallHandler;
-        }
-    }
-
-    void OnDisable()
-    {
-        if (playerHand != null)
-        {
-            playerHand.OnPlayerDiscard -= PlayerDiscardTile;
-            playerHand.OnPlayerCall -= CallHandler;
-        }
-    }
-    void Awake()
-    {
-        if (Instance != null)
-        {
-            Destroy(gameObject);
-            return;
-        }
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
-
-    }
-    // Start is called before the first frame update
-    void Start()
-    {
-        // currentRound = new MahjongRound(prng.Next(), player); 
-        // StartNewGame();
-
-    }
-
-    void Update()
-    {
-#if IROHA
-        GetScore();
-        CheatHandler();
-#endif
-    }
-
     void CallHandler(PlayerCallType callType)
     {
-        if (currentState != GameState.PlayerTurn) return;
+        if (callType == PlayerCallType.Forfeit && pendingForfeit && currentState == GameState.Processing)
+        {
+            CancelForfeit();
+            return;
+        }
+
+        if (currentState != GameState.PlayerTurn)
+        {
+            return;
+        }
+
         switch (callType)
         {
             case PlayerCallType.Riichi:
@@ -279,7 +369,7 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
             case PlayerCallType.Nukidora:
                 break;
             case PlayerCallType.Forfeit:
-                HandleGameOver();
+                RequestForfeit();
                 break;
             default:
                 break;
@@ -339,7 +429,7 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
     {
         if (Input.GetKeyDown(KeyCode.Alpha0))
         {
-            HandleGameOver();
+            HandleTimerFinished();
         }
     }
 #endif
