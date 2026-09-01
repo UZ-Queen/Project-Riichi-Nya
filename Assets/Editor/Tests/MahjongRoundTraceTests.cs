@@ -17,13 +17,39 @@ public class MahjongRoundTraceTests
 
         Assert.That(expected.ReachedNextRound, Is.True, expected.Diagnostic);
         Assert.That(actual.ReachedNextRound, Is.True, actual.Diagnostic);
-        Assert.That(expected.Records.Count, Is.EqualTo(actual.Records.Count));
 
         int firstMismatch = FindFirstMismatch(expected.Records, actual.Records);
         Assert.That(firstMismatch, Is.EqualTo(-1), BuildMismatchMessage(expected, actual, firstMismatch));
 
         string summary = expected.Records[expected.Records.Count - 1].ToString();
         Debug.Log($"TRACE seed={Seed} acceptedActions={expected.AcceptedActions} state={summary} PASS");
+    }
+
+    [Test]
+    public void LengthDivergence_ReportsFirstMismatchState()
+    {
+        TraceResult expected = new TraceResult(Seed);
+        TraceResult actual = new TraceResult(Seed);
+        expected.Records.Add(new TraceRecord
+        {
+            Seed = Seed,
+            ActionIndex = 0,
+            AcceptedActions = 1,
+            Hand = "1m,2m,3m",
+            DrawnTile = "4m",
+            DiscardedTile = "4m",
+            RiverCount = 1,
+            RoundTransitioned = false,
+            NextRoundFirstTsumo = string.Empty
+        });
+
+        int firstMismatch = FindFirstMismatch(expected.Records, actual.Records);
+        string message = BuildMismatchMessage(expected, actual, firstMismatch);
+
+        Assert.That(firstMismatch, Is.EqualTo(0));
+        Assert.That(message, Does.Contain("firstMismatchActionIndex=0"));
+        Assert.That(message, Does.Contain($"expected={expected.Records[0]}"));
+        Assert.That(message, Does.Contain("actual=<missing>"));
     }
 
     [Test]
