@@ -1,10 +1,11 @@
 ---
 phase: 01
 slug: executable-baseline
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: ready
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-08-29
+updated: 2026-09-01
 ---
 
 # Phase 01 — Validation Strategy
@@ -19,16 +20,17 @@ created: 2026-08-29
 |----------|-------|
 | **Framework** | Unity Test Framework `1.1.33` + NUnit extension `1.0.6` |
 | **Config file** | 없음 — `Assets/Editor/Tests/*.cs`가 predefined `Assembly-CSharp-Editor`로 컴파일되며 Phase 1은 `.asmdef`/`.asmref`를 추가하지 않고 `b18320e`의 descriptor를 보존한다. |
-| **Quick run command** | `& "C:\Program Files\Unity\Hub\Editor\2022.3.29f1\Editor\Unity.exe" -batchmode -nographics -projectPath "$PWD" -runTests -testPlatform EditMode -testResults "$PWD\Temp\phase1\editmode.xml" -quit -logFile "$PWD\Temp\phase1\editmode.log"` |
-| **Full suite command** | 위 EditMode 명령 실행 후 `Assets/Editor/Phase1Build.cs`의 Windows build method를 batchmode로 실행하고 `BuildReport` 결과를 확인한다. |
+| **Quick run command** | `& 'C:\Users\user\.codex\skills\unity-test-gate\scripts\Invoke-UnityTests.ps1' -ProjectPath $PWD -TestPlatform EditMode -TestFilter SoloSessionLifecycleTests -ExpectedGate Green` |
+| **Full suite command** | 같은 helper를 filter 없이 실행해 JSON `status`, `total`, `resultsPath`와 XML의 정확한 3 trace + 13 lifecycle 이름을 검증한 뒤 `Phase1Build.BuildWindowsPlayer`를 별도 batch process로 실행한다. Test Runner와 build 모두 `-quit`를 전달하지 않는다. |
 | **Estimated runtime** | Unity 라이선스가 정상일 때 측정 예정; 현재 LicensingClient IPC timeout으로 측정 불가 |
 
 ---
 
 ## Sampling Rate
 
-- **After every task commit:** runtime `UnityEditor` 정적 scan과 가능한 경우 EditMode quick command 실행
-- **After every plan wave:** 전체 EditMode XML 생성과 StandaloneWindows64 build 실행
+- **After every task commit:** 해당 plan이 소유한 정확한 `SoloSessionLifecycleTests` 2-case subset을 helper JSON/XML로 확인한다.
+- **After plans 01-02 through 01-04:** helper `status: GREEN`, `total: 2`, XML의 두 이름이 각각 한 번 발견되는지 확인한다. 구조/정책 assertion은 이 두 기존 case 안에서 이동시키며 최종 named expansion은 01-05가 소유한다.
+- **At plan 01-05:** 전체 EditMode XML에서 3 trace + 13 lifecycle, 총 16개 정확한 이름이 각각 한 번 발견되는지 확인한 뒤 StandaloneWindows64 build와 visible Player PID gate를 실행한다.
 - **Before `$gsd-verify-work`:** EditMode suite와 Player build가 성공하고 D-13 Windows Player 기본 동작이 관찰되어야 한다.
 - **Max feedback latency:** Unity 라이선스 복구 후 첫 성공 실행에서 측정해 기록한다.
 
@@ -38,11 +40,11 @@ created: 2026-08-29
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| W0-01 | 01-01-T1 | 0 | BASE-01 | T-01-01 | conflicting tag refs halt instead of moving history | Git invariant | `git cat-file -t refs/tags/portfolio-baseline; git rev-parse refs/tags/portfolio-baseline^{}` | ❌ W0 | ⬜ pending |
-| W0-02 | 01-01-T1 | 0 | BASE-02 | T-01-02 | trace loop is bounded, uses only D-03 fields, and accepts no external replay input | EditMode | Unity trace command; require 3 exact trace cases and zero failed/errors | ❌ W0 | ⬜ pending |
-| W0-03 | 01-01-T1/T2; 01-03-T1 | 0 | BASE-03 | T-01-03, T-01-12 | descriptor baseline, runtime imports, fixed build paths, licensing/report/exe/PID state cannot fabricate PASS | static scan + build + process | compare every descriptor path/blob to `b18320e`, runtime import scan, Windows build method, BuildReport/exe/PID checks | ❌ W0 | ⬜ pending |
-| W0-04 | 01-01-T1/T2; 01-02-T1/T2/T3; 01-03-T1 | 0 | BASE-04 | — | every XML gate requires exact discovery, zero non-Passed cases, and zero run-level failed/errors | batch integration | 3 trace at 01-01-T1, 3+2 initial at 01-01-T2, lifecycle 5→9→13 in 01-02, exact full 3+13=16 at 01-03-T1 | ❌ W0 | ⬜ pending |
-| W0-05 | 01-01-T2/T3/T4; 01-02-T1/T2/T3; 01-03-T1/T2/T3 | 0 | BASE-05 | T-01-05 through T-01-12 | prior-session callbacks cannot mutate the replacement session; both tracer and terminal gates require named human APPROVED plus GUI PASS after truthful failure recording | EditMode + Windows Player | two initial lifecycle cases, expansion to 13, fail-closed tracer checkpoint 01-01-T3/T4, final checkpoint 01-03-T2, and fail-closed terminal ledger 01-03-T3 | ❌ W0 | ⬜ pending |
+| V-01 | 01-02-T1/T2 | 2 | BASE-05 | T-01-20~22 | committed view GUID, enum removal, separate forfeit intent, and same-frame return preserve the two approved lifecycle paths | filtered EditMode | helper GREEN + exact two XML names once | ✅ exists | ⬜ pending |
+| V-02 | 01-03-T1/T2 | 3 | BASE-05 | T-01-23~26 | UI rename, modal policy ordering, native navigation, and overlay serialization remain covered without early final expansion | filtered EditMode | helper GREEN + exact two XML names once | ✅ exists | ⬜ pending |
+| V-03 | 01-04-T1/T2/T3 | 4 | BASE-05 | T-01-27~29 | manager rename, zero legacy references after facade removal, and root subscription symmetry preserve the same two paths | static scan + filtered EditMode | `rg` after Task 2 migration; helper GREEN + exact two XML names once | ✅ exists | ⬜ pending |
+| V-04 | 01-05-T1 | 5 | BASE-01~05 | T-01-30~33 | final evidence cannot infer success from exit/artifact presence | full EditMode + build + process | helper GREEN + exact 16 XML names once; successful BuildReport/exe; visible launched window; recorded live PID | ✅ exists | ⬜ pending |
+| V-05 | 01-05-T2/T3 | 5 | BASE-05 | T-01-31~33 | GUI PASS requires the same observed live process and explicit human approval | Windows Player + ledger | blocking eight-step same-PID checkpoint, then fail-closed ledger verification | ✅ exists | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -50,12 +52,11 @@ created: 2026-08-29
 
 ## Wave 0 Requirements
 
-- [ ] `01-01-T1` creates `Assets/Editor/Tests/MahjongRoundTraceTests.cs` in predefined `Assembly-CSharp-Editor`; the first Unity run must compile it and discover all three exact cases. The same task enumerates every `Assets/**/*.asmdef`/`Assets/**/*.asmref` and requires path/blob equality with `b18320e`.
-- [ ] `01-01-T2` creates `Assets/Editor/Tests/SoloSessionLifecycleTests.cs` with `ConfirmForfeit_FinalizesOnceWithoutSavingHighScore` and `StartNewGame_Twice_DetachesAndResetsSession`; `01-02-T1/T2/T3` extends that fixture to the final thirteen exact cases.
-- [ ] `01-02-T1`, `01-02-T2`, and `01-02-T3` own lifecycle expansion from 2→5→9→13, including the non-forfeit Processing Esc assertion and Editor scene-structure proof without adding a fourteenth case.
-- [ ] `01-01-T1` creates `Assets/Editor/Phase1Build.cs`; `01-01-T2` builds/launches the tracer and `01-03-T1` owns the final full-suite StandaloneWindows64 BuildReport/exe/process gate.
-- [ ] `01-01-T3` owns the walking-skeleton Player checkpoint and `01-01-T4` records the actual result before requiring APPROVED plus PASS; any other result exits nonzero and blocks 01-02 until repair/retry. `01-03-T2` owns final D-13 human verification and `01-03-T3` applies the same fail-closed rule while sealing the terminal ledger.
-- [ ] Unity LicensingClient activation/IPC repair or a licensed Windows Unity host
+- [x] 01-01 created `MahjongRoundTraceTests.cs`, `SoloSessionLifecycleTests.cs`, `Phase1Build.cs`, and the XML-backed helper contract in predefined `Assembly-CSharp-Editor` without new descriptors.
+- [x] 01-01 completed the initial two lifecycle cases and fail-closed walking-skeleton GUI evidence; 01-02 depends on its committed SUMMARY instead of replaying it per D-28.
+- [x] Plans 01-02 through 01-04 retain an automated helper gate after every task and own the fixture whenever TDD assertions change.
+- [x] Plan 01-05 exclusively owns the named expansion from two to thirteen lifecycle cases, exact combined 16-case discovery, final build/visible-window/live-PID gate, and the blocking human GUI checkpoint per D-27.
+- [ ] If the helper classifies licensing or IPC as BLOCKED, use the skill's visible Unity Hub checkpoint and rerun the identical command; never classify missing XML as RED or GREEN.
 
 ---
 
@@ -63,23 +64,23 @@ created: 2026-08-29
 
 | Behavior | Requirement | Why Manual | Test Instructions |
 |----------|-------------|------------|-------------------|
-| 같은 Windows Player 프로세스에서 솔로 시작 → `Esc` 확인 → 취소/재확인 → 포기 결과 → 메뉴 → 재시작 | BASE-05 | 실제 keyboard/UI 표시와 scene serialization을 관찰해야 하며 연구 단계에서 GUI 제어가 검증되지 않았다. | `01-01-T3`에서 tracer를 먼저 확인하고, 01-01-T4가 APPROVED+PASS일 때만 expansion을 시작한다. 모든 expansion 뒤 blocking-human `01-03-T2`에서 같은 PID로 D-13 전체를 다시 조작한다. `01-03-T3`는 그 결과와 16-case/build/exe/PID live evidence를 독립적으로 재검증한다. 두 gate 모두 거절·불확실·non-PASS를 먼저 기록한 뒤 nonzero로 중단하며, 원인을 고쳐 같은 경로를 재실행해야 한다. |
+| 같은 Windows Player 프로세스에서 솔로 시작 → `Esc` 확인 → 취소/재확인 → 포기 결과 → 메뉴 → 재시작 | BASE-05 | 실제 keyboard/UI 표시와 scene serialization은 자동 XML/build만으로 관찰할 수 없다. | 01-05-T1이 exact 16-case XML, build, visible window, live `Temp/phase1/player.pid`를 먼저 증명한다. 이어 01-05-T2가 그 PID로 D-13 여덟 단계를 blocking-human 확인하고, 01-05-T3가 실제 응답을 ledger에 fail-closed 기록한다. |
 
 ---
 
 ## Environment Blocker
 
-현재 host의 Unity batch 실행은 LicensingClient IPC timeout으로 종료되어 XML과 build 결과를 만들지 못했다. 이는 소스 실패가 아니며, 라이선스 복구 또는 licensed Windows host 실행 전에는 BASE-03~05를 PASS로 기록하지 않는다.
+Unity helper가 라이선스/IPC/lock/XML 부재를 보고하면 상태는 BLOCKED다. helper가 parseable XML과 GREEN을 반환하고 build/process gate가 성공하기 전에는 BASE-03~05를 PASS로 기록하지 않는다.
 
 ---
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
+- [x] All implementation tasks have `<automated>` verification; the only non-automated task is the explicit final blocking GUI checkpoint.
+- [x] Sampling continuity: every task before the checkpoint has an automated gate.
+- [x] Wave 0 infrastructure exists from completed 01-01 and every changed TDD fixture is owned by its task.
+- [x] No watch-mode flags or ad-hoc `-quit` Test Runner command.
 - [ ] Feedback latency measured after Unity licensing recovery
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] `nyquist_compliant: true` set in frontmatter
 
 **Approval:** pending
