@@ -25,6 +25,8 @@ public class SoloSessionLifecycleTests
     [Test]
     public void ConfirmForfeit_FinalizesOnceWithoutSavingHighScore()
     {
+        AssertPlayerHandRenderingBoundary();
+
         MethodInfo confirmForfeit = GetMethod(typeof(MahjongGameManager), "ConfirmForfeit");
         FieldInfo lastEndReason = GetField(typeof(MahjongGameManager), "lastEndReason");
 
@@ -70,6 +72,8 @@ public class SoloSessionLifecycleTests
     [Test]
     public void StartNewGame_Twice_DetachesAndResetsSession()
     {
+        AssertPlayerHandRenderingBoundary();
+
         Assert.That(GetField(typeof(MahjongGameManager), "pendingForfeit"), Is.Not.Null);
         Assert.That(GetField(typeof(MahjongGameManager), "sessionFinalized"), Is.Not.Null);
 
@@ -108,6 +112,20 @@ public class SoloSessionLifecycleTests
         score.Initialize();
         managerObject.SetActive(true);
         return manager;
+    }
+
+    private static void AssertPlayerHandRenderingBoundary()
+    {
+        Type viewType = typeof(PlayerHand).Assembly.GetType("PlayerHandView");
+
+        Assert.That(viewType, Is.Not.Null, "PlayerHandView must own hand rendering.");
+        Assert.That(GetField(typeof(PlayerHand), "playerHandView"), Is.Not.Null,
+            "PlayerHand must delegate presentation to one serialized PlayerHandView.");
+        Assert.That(GetField(typeof(PlayerHand), "tilePrefap"), Is.Null,
+            "PlayerHand must not retain the tile prefab after rendering extraction.");
+        Assert.That(GetMethod(viewType, "FillHand"), Is.Not.Null);
+        Assert.That(GetMethod(viewType, "TsumoTile"), Is.Not.Null);
+        Assert.That(GetMethod(viewType, "UpdateSelectedIndex"), Is.Not.Null);
     }
 
     private GameObject CreateInactiveObject(string name)
