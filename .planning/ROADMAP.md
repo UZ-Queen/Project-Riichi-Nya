@@ -25,7 +25,7 @@
 
 ### Phase 1: Executable Baseline — 실행 기준선과 검증 경로
 
-**Goal**: 플레이어와 개발자가 기존 솔로 경험을 반복 재현하고 안전하게 변경 여부를 판별할 수 있다.
+**Goal**: As a solo-mode player and maintainer, I want to reproduce the existing solo flow and verify changes safely, so that I can tell whether established behavior has regressed.
 **Mode:** mvp
 **Depends on**: Nothing (first phase)
 **Requirements**: BASE-01, BASE-02, BASE-03, BASE-04, BASE-05
@@ -59,7 +59,7 @@
 
 ### Phase 2: Shared Rules Core — 정확한 공유 규칙 코어
 
-**Goal**: 솔로와 4인 모드가 동일하고 정확하며 자동 검증되는 마작 규칙 결과를 사용한다.
+**Goal**: As a gameplay developer and player, I want to use one accurate and automatically verified rules core across solo and four-player modes, so that both modes produce consistent mahjong results.
 **Mode:** mvp
 **Depends on**: Phase 1
 **Requirements**: RULE-01, RULE-02, RULE-03, RULE-04, RULE-05, RULE-06, RULE-07, RULE-08, RULE-09, RULE-10
@@ -75,7 +75,7 @@
 
 ### Phase 3: Solo Preservation and Riichi — 독립 솔로 모드와 완전한 리치
 
-**Goal**: 플레이어가 기존의 시간제 조패 게임을 독립된 완전한 플레이 경험으로 계속 즐길 수 있다.
+**Goal**: As a solo-mode player, I want to keep playing the complete timed hand-building experience with correct riichi behavior, so that the original solo mode remains an independent and reliable game.
 **Mode:** mvp
 **Depends on**: Phase 2
 **Requirements**: SOLO-01, SOLO-02, SOLO-03, SOLO-04, SOLO-05, SOLO-06, SOLO-07, SOLO-08, SOLO-09
@@ -91,7 +91,7 @@
 
 ### Phase 4: Headless Hanchan — 헤드리스 고정 기본 반장전
 
-**Goal**: 개발자가 UI와 무관하게 정확한 한 사람 대 세 쯔모기리 더미 반장전을 동1국부터 고정된 남4국 종료까지 실행하고 검증할 수 있다.
+**Goal**: As a gameplay developer, I want to run and verify a complete headless hanchan between one human and three tsumogiri dummies, so that match rules and progression are proven independently of the Unity UI.
 **Mode:** mvp
 **Depends on**: Phase 3
 **Requirements**: TABL-01, TABL-02, TABL-03, TABL-04, TABL-05, DUMY-01, DUMY-02, DUMY-03, DUMY-04, HUMN-01, HUMN-02, HUMN-03, HUMN-04, HUMN-05, HUMN-06, HUMN-07, MTCH-01, MTCH-02, MTCH-03, MTCH-04, MTCH-05, MTCH-06, MTCH-07, MTCH-08, MTCH-09, MTCH-10
@@ -107,7 +107,7 @@
 
 ### Phase 5: Unity Hanchan Integration — Unity 반장전 통합
 
-**Goal**: 플레이어가 기존 Unity 실행 화면에서 솔로와 고정 기본 반장전을 선택하고, 반장전을 이해하며 끝까지 플레이할 수 있다.
+**Goal**: As a player, I want to choose between solo and fixed-rules hanchan modes and complete a hanchan in the existing Unity player, so that both experiences are accessible and understandable in one build.
 **Mode:** mvp
 **Depends on**: Phase 4
 **Requirements**: DUMY-05, HUI-01, HUI-02, HUI-03, HUI-04, HUI-05
@@ -124,7 +124,7 @@
 
 ### Phase 6: Complete Calls and Kans — 사람 후로·열린 손·모든 깡 (조건부 Stage 3)
 
-**Goal**: Stage 2가 완전히 안정된 경우에만 플레이어가 치·퐁과 세 종류의 깡을 열린 손 점수까지 포함해 완전하게 사용할 수 있다.
+**Goal**: As a player, I want to use chi, pon, and all three kan types with correct open-hand scoring only after Stage 2 is stable, so that advanced calls ship as one complete and verified rules bundle.
 **Mode:** mvp
 **Depends on**: Phase 5 quality gate
 **Requirements**: CALL-01, CALL-02, CALL-03, CALL-04, CALL-05, CALL-06, CALL-07, CALL-08, CALL-09, CALL-10, CALL-11, CALL-12, CALL-13, CALL-14, CALL-15, CALL-16, CALL-17, CALL-18
@@ -143,7 +143,7 @@
 
 ### Phase 7: Portfolio Release Evidence — 포트폴리오 릴리스와 증거
 
-**Goal**: 사용자가 실제 제출 태그의 Windows 빌드를 실행하고, 포트폴리오의 모든 개선 주장을 재현 가능한 증거로 확인할 수 있다.
+**Goal**: As a portfolio reviewer, I want to run the submitted Windows build and reproduce every documented improvement from preserved evidence, so that I can verify the portfolio claims independently.
 **Mode:** mvp
 **Depends on**: Phase 5; Phase 6 only when the Stage 3 gate passes
 **Requirements**: PORT-01, PORT-02, PORT-03, PORT-04, PORT-05, PORT-06, PORT-07, PORT-08
