@@ -63,14 +63,17 @@ public class SoloSessionLifecycleTests
             Assert.That(GetFieldValue<bool>(manager, "pendingForfeit"), Is.True);
             Assert.That(GetFieldValue<bool>(controller, "gameplayInputEnabled"), Is.False,
                 "Gameplay input must be blocked synchronously before overlay animation can complete.");
+            Component soloUiController = GetFieldValue<Component>(manager, "soloUIController");
+            Assert.That(CountTargetHandlers(soloUiController, manager), Is.EqualTo(2),
+                "The manager must consume one confirm and one cancel event route.");
 
-            RaiseEvent(controller, "ForfeitRequested");
+            GetFieldValue<Button>(soloUiController, "cancelButton").onClick.Invoke();
             Assert.That(manager.currentState, Is.EqualTo(GameState.PlayerTurn));
             Assert.That(GetFieldValue<bool>(manager, "pendingForfeit"), Is.False);
 
             RaiseEvent(controller, "ForfeitRequested");
-            confirmForfeit.Invoke(manager, null);
-            confirmForfeit.Invoke(manager, null);
+            GetFieldValue<Button>(soloUiController, "confirmButton").onClick.Invoke();
+            GetFieldValue<Button>(soloUiController, "confirmButton").onClick.Invoke();
 
             Assert.That(lastEndReason.GetValue(manager).ToString(), Is.EqualTo("Forfeit"));
             Assert.That(gameOverCount, Is.EqualTo(1));
@@ -125,7 +128,24 @@ public class SoloSessionLifecycleTests
         FieldInfo panels = GetField(soloUiType, "panels");
         panels.SetValue(gameUIManager, Activator.CreateInstance(panels.FieldType));
         SetField(gameUIManager, "gameCanvas", CreateObject("GameCanvas"));
+        GameObject overlay = CreateUiObject("ForfeitConfirmation", typeof(CanvasGroup));
+        overlay.SetActive(false);
+        Button confirmButton = CreateUiObject("Confirm", typeof(Image), typeof(Button)).GetComponent<Button>();
+        Button cancelButton = CreateUiObject("Cancel", typeof(Image), typeof(Button)).GetComponent<Button>();
+        CreateObject("EventSystem").AddComponent<EventSystem>();
+        SetField(gameUIManager, "forfeitConfirmation", overlay);
+        SetField(gameUIManager, "confirmButton", confirmButton);
+        SetField(gameUIManager, "cancelButton", cancelButton);
+        if (playerHandController != null)
+        {
+            SetField(gameUIManager, "playerHandController", playerHandController);
+        }
         uiObject.SetActive(true);
+        if (GetFieldValue<object>(gameUIManager, "panelMap") == null)
+        {
+            Invoke(gameUIManager, "Awake");
+        }
+        Invoke(gameUIManager, "OnEnable");
 
         GameObject managerObject = CreateInactiveObject("MahjongGameManager");
         MahjongGameManager manager = managerObject.AddComponent<MahjongGameManager>();
@@ -133,6 +153,7 @@ public class SoloSessionLifecycleTests
         Timer timer = managerObject.AddComponent<Timer>();
         SetField(manager, "scoreManagerDistance", score);
         SetField(manager, "redstoneClock", timer);
+        SetField(manager, "soloUIController", gameUIManager);
         if (playerHandController != null)
         {
             SetField(manager, "playerHand", playerHandController);
@@ -197,6 +218,8 @@ public class SoloSessionLifecycleTests
         Assert.That(scene, Does.Contain("cancelButton: {fileID: 1444117286}"));
         Assert.That(scene, Does.Contain("m_SelectOnRight: {fileID: 1444117286}"));
         Assert.That(scene, Does.Contain("m_SelectOnLeft: {fileID: 294217836}"));
+        Assert.That(scene, Does.Contain("m_SelectOnDown: {fileID: 1444117286}"));
+        Assert.That(scene, Does.Contain("m_SelectOnUp: {fileID: 294217836}"));
         Assert.That(scene, Does.Contain("m_Name: EventSystem"));
     }
 
@@ -260,6 +283,15 @@ public class SoloSessionLifecycleTests
     private GameObject CreateObject(string name)
     {
         GameObject createdObject = new GameObject(name);
+        createdObjects.Add(createdObject);
+        return createdObject;
+    }
+
+    private GameObject CreateUiObject(string name, params Type[] componentTypes)
+    {
+        var types = new List<Type> { typeof(RectTransform) };
+        types.AddRange(componentTypes);
+        GameObject createdObject = new GameObject(name, types.ToArray());
         createdObjects.Add(createdObject);
         return createdObject;
     }

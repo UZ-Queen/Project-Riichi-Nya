@@ -14,6 +14,7 @@ public class PlayerHandController : MonoBehaviour
     private DasArrInput dasArrInput;
     private bool callRiichiNya;
     private bool isGameOver;
+    private bool gameplayInputEnabled = true;
 
     void Awake()
     {
@@ -43,6 +44,11 @@ public class PlayerHandController : MonoBehaviour
         }
 
         if (MahjongGameManager.Instance == null)
+        {
+            return;
+        }
+
+        if (!gameplayInputEnabled)
         {
             return;
         }
@@ -126,14 +132,24 @@ public class PlayerHandController : MonoBehaviour
         playerHandView.TsumoTile(tsumoInfo);
     }
 
+    /// <summary>
+    /// 포기 확인 중에도 Escape 취소는 허용하면서 일반 손패 입력만 차단합니다.
+    /// </summary>
+    public void SetGameplayInputEnabled(bool enabled)
+    {
+        gameplayInputEnabled = enabled;
+    }
+
     private void HandleGameOver()
     {
         isGameOver = true;
+        gameplayInputEnabled = false;
     }
 
     private void HandleGameStart()
     {
         isGameOver = false;
+        gameplayInputEnabled = true;
         currentIndex = 6;
     }
 

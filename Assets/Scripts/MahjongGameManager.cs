@@ -1,8 +1,6 @@
 #define IROHA
 #undef IROHA
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Profiling;
 
@@ -20,14 +18,7 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
     [SerializeField] private Timer redstoneClock;
     [Header("시구레 UI")]
     [SerializeField] private PlayerHandController playerHand;
-    [SerializeField] private UiScoreDistanceInfo uiScoreDistanceInfo;
-    [SerializeField] private UiScoreInfo uiScoreInfo;
-    [SerializeField] private UiRoundInfo uiRoundInfo;
-    [SerializeField] private UiCallInfo uiCallHolder;
-
-    [SerializeField] private UiWinInfo uiWininfo;
-    [SerializeField] private UiRemainingTimeIndicator uiRemainingTime;
-    [SerializeField] private UiGameOver uiGameOver;
+    [SerializeField] private SoloScoringUIController soloUIController;
 
     [Header("몰름보")]
     public GameState currentState = GameState.Initializing;
@@ -63,6 +54,14 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
             playerHand.OnPlayerCall += CallHandler;
             playerHand.ForfeitRequested += RequestForfeit;
         }
+
+        if (soloUIController != null)
+        {
+            soloUIController.ConfirmRequested -= ConfirmForfeit;
+            soloUIController.CancelRequested -= CancelForfeit;
+            soloUIController.ConfirmRequested += ConfirmForfeit;
+            soloUIController.CancelRequested += CancelForfeit;
+        }
     }
 
     void Start()
@@ -86,6 +85,12 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
             playerHand.ForfeitRequested -= RequestForfeit;
         }
 
+        if (soloUIController != null)
+        {
+            soloUIController.ConfirmRequested -= ConfirmForfeit;
+            soloUIController.CancelRequested -= CancelForfeit;
+        }
+
         if (redstoneClock != null)
         {
             redstoneClock.OnTimerFinished -= HandleTimerFinished;
@@ -106,7 +111,7 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
         pendingForfeit = false;
         sessionFinalized = false;
         OnGameStart();
-        GameUIManager.Instance?.Initialize();
+        soloUIController?.Initialize();
         
         prng = new System.Random();
 #if IROHA
@@ -129,11 +134,11 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
         Construct(scoreManagerDistance);
         svcScoreManager.Initialize();
         //UI에 뿌려줌
-        uiScoreDistanceInfo?.Construct(svcScoreManager);
+        soloUIController?.BindScoreDistance(svcScoreManager);
         //타이머 생성 후..
         redstoneClock.StartTimer(180);
         redstoneClock.OnTimerFinished += HandleTimerFinished;
-        uiRemainingTime?.Construct(redstoneClock);
+        soloUIController?.BindRemainingTime(redstoneClock);
         
         currentState = GameState.PlayerTurn;
         // currentRound = new MahjongRound(prng.Next(), player);
@@ -160,6 +165,7 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
     
     void HandleTimerFinished()
     {
+        soloUIController?.HideForfeitConfirmation();
         FinalizeGame(GameEndReason.TimeExpired);
     }
 
@@ -187,8 +193,9 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
         }
 
         pendingForfeit = false;
-        GameUIManager.Instance?.DeactivePanel(GameUIState.ForfeitConfirmation);
         ChangeState(GameState.PlayerTurn);
+        soloUIController?.SetGameplayInputEnabled(true);
+        soloUIController?.HideForfeitConfirmation();
     }
 
     void RequestForfeit()
@@ -206,7 +213,8 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
 
         pendingForfeit = true;
         ChangeState(GameState.Processing);
-        GameUIManager.Instance?.ActivePanel(GameUIState.ForfeitConfirmation);
+        soloUIController?.SetGameplayInputEnabled(false);
+        soloUIController?.ShowForfeitConfirmation();
     }
 
     void FinalizeGame(GameEndReason reason)
@@ -219,6 +227,8 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
         sessionFinalized = true;
         pendingForfeit = false;
         lastEndReason = reason;
+        soloUIController?.SetGameplayInputEnabled(false);
+        soloUIController?.HideForfeitConfirmation();
         redstoneClock.OnTimerFinished -= HandleTimerFinished;
         redstoneClock.TaimuSutopu();
         DetachRoundEvent();
@@ -229,7 +239,7 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
         float yourScore = svcScoreManager.DistanceWithAccumulated;
 
         var saveData = SettingsManager.Load();
-        uiGameOver?.Initialize(yourScore, saveData.highScore, reason);
+        soloUIController?.ShowGameOver(yourScore, saveData.highScore, reason);
         if (reason == GameEndReason.TimeExpired)
         {
             if (yourScore > saveData.highScore)
@@ -279,14 +289,14 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
 
     void UpdatePlayerHand()
     {
-        playerHand?.FillHand(player.Hand);
+        soloUIController?.ShowPlayerHand(player.Hand);
     }
     void LetPlayerTsumoTile(TsumoInfo tsumoInfo)
     {
-        playerHand?.TsumoTile(tsumoInfo);
-        if (uiCallHolder != null && uiCallHolder.UpdateInfo(tsumoInfo.isRiichiAble, tsumoInfo.isTsumoAble))
+        soloUIController?.ShowTsumoTile(tsumoInfo);
+        if (soloUIController != null && soloUIController.UpdateCallOptions(tsumoInfo))
         { 
-           GameUIManager.Instance.ActivePanel(GameUIState.RiichiTsumo);
+           soloUIController.ActivePanel(GameUIState.RiichiTsumo);
         }
         currentState = GameState.PlayerTurn;
     }
@@ -301,7 +311,6 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
         {
             UpdatePlayerHand();
         }
-        // GameUIManager.Instance.DeactivePanel(GameUIState.RiichiTsumo);
         currentState = GameState.PlayerTurn;
     }
 
@@ -316,7 +325,7 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
     void UpdatePlayerScore(int delta)
     {
         // MyLogger.Log($"점수를 바꿀게요! {delta} + {player.Score}");
-        uiScoreInfo?.UpdateScore(player.Score);
+        soloUIController?.UpdatePlayerScore(player.Score);
         if (delta > 0)
         {
             svcScoreManager?.GetBoostAndDistance(delta);
@@ -324,13 +333,12 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
     }
 
     void UpdateRoundInfo(MahjongRoundInfo info){
-        uiRoundInfo?.UpdateUIInfo(info);
+        soloUIController?.UpdateRoundInfo(info);
     }
 
     void HandlePlayerWin(MahjongWinInfo info)
     {
-        uiWininfo.UpdateInfo(info, player.IsOya);
-        GameUIManager.Instance.VolatileTurnOn(GameUIState.WinInfo, 5);
+        soloUIController?.ShowWinInfo(info, player.IsOya);
     }
 
     void CheckRiichii(TsumoInfo tsumoInfo)

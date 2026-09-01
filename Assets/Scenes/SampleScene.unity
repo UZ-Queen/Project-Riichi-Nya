@@ -1655,9 +1655,9 @@ MonoBehaviour:
     m_Mode: 3
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
+    m_SelectOnDown: {fileID: 1444117286}
     m_SelectOnLeft: {fileID: 0}
-    m_SelectOnRight: {fileID: 0}
+    m_SelectOnRight: {fileID: 1444117286}
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
@@ -1682,19 +1682,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 294217837}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1703134450}
-        m_TargetAssemblyTypeName: MahjongGameManager, Assembly-CSharp
-        m_MethodName: ConfirmForfeit
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &294217837
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2465,12 +2453,19 @@ MonoBehaviour:
     group: {fileID: 1563807081}
     appearFromWhere: 3
     originalPosition: {x: 0, y: 0}
-  - state: 9
-    rect: {fileID: 1412270347}
-    group: {fileID: 1412270344}
-    appearFromWhere: 1
-    originalPosition: {x: 0, y: 0}
   gameCanvas: {fileID: 1225745916}
+  playerHandController: {fileID: 199402665}
+  playerHandView: {fileID: 199402667}
+  uiScoreDistanceInfo: {fileID: 592575838}
+  uiScoreInfo: {fileID: 1739634554}
+  uiRoundInfo: {fileID: 71275689}
+  uiCallHolder: {fileID: 1619802165}
+  uiWininfo: {fileID: 1201654781}
+  uiRemainingTime: {fileID: 1082300751}
+  uiGameOver: {fileID: 1563807082}
+  forfeitConfirmation: {fileID: 1412270343}
+  confirmButton: {fileID: 294217836}
+  cancelButton: {fileID: 1444117286}
   distance: 500
   duration: 0.4
   ease: 10
@@ -7759,9 +7754,9 @@ MonoBehaviour:
   m_Navigation:
     m_Mode: 3
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
+    m_SelectOnUp: {fileID: 294217836}
     m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnLeft: {fileID: 294217836}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
@@ -7787,19 +7782,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1444117287}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1703134450}
-        m_TargetAssemblyTypeName: MahjongGameManager, Assembly-CSharp
-        m_MethodName: CancelForfeit
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1444117287
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9380,13 +9363,7 @@ MonoBehaviour:
   scoreManagerDistance: {fileID: 1754916433}
   redstoneClock: {fileID: 1482123944}
   playerHand: {fileID: 199402665}
-  uiScoreDistanceInfo: {fileID: 592575838}
-  uiScoreInfo: {fileID: 1739634554}
-  uiRoundInfo: {fileID: 71275689}
-  uiCallHolder: {fileID: 1619802165}
-  uiWininfo: {fileID: 1201654781}
-  uiRemainingTime: {fileID: 1082300751}
-  uiGameOver: {fileID: 1563807082}
+  soloUIController: {fileID: 404803895}
   currentState: 0
   TileDB: {fileID: 11400000, guid: d9a4ad3373291044d91b9b2ea4e98592, type: 2}
 --- !u!1 &1720214438

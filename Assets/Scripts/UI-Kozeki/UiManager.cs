@@ -1,10 +1,6 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using DG.Tweening;
-using Unity.VisualScripting;
 
 
 public enum UIState
@@ -210,7 +206,7 @@ public partial class UiManager : MonoBehaviour
         if (historyStack.Count == 0) return;
         if (currentState == UIState.InGame)
         {
-            GameUIManager.Instance.HideAllPanels();
+            SoloScoringUIController.Instance.HideAllPanels();
         }
         ShowPanel(historyStack.Pop(), false);
     }
