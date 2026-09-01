@@ -31,6 +31,7 @@ public class SoloSessionLifecycleTests
     [Test]
     public void ConfirmForfeit_FinalizesOnceWithoutSavingHighScore()
     {
+        AssertSoloManagerRenameBoundary();
         AssertSoloUiRenameBoundary();
         AssertSoloUiOwnershipBoundary();
         AssertForfeitOverlaySceneContract();
@@ -95,6 +96,7 @@ public class SoloSessionLifecycleTests
     [Test]
     public void StartNewGame_Twice_DetachesAndResetsSession()
     {
+        AssertSoloManagerRenameBoundary();
         AssertSoloUiRenameBoundary();
         AssertSoloUiOwnershipBoundary();
         AssertForfeitOverlaySceneContract();
@@ -179,6 +181,15 @@ public class SoloSessionLifecycleTests
         Assert.That(soloUiType, Is.Not.Null, "The solo presentation owner must be named SoloScoringUIController.");
         Assert.That(typeof(MonoBehaviour).IsAssignableFrom(soloUiType), Is.True);
         Assert.That(compatibilityType, Is.Null, "The bounded Task 1 compatibility facade must be removed after caller migration.");
+    }
+
+    private static void AssertSoloManagerRenameBoundary()
+    {
+        Type soloManagerType = typeof(MahjongGameManager).Assembly.GetType("SoloScoringGameManager");
+
+        Assert.That(soloManagerType, Is.Not.Null,
+            "The solo lifecycle owner must be named SoloScoringGameManager.");
+        Assert.That(typeof(MonoBehaviour).IsAssignableFrom(soloManagerType), Is.True);
     }
 
     private static void AssertSoloUiOwnershipBoundary()
