@@ -36,18 +36,26 @@
   3. Windows Player가 런타임 `UnityEditor` 참조 없이 컴파일되고 실행되어 대표 솔로 경로를 시작할 수 있다.
   4. 개발자는 Unity Test Framework의 프로젝트 EditMode 테스트를 배치 실행하고 결과 파일을 확인할 수 있다.
 
-**Plans**: 1/3 plans executed
+**Plans**: 1/5 plans executed
 **Wave 1**
 
 - [x] 01-01-PLAN.md — 고정 시드 trace, 포기·재시작 walking skeleton, Windows Player gate
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 01-02-PLAN.md — lifecycle race·구독·입력·재시작 회귀 검증 확장
+- [ ] 01-02-PLAN.md — PlayerHandController/View 분리와 별도 ForfeitRequested 입력 경계
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 01-03-PLAN.md — 실제 Windows Player GUI와 동일 프로세스 재시작 최종 검증
+- [ ] 01-03-PLAN.md — SoloScoringUIController 개명과 scene-local 포기 모달 분리
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 01-04-PLAN.md — SoloScoringGameManager 개명과 mode root 생명주기·구독 대칭
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [ ] 01-05-PLAN.md — 확장 회귀, 최종 Windows 빌드, 동일 프로세스 GUI 재검증
 
 ### Phase 2: Shared Rules Core — 정확한 공유 규칙 코어
 
@@ -155,7 +163,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Executable Baseline — 실행 기준선과 검증 경로 | 1/3 | In Progress|  |
+| 1. Executable Baseline — 실행 기준선과 검증 경로 | 1/5 | In Progress|  |
 | 2. Shared Rules Core — 정확한 공유 규칙 코어 | 0/TBD | Not started | - |
 | 3. Solo Preservation and Riichi — 독립 솔로 모드와 완전한 리치 | 0/TBD | Not started | - |
 | 4. Headless Hanchan — 헤드리스 고정 기본 반장전 | 0/TBD | Not started | - |
