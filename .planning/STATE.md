@@ -4,16 +4,16 @@ milestone: v1.0
 current_phase: 01
 current_phase_name: Executable Baseline / 실행 기준선과 검증 경로
 status: executing
-stopped_at: Completed 01-01-PLAN.md
-last_updated: "2026-09-01T09:49:03.863Z"
+stopped_at: Completed 01-02-PLAN.md
+last_updated: "2026-09-01T10:12:27.331Z"
 last_activity: 2026-09-01
-last_activity_desc: Phase 01 replanned from current HEAD; 01-01 preserved complete
-state_head: 1c305bf32be41a15dfde4421f1dc6a2e53f00d76
+last_activity_desc: Completed 01-02 PlayerHandController/View input and presentation boundary
+state_head: d100521cd7f95728e6481b8e61bf623ff75fecbd
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 5
-  completed_plans: 1
+  completed_plans: 2
 milestone_name: milestone
 ---
 
@@ -29,11 +29,11 @@ See: .planning/PROJECT.md (updated 2026-08-28)
 ## Current Position
 
 Phase: 1 of 7 (Executable Baseline / 실행 기준선과 검증 경로)
-Plan: 2 of 5 in current phase
+Plan: 3 of 5 in current phase
 Status: Ready to execute
-Last activity: 2026-09-01 -- Phase 01 replanned from current HEAD; 01-01 preserved complete
+Last activity: 2026-09-01 -- Completed 01-02 PlayerHandController/View input and presentation boundary
 
-Progress: [██░░░░░░░░] 20%
+Progress: [████░░░░░░] 40%
 
 ## Performance Metrics
 
@@ -60,6 +60,7 @@ Progress: [██░░░░░░░░] 20%
 | Plan | Duration | Tasks | Files |
 |------|----------|-------|-------|
 | Phase 01 P01 | 2d 20h 45m | 4 tasks | 18 files |
+| Phase 01 P02 | 17min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -76,6 +77,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 1]: `PlayerHandController`는 입력·선택을, `PlayerHandView`는 패 표시를 담당한다.
 - [Phase 1]: Windows builds preserve a durable report before explicit Editor exit and restore the canonical ignored Temp evidence path.
 - [Phase 1]: New Korean lifecycle labels reuse the existing 경기천년 2K TMP atlas and shared material.
+- [Phase 01]: PlayerHandView stays on the existing hand GameObject and reuses the current tile hierarchy.
+- [Phase 01]: PlayerHandController preserves the original script GUID and uses direct idempotent manager subscriptions.
 
 ### Pending Todos
 
@@ -96,6 +99,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-01T08:52:38.517Z
-Stopped at: Completed 01-01-PLAN.md
+Last session: 2026-09-01T10:12:27.313Z
+Stopped at: Completed 01-02-PLAN.md
 Resume file: None
