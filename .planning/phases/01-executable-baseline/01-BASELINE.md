@@ -1,0 +1,21 @@
+# Phase 1 Executable Baseline Evidence
+
+- Baseline tag: portfolio-baseline
+- Baseline commit: b18320ec1d9d647900d2173049819bab6bd47175
+- Target commit: 7a783e9ca8d8513fe829ef0b79c3e9b69d43d140
+- Unity version: 2022.3.29f1
+- EditMode command: Invoke-UnityTests.ps1 -ProjectPath <project> -TestPlatform EditMode -TestFilter "MahjongRoundTraceTests;SoloSessionLifecycleTests" -ExpectedGate Green
+- EditMode status: PASS
+- Test count: 5
+- Seeded trace: seed=1557 acceptedActions=112 PASS
+- Windows build command: Unity.exe -batchmode -nographics -projectPath <project> -executeMethod Phase1Build.BuildWindowsPlayer -logFile <project>/Temp/phase1/build.log; restore durable Builds/phase1/build-report.txt to Temp/phase1/build-report.txt after the explicit Editor exit
+- BuildReport: Temp/phase1/build-report.txt reports Result: Succeeded, Errors: 0, Warnings: 5, Size: 122093895, Duration: 00:00:05.7334193
+- BuildReport status: PASS
+- Player executable: Builds/phase1/RiichiNya.exe
+- Player PID: 17432
+- Licensing status: PASS
+- Human checkpoint: APPROVED
+- GUI status: PASS
+- Raw artifacts: Temp/phase1/editmode-initial.xml, Temp/phase1/editmode-initial.log, Temp/phase1/build.log, Temp/phase1/build-report.txt, Temp/phase1/player.pid, Builds/phase1/RiichiNya.exe
+- Before: no project-authored tests; runtime UnityEditor import created Player-build risk; direct Esc forfeit skipped confirmation; restart duplicate subscriptions and stale-state risk were unguarded
+- After: five discovered EditMode cases pass; seed 1557 trace is reproducible; one owner finalizes timeout or confirmed forfeit idempotently; restart detaches prior callbacks; the Korean confirmation/result UI, successful Windows build, and same-PID lifecycle were explicitly approved
