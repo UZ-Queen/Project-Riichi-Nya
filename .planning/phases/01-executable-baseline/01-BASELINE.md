@@ -14,8 +14,8 @@
 - Player executable: Builds/phase1/RiichiNya.exe
 - Player PID: 20000
 - Licensing status: PASS
-- Human checkpoint: PENDING
-- GUI status: NOT OBSERVED
+- Human checkpoint: APPROVED
+- GUI status: PASS
 - Raw artifacts: Logs/UnityTestGate/20260901-200231-641-results.xml, Logs/UnityTestGate/20260901-200231-641-unity.log, Logs/UnityTestGate/20260901-200143-063-results.xml, Logs/UnityTestGate/20260901-200143-063-unity.log, Temp/phase1/build.log, Temp/phase1/build-report.txt, Temp/phase1/player.pid, Builds/phase1/RiichiNya.exe
 - Before: no project-authored tests; runtime UnityEditor import created Player-build risk; direct Esc forfeit skipped confirmation; restart duplicate subscriptions and stale-state risk were unguarded
-- After: three trace and thirteen lifecycle cases pass independently; seed 1557 trace is reproducible; SoloScoringGameManager, SoloScoringUIController, PlayerHandController, and PlayerHandView preserve one-owner lifecycle behavior; the final same-PID GUI observation is pending
+- After: three trace and thirteen lifecycle cases pass independently; seed 1557 trace is reproducible; SoloScoringGameManager, SoloScoringUIController, PlayerHandController, and PlayerHandView preserve one-owner lifecycle behavior; the final same-PID GUI sequence was explicitly approved
