@@ -20,8 +20,8 @@ public class SoloSessionLifecycleTests
         }
 
         createdObjects.Clear();
-        SetStaticProperty(typeof(MahjongGameManager), "Instance", null);
-        Type soloUiType = typeof(MahjongGameManager).Assembly.GetType("SoloScoringUIController");
+        SetStaticProperty(typeof(SoloScoringGameManager), "Instance", null);
+        Type soloUiType = typeof(SoloScoringGameManager).Assembly.GetType("SoloScoringUIController");
         if (soloUiType != null)
         {
             SetStaticProperty(soloUiType, "Instance", null);
@@ -38,8 +38,8 @@ public class SoloSessionLifecycleTests
         AssertPlayerHandRenderingBoundary();
         Type controllerType = AssertPlayerHandInputBoundary();
 
-        MethodInfo confirmForfeit = GetMethod(typeof(MahjongGameManager), "ConfirmForfeit");
-        FieldInfo lastEndReason = GetField(typeof(MahjongGameManager), "lastEndReason");
+        MethodInfo confirmForfeit = GetMethod(typeof(SoloScoringGameManager), "ConfirmForfeit");
+        FieldInfo lastEndReason = GetField(typeof(SoloScoringGameManager), "lastEndReason");
 
         Assert.That(confirmForfeit, Is.Not.Null, "Forfeit must wait for an explicit confirmation.");
         Assert.That(lastEndReason, Is.Not.Null, "The finalizer must retain the observed end reason.");
@@ -52,7 +52,7 @@ public class SoloSessionLifecycleTests
             SettingsManager.Save(new PetitGameSaveData { highScore = 4321f });
             byte[] expectedSave = File.ReadAllBytes(savePath);
             Component controller = CreateInactiveObject("PlayerHandController").AddComponent(controllerType);
-            MahjongGameManager manager = CreateManager(controller);
+            SoloScoringGameManager manager = CreateManager(controller);
             int gameOverCount = 0;
             manager.OnGameOver += () => gameOverCount++;
 
@@ -103,10 +103,10 @@ public class SoloSessionLifecycleTests
         AssertPlayerHandRenderingBoundary();
         AssertPlayerHandInputBoundary();
 
-        Assert.That(GetField(typeof(MahjongGameManager), "pendingForfeit"), Is.Not.Null);
-        Assert.That(GetField(typeof(MahjongGameManager), "sessionFinalized"), Is.Not.Null);
+        Assert.That(GetField(typeof(SoloScoringGameManager), "pendingForfeit"), Is.Not.Null);
+        Assert.That(GetField(typeof(SoloScoringGameManager), "sessionFinalized"), Is.Not.Null);
 
-        MahjongGameManager manager = CreateManager();
+        SoloScoringGameManager manager = CreateManager();
 
         manager.StartNewGame();
         MahjongRound firstRound = GetFieldValue<MahjongRound>(manager, "currentRound");
@@ -122,9 +122,9 @@ public class SoloSessionLifecycleTests
         Assert.That(GetFieldValue<bool>(manager, "sessionFinalized"), Is.False);
     }
 
-    private MahjongGameManager CreateManager(Component playerHandController = null)
+    private SoloScoringGameManager CreateManager(Component playerHandController = null)
     {
-        Type soloUiType = typeof(MahjongGameManager).Assembly.GetType("SoloScoringUIController");
+        Type soloUiType = typeof(SoloScoringGameManager).Assembly.GetType("SoloScoringUIController");
         GameObject uiObject = CreateInactiveObject("SoloScoringUIController");
         Component gameUIManager = uiObject.AddComponent(soloUiType);
         FieldInfo panels = GetField(soloUiType, "panels");
@@ -149,8 +149,8 @@ public class SoloSessionLifecycleTests
         }
         Invoke(gameUIManager, "OnEnable");
 
-        GameObject managerObject = CreateInactiveObject("MahjongGameManager");
-        MahjongGameManager manager = managerObject.AddComponent<MahjongGameManager>();
+        GameObject managerObject = CreateInactiveObject("SoloScoringGameManager");
+        SoloScoringGameManager manager = managerObject.AddComponent<SoloScoringGameManager>();
         ScoreManagerDistance score = managerObject.AddComponent<ScoreManagerDistance>();
         Timer timer = managerObject.AddComponent<Timer>();
         SetField(manager, "scoreManagerDistance", score);
@@ -174,7 +174,7 @@ public class SoloSessionLifecycleTests
 
     private static void AssertSoloUiRenameBoundary()
     {
-        Assembly runtimeAssembly = typeof(MahjongGameManager).Assembly;
+        Assembly runtimeAssembly = typeof(SoloScoringGameManager).Assembly;
         Type soloUiType = runtimeAssembly.GetType("SoloScoringUIController");
         Type compatibilityType = runtimeAssembly.GetType("GameUIManager");
 
@@ -185,16 +185,19 @@ public class SoloSessionLifecycleTests
 
     private static void AssertSoloManagerRenameBoundary()
     {
-        Type soloManagerType = typeof(MahjongGameManager).Assembly.GetType("SoloScoringGameManager");
+        Type soloManagerType = typeof(SoloScoringGameManager).Assembly.GetType("SoloScoringGameManager");
+        Type compatibilityType = typeof(SoloScoringGameManager).Assembly.GetType("MahjongGameManager");
 
         Assert.That(soloManagerType, Is.Not.Null,
             "The solo lifecycle owner must be named SoloScoringGameManager.");
         Assert.That(typeof(MonoBehaviour).IsAssignableFrom(soloManagerType), Is.True);
+        Assert.That(typeof(MonoBehaviour).IsAssignableFrom(compatibilityType), Is.False,
+            "The temporary compatibility facade must not own Unity lifecycle state.");
     }
 
     private static void AssertSoloUiOwnershipBoundary()
     {
-        Type soloUiType = typeof(MahjongGameManager).Assembly.GetType("SoloScoringUIController");
+        Type soloUiType = typeof(SoloScoringGameManager).Assembly.GetType("SoloScoringUIController");
         string[] movedFields =
         {
             "playerHandView", "uiScoreDistanceInfo", "uiScoreInfo", "uiRoundInfo", "uiCallHolder",
@@ -204,7 +207,7 @@ public class SoloSessionLifecycleTests
         foreach (string fieldName in movedFields)
         {
             Assert.That(GetField(soloUiType, fieldName), Is.Not.Null, $"Solo UI must own {fieldName}.");
-            Assert.That(GetField(typeof(MahjongGameManager), fieldName), Is.Null, $"Game manager must not own {fieldName} presentation state.");
+            Assert.That(GetField(typeof(SoloScoringGameManager), fieldName), Is.Null, $"Game manager must not own {fieldName} presentation state.");
         }
 
         Assert.That(soloUiType.GetEvent("ConfirmRequested"), Is.Not.Null);
@@ -249,7 +252,7 @@ public class SoloSessionLifecycleTests
 
     private static void AssertPlayerHandRenderingBoundary()
     {
-        Assembly runtimeAssembly = typeof(MahjongGameManager).Assembly;
+        Assembly runtimeAssembly = typeof(SoloScoringGameManager).Assembly;
         Type controllerType = runtimeAssembly.GetType("PlayerHandController") ?? runtimeAssembly.GetType("PlayerHand");
         Type viewType = runtimeAssembly.GetType("PlayerHandView");
 
@@ -266,10 +269,10 @@ public class SoloSessionLifecycleTests
 
     private static Type AssertPlayerHandInputBoundary()
     {
-        Type controllerType = typeof(MahjongGameManager).Assembly.GetType("PlayerHandController");
+        Type controllerType = typeof(SoloScoringGameManager).Assembly.GetType("PlayerHandController");
 
         Assert.That(controllerType, Is.Not.Null, "The input owner must be named PlayerHandController.");
-        Assert.That(GetField(typeof(MahjongGameManager), "playerHand").FieldType, Is.EqualTo(controllerType));
+        Assert.That(GetField(typeof(SoloScoringGameManager), "playerHand").FieldType, Is.EqualTo(controllerType));
         Assert.That(controllerType.GetEvent("ForfeitRequested"), Is.Not.Null,
             "Forfeit must use a separate session-intent event.");
         Assert.That(Enum.GetNames(typeof(PlayerCallType)), Does.Not.Contain("Forfeit"),

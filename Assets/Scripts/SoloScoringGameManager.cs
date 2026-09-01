@@ -5,9 +5,12 @@ using UnityEngine;
 using UnityEngine.Profiling;
 
 
-public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
+/// <summary>
+/// 솔로 스코어링 모드의 실행 상태, 규칙 진행, 타이머와 종료 정책을 관리합니다.
+/// </summary>
+public partial class SoloScoringGameManager : MonoBehaviour, IScoreDistanceConsumer
 {
-    public static MahjongGameManager Instance { get; private set; }
+    public static SoloScoringGameManager Instance { get; private set; }
 
     public event Action<GameState> OnStateChange = delegate { };
     public event Action OnGameOver = delegate { };
@@ -403,7 +406,7 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
 }
 
 /// 점수 관련 GI 테스트 영역
-public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
+public partial class SoloScoringGameManager : MonoBehaviour, IScoreDistanceConsumer
 {
     IScoreDistanceService svcScoreManager;
     public void Construct(IScoreDistanceService newService)
@@ -421,7 +424,7 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
 /// <summary>
 /// 치트!
 /// </summary>
-public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
+public partial class SoloScoringGameManager : MonoBehaviour, IScoreDistanceConsumer
 {
     public void GetScore()
     {
@@ -443,4 +446,12 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
         }
     }
 #endif
+}
+
+/// <summary>
+/// 호출자 마이그레이션 동안 기존 정적 진입점만 전달하는 임시 호환 계층입니다.
+/// </summary>
+public static class MahjongGameManager
+{
+    public static SoloScoringGameManager Instance => SoloScoringGameManager.Instance;
 }
