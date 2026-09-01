@@ -32,6 +32,7 @@ public class SoloSessionLifecycleTests
     public void ConfirmForfeit_FinalizesOnceWithoutSavingHighScore()
     {
         AssertSoloManagerRenameBoundary();
+        AssertSoloModeRootSceneContract();
         AssertSoloUiRenameBoundary();
         AssertSoloUiOwnershipBoundary();
         AssertForfeitOverlaySceneContract();
@@ -97,16 +98,18 @@ public class SoloSessionLifecycleTests
     public void StartNewGame_Twice_DetachesAndResetsSession()
     {
         AssertSoloManagerRenameBoundary();
+        AssertSoloModeRootSceneContract();
         AssertSoloUiRenameBoundary();
         AssertSoloUiOwnershipBoundary();
         AssertForfeitOverlaySceneContract();
         AssertPlayerHandRenderingBoundary();
-        AssertPlayerHandInputBoundary();
+        Type controllerType = AssertPlayerHandInputBoundary();
 
         Assert.That(GetField(typeof(SoloScoringGameManager), "pendingForfeit"), Is.Not.Null);
         Assert.That(GetField(typeof(SoloScoringGameManager), "sessionFinalized"), Is.Not.Null);
 
-        SoloScoringGameManager manager = CreateManager();
+        Component controller = CreateInactiveObject("PlayerHandController").AddComponent(controllerType);
+        SoloScoringGameManager manager = CreateManager(controller);
 
         manager.StartNewGame();
         MahjongRound firstRound = GetFieldValue<MahjongRound>(manager, "currentRound");
@@ -120,6 +123,20 @@ public class SoloSessionLifecycleTests
         Assert.That(manager.currentState, Is.EqualTo(GameState.PlayerTurn));
         Assert.That(GetFieldValue<bool>(manager, "pendingForfeit"), Is.False);
         Assert.That(GetFieldValue<bool>(manager, "sessionFinalized"), Is.False);
+
+        Component soloUiController = GetFieldValue<Component>(manager, "soloUIController");
+        Invoke(manager, "OnDisable");
+        Assert.That(CountTargetHandlers(controller, manager), Is.EqualTo(0));
+        Assert.That(CountTargetHandlers(soloUiController, manager), Is.EqualTo(0));
+        Assert.That(CountTargetHandlers(secondRound, manager), Is.EqualTo(0));
+        Assert.That(CountTargetHandlers(GetFieldValue<Timer>(manager, "redstoneClock"), manager), Is.EqualTo(0));
+
+        Invoke(manager, "OnEnable");
+        manager.StartNewGame();
+        Assert.That(CountTargetHandlers(controller, manager), Is.EqualTo(3));
+        Assert.That(CountTargetHandlers(soloUiController, manager), Is.EqualTo(2));
+        Assert.That(CountTargetHandlers(GetFieldValue<MahjongRound>(manager, "currentRound"), manager), Is.EqualTo(6));
+        Assert.That(CountTargetHandlers(GetFieldValue<Timer>(manager, "redstoneClock"), manager), Is.EqualTo(1));
     }
 
     private SoloScoringGameManager CreateManager(Component playerHandController = null)
@@ -193,6 +210,20 @@ public class SoloSessionLifecycleTests
         Assert.That(typeof(MonoBehaviour).IsAssignableFrom(soloManagerType), Is.True);
         Assert.That(compatibilityType, Is.Null,
             "The temporary compatibility facade must be removed after caller migration.");
+    }
+
+    private static void AssertSoloModeRootSceneContract()
+    {
+        string scenePath = Path.Combine(Application.dataPath, "Scenes", "SampleScene.unity");
+        string scene = File.ReadAllText(scenePath);
+        Type uiManagerType = typeof(SoloScoringGameManager).Assembly.GetType("UiManager");
+
+        Assert.That(GetField(uiManagerType, "soloScoringModeRoot"), Is.Not.Null,
+            "UiManager must own the serialized solo mode root activation boundary.");
+        Assert.That(CountOccurrences(scene, "m_Name: SoloScoringModeRoot"), Is.EqualTo(1));
+        Assert.That(scene, Does.Contain("soloScoringModeRoot: {fileID: 1987654321}"));
+        Assert.That(scene, Does.Contain("m_Name: SoloScoringGameManager"));
+        Assert.That(CountOccurrences(scene, "m_Name: EventSystem"), Is.EqualTo(1));
     }
 
     private static void AssertSoloUiOwnershipBoundary()
