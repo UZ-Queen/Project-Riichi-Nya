@@ -1,18 +1,18 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.0
-current_phase: 1
+current_phase: 01
 current_phase_name: Executable Baseline / 실행 기준선과 검증 경로
 status: executing
 stopped_at: Completed 01-01-PLAN.md
-last_updated: "2026-09-01T08:52:38.536Z"
-last_activity: 2026-08-29
-last_activity_desc: Phase 01 planning complete
-state_head: 8df5c2470a480ccee0509b1fd3c2b6469a294fa9
+last_updated: "2026-09-01T09:49:03.863Z"
+last_activity: 2026-09-01
+last_activity_desc: Phase 01 replanned from current HEAD; 01-01 preserved complete
+state_head: 1c305bf32be41a15dfde4421f1dc6a2e53f00d76
 progress:
   total_phases: 7
   completed_phases: 0
-  total_plans: 3
+  total_plans: 5
   completed_plans: 1
 milestone_name: milestone
 ---
@@ -29,17 +29,17 @@ See: .planning/PROJECT.md (updated 2026-08-28)
 ## Current Position
 
 Phase: 1 of 7 (Executable Baseline / 실행 기준선과 검증 경로)
-Plan: 1 of 3 in current phase
+Plan: 2 of 5 in current phase
 Status: Ready to execute
-Last activity: 2026-08-29 -- Phase 01 planning complete
+Last activity: 2026-09-01 -- Phase 01 replanned from current HEAD; 01-01 preserved complete
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [██░░░░░░░░] 20%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 0
+- Total plans completed: 1
 - Average duration: -
 - Total execution time: 0.0 hours
 
@@ -71,8 +71,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - 솔로는 180초 점수·부스트·거리의 독립 플레이 경험으로 유지한다.
 - Phase 6의 `CALL-01`~`CALL-18`은 완전한 Stage 3 묶음으로만 공개하며, gate 실패 시 전체를 v2로 이동한다.
 - 전략 AI, 추가 종료 규칙, 전면 UI 재제작과 새 패키지는 이번 milestone에서 제외한다.
-- [Phase 1]: MahjongGameManager remains the sole owner of start, pending-forfeit, finalization, persistence, and restart cleanup.
-- [Phase 1]: A private pending-forfeit flag distinguishes confirmation from unrelated Processing state.
+- [Phase 1]: `SoloScoringGameManager` owns 솔로 시작, 포기 모달 정책, 입력 게이트, 종료, 저장, 재시작 정리를 담당한다.
+- [Phase 1]: `ForfeitRequested`는 `PlayerCallType`과 분리된 입력 이벤트이며, scene-local overlay가 확인 UI를 표시한다.
+- [Phase 1]: `PlayerHandController`는 입력·선택을, `PlayerHandView`는 패 표시를 담당한다.
 - [Phase 1]: Windows builds preserve a durable report before explicit Editor exit and restore the canonical ignored Temp evidence path.
 - [Phase 1]: New Korean lifecycle labels reuse the existing 경기천년 2K TMP atlas and shared material.
 
