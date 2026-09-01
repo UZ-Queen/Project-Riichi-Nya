@@ -13,9 +13,12 @@ public enum GameUIState
     RoundInfo, Score, PlayerHand, WinInfo, RiichiTsumo, Distance, Time
     , GameOver, BBaggu, ForfeitConfirmation
 }
-public class GameUIManager : MonoBehaviour
+/// <summary>
+/// 솔로 스코어링 모드의 게임 화면 표현을 담당합니다.
+/// </summary>
+public class SoloScoringUIController : MonoBehaviour
 {
-    public static GameUIManager Instance { get; private set; }
+    public static SoloScoringUIController Instance { get; private set; }
     [Header("패널 매핑")]
     [SerializeField] List<GamePanelEntry> panels;
     [SerializeField] private GameObject gameCanvas;
@@ -181,4 +184,12 @@ public class GameUIManager : MonoBehaviour
     {
         FindObjectOfType<UiManager>().ShowPanel(UIState.MainMenu);
     }
+}
+
+/// <summary>
+/// UI 소유권 이전 중 기존 호출부가 새 컨트롤러를 참조하도록 연결하는 임시 호환 경계입니다.
+/// </summary>
+public static class GameUIManager
+{
+    public static SoloScoringUIController Instance => SoloScoringUIController.Instance;
 }
