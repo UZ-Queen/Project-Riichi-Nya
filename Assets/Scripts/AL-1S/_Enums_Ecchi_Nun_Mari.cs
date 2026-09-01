@@ -19,9 +19,18 @@ public enum UniqueName
     RyokubaiYakunyan = 48000,
 }
 
+/// <summary>
+/// 플레이어가 마작 규칙에 전달할 수 있는 선언 종류입니다.
+/// </summary>
 public enum PlayerCallType
 {
-    Riichi, Tsumo, Ron, Chii, Pon, Kan, Nukidora, Forfeit
+    Riichi,
+    Tsumo,
+    Ron,
+    Chii,
+    Pon,
+    Kan,
+    Nukidora,
 }
 
 public enum GameState{

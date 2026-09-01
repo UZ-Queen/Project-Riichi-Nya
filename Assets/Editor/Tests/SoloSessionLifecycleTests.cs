@@ -47,6 +47,8 @@ public class SoloSessionLifecycleTests
             manager.OnGameOver += () => gameOverCount++;
 
             manager.currentState = GameState.PlayerTurn;
+            Assert.That(CountTargetHandlers(controller, manager), Is.EqualTo(3),
+                "The manager must subscribe once to discard, call, and forfeit intents.");
             RaiseEvent(controller, "ForfeitRequested");
             Assert.That(manager.currentState, Is.EqualTo(GameState.Processing));
             Assert.That(GetFieldValue<bool>(manager, "pendingForfeit"), Is.True);
@@ -124,6 +126,11 @@ public class SoloSessionLifecycleTests
         manager.Construct(score);
         score.Initialize();
         managerObject.SetActive(true);
+        if (playerHandController != null)
+        {
+            Invoke(manager, "OnEnable");
+        }
+
         return manager;
     }
 

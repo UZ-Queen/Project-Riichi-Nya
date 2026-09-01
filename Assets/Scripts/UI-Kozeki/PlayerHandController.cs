@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// 솔로 손패 입력과 선택 상태를 관리하고 플레이 의도를 발행합니다.
 /// </summary>
-public class PlayerHand : MonoBehaviour
+public class PlayerHandController : MonoBehaviour
 {
     [SerializeField] private PlayerHandView playerHandView;
 
@@ -36,6 +36,12 @@ public class PlayerHand : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            ForfeitRequested();
+            return;
+        }
+
         if (MahjongGameManager.Instance == null)
         {
             return;
@@ -43,11 +49,6 @@ public class PlayerHand : MonoBehaviour
 
         if (MahjongGameManager.Instance.currentState != GameState.PlayerTurn)
         {
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                OnPlayerCall(PlayerCallType.Forfeit);
-            }
-
             return;
         }
 
@@ -79,10 +80,6 @@ public class PlayerHand : MonoBehaviour
             OnPlayerCall(PlayerCallType.Tsumo);
         }
 
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            OnPlayerCall(PlayerCallType.Forfeit);
-        }
     }
 
     void OnDisable()
@@ -105,6 +102,11 @@ public class PlayerHand : MonoBehaviour
     /// 플레이어가 선택한 마작 행동을 전달합니다.
     /// </summary>
     public event Action<PlayerCallType> OnPlayerCall = delegate { };
+
+    /// <summary>
+    /// 플레이어가 현재 솔로 세션의 포기 확인을 요청했음을 전달합니다.
+    /// </summary>
+    public event Action ForfeitRequested = delegate { };
 
     /// <summary>
     /// 현재 손패를 View에 표시합니다.

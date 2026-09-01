@@ -19,7 +19,7 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
     [SerializeField] private ScoreManagerDistance scoreManagerDistance;
     [SerializeField] private Timer redstoneClock;
     [Header("시구레 UI")]
-    [SerializeField] private PlayerHand playerHand;
+    [SerializeField] private PlayerHandController playerHand;
     [SerializeField] private UiScoreDistanceInfo uiScoreDistanceInfo;
     [SerializeField] private UiScoreInfo uiScoreInfo;
     [SerializeField] private UiRoundInfo uiRoundInfo;
@@ -56,8 +56,12 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
     {
         if (playerHand != null)
         {
+            playerHand.OnPlayerDiscard -= PlayerDiscardTile;
+            playerHand.OnPlayerCall -= CallHandler;
+            playerHand.ForfeitRequested -= RequestForfeit;
             playerHand.OnPlayerDiscard += PlayerDiscardTile;
             playerHand.OnPlayerCall += CallHandler;
+            playerHand.ForfeitRequested += RequestForfeit;
         }
     }
 
@@ -79,6 +83,7 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
         {
             playerHand.OnPlayerDiscard -= PlayerDiscardTile;
             playerHand.OnPlayerCall -= CallHandler;
+            playerHand.ForfeitRequested -= RequestForfeit;
         }
 
         if (redstoneClock != null)
@@ -188,7 +193,13 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
 
     void RequestForfeit()
     {
-        if (pendingForfeit || sessionFinalized)
+        if (pendingForfeit && currentState == GameState.Processing)
+        {
+            CancelForfeit();
+            return;
+        }
+
+        if (currentState != GameState.PlayerTurn || sessionFinalized)
         {
             return;
         }
@@ -339,12 +350,6 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
 
     void CallHandler(PlayerCallType callType)
     {
-        if (callType == PlayerCallType.Forfeit && pendingForfeit && currentState == GameState.Processing)
-        {
-            CancelForfeit();
-            return;
-        }
-
         if (currentState != GameState.PlayerTurn)
         {
             return;
@@ -367,9 +372,6 @@ public partial class MahjongGameManager : MonoBehaviour, IScoreDistanceConsumer
             case PlayerCallType.Kan:
                 break;
             case PlayerCallType.Nukidora:
-                break;
-            case PlayerCallType.Forfeit:
-                RequestForfeit();
                 break;
             default:
                 break;
