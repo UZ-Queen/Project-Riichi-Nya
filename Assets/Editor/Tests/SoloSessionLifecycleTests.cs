@@ -19,12 +19,17 @@ public class SoloSessionLifecycleTests
 
         createdObjects.Clear();
         SetStaticProperty(typeof(MahjongGameManager), "Instance", null);
-        SetStaticProperty(typeof(GameUIManager), "Instance", null);
+        Type soloUiType = typeof(MahjongGameManager).Assembly.GetType("SoloScoringUIController");
+        if (soloUiType != null)
+        {
+            SetStaticProperty(soloUiType, "Instance", null);
+        }
     }
 
     [Test]
     public void ConfirmForfeit_FinalizesOnceWithoutSavingHighScore()
     {
+        AssertSoloUiRenameBoundary();
         AssertPlayerHandRenderingBoundary();
         Type controllerType = AssertPlayerHandInputBoundary();
 
@@ -81,6 +86,7 @@ public class SoloSessionLifecycleTests
     [Test]
     public void StartNewGame_Twice_DetachesAndResetsSession()
     {
+        AssertSoloUiRenameBoundary();
         AssertPlayerHandRenderingBoundary();
         AssertPlayerHandInputBoundary();
 
@@ -105,9 +111,10 @@ public class SoloSessionLifecycleTests
 
     private MahjongGameManager CreateManager(Component playerHandController = null)
     {
-        GameObject uiObject = CreateInactiveObject("GameUIManager");
-        GameUIManager gameUIManager = uiObject.AddComponent<GameUIManager>();
-        FieldInfo panels = GetField(typeof(GameUIManager), "panels");
+        Type soloUiType = typeof(MahjongGameManager).Assembly.GetType("SoloScoringUIController");
+        GameObject uiObject = CreateInactiveObject("SoloScoringUIController");
+        Component gameUIManager = uiObject.AddComponent(soloUiType);
+        FieldInfo panels = GetField(soloUiType, "panels");
         panels.SetValue(gameUIManager, Activator.CreateInstance(panels.FieldType));
         SetField(gameUIManager, "gameCanvas", CreateObject("GameCanvas"));
         uiObject.SetActive(true);
@@ -132,6 +139,20 @@ public class SoloSessionLifecycleTests
         }
 
         return manager;
+    }
+
+    private static void AssertSoloUiRenameBoundary()
+    {
+        Assembly runtimeAssembly = typeof(MahjongGameManager).Assembly;
+        Type soloUiType = runtimeAssembly.GetType("SoloScoringUIController");
+        Type compatibilityType = runtimeAssembly.GetType("GameUIManager");
+
+        Assert.That(soloUiType, Is.Not.Null, "The solo presentation owner must be named SoloScoringUIController.");
+        Assert.That(typeof(MonoBehaviour).IsAssignableFrom(soloUiType), Is.True);
+        Assert.That(compatibilityType, Is.Not.Null, "Task 1 keeps a bounded compatibility facade for untouched callers.");
+        Assert.That(typeof(MonoBehaviour).IsAssignableFrom(compatibilityType), Is.False,
+            "The compatibility facade must not own Unity lifecycle or state.");
+        Assert.That(compatibilityType.GetProperty("Instance", BindingFlags.Static | BindingFlags.Public), Is.Not.Null);
     }
 
     private static void AssertPlayerHandRenderingBoundary()
