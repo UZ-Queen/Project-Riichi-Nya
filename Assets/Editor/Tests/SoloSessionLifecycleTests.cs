@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using NUnit.Framework;
+using TMPro;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class SoloSessionLifecycleTests
@@ -140,6 +143,259 @@ public class SoloSessionLifecycleTests
         Assert.That(CountTargetHandlers(GetFieldValue<Timer>(manager, "redstoneClock"), manager), Is.EqualTo(1));
     }
 
+    [Test]
+    public void ForfeitRequested_IsSeparateAndReturnsBeforeDiscard()
+    {
+        Type controllerType = AssertPlayerHandInputBoundary();
+        MethodInfo handleEscape = GetMethod(controllerType, "HandleEscape");
+
+        Assert.That(handleEscape, Is.Not.Null,
+            "The production Escape branch needs a callable seam for same-frame regression coverage.");
+
+        Component controller = CreateInactiveObject("PlayerHandController").AddComponent(controllerType);
+        int forfeitCount = 0;
+        int discardCount = 0;
+        int callCount = 0;
+        AddEventHandler(controller, "ForfeitRequested", (Action)(() => forfeitCount++));
+        AddEventHandler(controller, "OnPlayerDiscard", (Action<int>)(_ => discardCount++));
+        AddEventHandler(controller, "OnPlayerCall", (Action<PlayerCallType>)(_ => callCount++));
+
+        bool consumed = (bool)handleEscape.Invoke(controller, new object[] { true });
+        if (!consumed)
+        {
+            Invoke(controller, "DiscardSelectedTile");
+            RaiseEvent(controller, "OnPlayerCall", PlayerCallType.Tsumo);
+        }
+
+        Assert.That(consumed, Is.True);
+        Assert.That(forfeitCount, Is.EqualTo(1));
+        Assert.That(discardCount, Is.Zero);
+        Assert.That(callCount, Is.Zero);
+        Assert.That(Enum.GetNames(typeof(PlayerCallType)), Does.Not.Contain("Forfeit"));
+    }
+
+    [Test]
+    public void OpenConfirmation_SynchronouslyBlocksGameplay()
+    {
+        Type controllerType = AssertPlayerHandInputBoundary();
+        Component controller = CreateInactiveObject("PlayerHandController").AddComponent(controllerType);
+        SoloScoringGameManager manager = CreateManager(controller);
+
+        manager.currentState = GameState.PlayerTurn;
+        RaiseEvent(controller, "ForfeitRequested");
+
+        Component soloUiController = GetFieldValue<Component>(manager, "soloUIController");
+        GameObject overlay = GetFieldValue<GameObject>(soloUiController, "forfeitConfirmation");
+        Button cancelButton = GetFieldValue<Button>(soloUiController, "cancelButton");
+        Assert.That(manager.currentState, Is.EqualTo(GameState.Processing));
+        Assert.That(GetFieldValue<bool>(manager, "pendingForfeit"), Is.True);
+        Assert.That(GetFieldValue<bool>(controller, "gameplayInputEnabled"), Is.False);
+        Assert.That(overlay.activeSelf, Is.True);
+        Assert.That(cancelButton, Is.Not.Null);
+    }
+
+    [Test]
+    public void SecondEscape_CancelsAndRestoresGameplay()
+    {
+        Type controllerType = AssertPlayerHandInputBoundary();
+        Component controller = CreateInactiveObject("PlayerHandController").AddComponent(controllerType);
+        SoloScoringGameManager manager = CreateManager(controller);
+
+        manager.currentState = GameState.PlayerTurn;
+        RaiseEvent(controller, "ForfeitRequested");
+        RaiseEvent(controller, "ForfeitRequested");
+
+        Component soloUiController = GetFieldValue<Component>(manager, "soloUIController");
+        Assert.That(manager.currentState, Is.EqualTo(GameState.PlayerTurn));
+        Assert.That(GetFieldValue<bool>(manager, "pendingForfeit"), Is.False);
+        Assert.That(GetFieldValue<bool>(controller, "gameplayInputEnabled"), Is.True);
+        Assert.That(GetFieldValue<GameObject>(soloUiController, "forfeitConfirmation").activeSelf, Is.False);
+    }
+
+    [Test]
+    public void Confirmation_DoesNotPauseTimer()
+    {
+        Type controllerType = AssertPlayerHandInputBoundary();
+        Component controller = CreateInactiveObject("PlayerHandController").AddComponent(controllerType);
+        SoloScoringGameManager manager = CreateManager(controller);
+        Timer timer = GetFieldValue<Timer>(manager, "redstoneClock");
+        timer.StartTimer(180f);
+
+        manager.currentState = GameState.PlayerTurn;
+        RaiseEvent(controller, "ForfeitRequested");
+        Invoke(timer, "CheckTimerTick", 1f);
+
+        Assert.That(GetFieldValue<bool>(timer, "_paused"), Is.False);
+        Assert.That(timer.RemainingTime, Is.EqualTo(179f));
+        Assert.That(manager.currentState, Is.EqualTo(GameState.Processing));
+    }
+
+    [Test]
+    public void TimeoutDuringConfirmation_WinsAndRejectsLateActions()
+    {
+        Type controllerType = AssertPlayerHandInputBoundary();
+        Component controller = CreateInactiveObject("PlayerHandController").AddComponent(controllerType);
+        SoloScoringGameManager manager = CreateManager(controller);
+        int gameOverCount = 0;
+        manager.OnGameOver += () => gameOverCount++;
+        byte[] originalSave = PreserveSaveFile();
+
+        try
+        {
+            manager.currentState = GameState.PlayerTurn;
+            RaiseEvent(controller, "ForfeitRequested");
+            Invoke(manager, "HandleTimerFinished");
+            manager.ConfirmForfeit();
+            manager.CancelForfeit();
+            RaiseEvent(controller, "ForfeitRequested");
+
+            Assert.That(gameOverCount, Is.EqualTo(1));
+            Assert.That(manager.currentState, Is.EqualTo(GameState.GameOver));
+            Assert.That(GetFieldValue<GameEndReason>(manager, "lastEndReason"), Is.EqualTo(GameEndReason.TimeExpired));
+            Assert.That(GetFieldValue<bool>(manager, "sessionFinalized"), Is.True);
+            Assert.That(GetFieldValue<bool>(manager, "pendingForfeit"), Is.False);
+        }
+        finally
+        {
+            RestoreSaveFile(originalSave);
+        }
+    }
+
+    [Test]
+    public void PlayerController_Subscriptions_AreSymmetricAcrossRootCycles()
+    {
+        Type controllerType = AssertPlayerHandInputBoundary();
+        Component controller = CreateInactiveObject("PlayerHandController").AddComponent(controllerType);
+        SoloScoringGameManager manager = CreateManager(controller);
+
+        Assert.That(CountTargetHandlers(controller, manager), Is.EqualTo(3));
+        Invoke(manager, "OnDisable");
+        Assert.That(CountTargetHandlers(controller, manager), Is.Zero);
+        Invoke(manager, "OnEnable");
+        Invoke(manager, "OnEnable");
+        Assert.That(CountTargetHandlers(controller, manager), Is.EqualTo(3));
+    }
+
+    [Test]
+    public void UiController_Subscriptions_AreSymmetricAcrossRootCycles()
+    {
+        SoloScoringGameManager manager = CreateManager();
+        Component soloUiController = GetFieldValue<Component>(manager, "soloUIController");
+        Button confirmButton = GetFieldValue<Button>(soloUiController, "confirmButton");
+        Button cancelButton = GetFieldValue<Button>(soloUiController, "cancelButton");
+        int confirmCount = 0;
+        int cancelCount = 0;
+        AddEventHandler(soloUiController, "ConfirmRequested", (Action)(() => confirmCount++));
+        AddEventHandler(soloUiController, "CancelRequested", (Action)(() => cancelCount++));
+
+        Invoke(soloUiController, "OnEnable");
+        Invoke(soloUiController, "OnEnable");
+        confirmButton.onClick.Invoke();
+        Assert.That(confirmCount, Is.EqualTo(1));
+
+        Invoke(soloUiController, "OnDisable");
+        cancelButton.onClick.Invoke();
+        Assert.That(cancelCount, Is.Zero);
+
+        Invoke(soloUiController, "OnEnable");
+        cancelButton.onClick.Invoke();
+        Assert.That(cancelCount, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void ForfeitOverlay_IsOutsidePanelMapAndSelectsCancel()
+    {
+        AssertSoloModeRootSceneContract();
+        AssertForfeitOverlaySceneContract();
+        AssertSceneOverlaySelectsCancel();
+        SoloScoringGameManager manager = CreateManager();
+        Component soloUiController = GetFieldValue<Component>(manager, "soloUIController");
+
+        Invoke(soloUiController, "ShowForfeitConfirmation");
+
+        GameObject overlay = GetFieldValue<GameObject>(soloUiController, "forfeitConfirmation");
+        Button cancelButton = GetFieldValue<Button>(soloUiController, "cancelButton");
+        Assert.That(overlay.activeSelf, Is.True);
+        Assert.That(cancelButton, Is.Not.Null);
+        Assert.That(Enum.GetNames(typeof(GameUIState)), Does.Not.Contain("ForfeitConfirmation"));
+    }
+
+    [Test]
+    public void GameOver_Forfeit_RendersReasonAndDistance()
+    {
+        UiGameOver gameOver = CreateInactiveObject("UiGameOver").AddComponent<UiGameOver>();
+        TextMeshProUGUI total = CreateUiObject("Total", typeof(CanvasRenderer), typeof(TextMeshProUGUI))
+            .GetComponent<TextMeshProUGUI>();
+        TextMeshProUGUI record = CreateUiObject("Record", typeof(CanvasRenderer), typeof(TextMeshProUGUI))
+            .GetComponent<TextMeshProUGUI>();
+        TextMeshProUGUI reason = CreateUiObject("Reason", typeof(CanvasRenderer), typeof(TextMeshProUGUI))
+            .GetComponent<TextMeshProUGUI>();
+        SetField(gameOver, "uiTotalScore", total);
+        SetField(gameOver, "uiRecordScore", record);
+        SetField(gameOver, "uiReason", reason);
+
+        gameOver.Initialize(123.5f, 456f, GameEndReason.Forfeit);
+
+        Assert.That(reason.text, Is.EqualTo("포기"));
+        Assert.That(total.text, Is.EqualTo(123.5f.ToString()));
+        Assert.That(record.text, Is.EqualTo(456f.ToString()));
+    }
+
+    [Test]
+    public void ReturnToLobby_DisablesSoloModeRoot()
+    {
+        CreateManager();
+        GameObject modeRoot = CreateObject("SoloScoringModeRoot");
+        GameObject uiManagerObject = CreateInactiveObject("UiManager");
+        Component uiManager = uiManagerObject.AddComponent(typeof(SoloScoringGameManager).Assembly.GetType("UiManager"));
+        FieldInfo panels = GetField(uiManager.GetType(), "panels");
+        panels.SetValue(uiManager, Activator.CreateInstance(panels.FieldType));
+        FieldInfo panelMap = GetField(uiManager.GetType(), "panelMap");
+        panelMap.SetValue(uiManager, Activator.CreateInstance(panelMap.FieldType));
+        object history = Activator.CreateInstance(GetField(uiManager.GetType(), "historyStack").FieldType);
+        history.GetType().GetMethod("Push").Invoke(history, new object[] { UIState.MainMenu });
+        SetField(uiManager, "historyStack", history);
+        SetField(uiManager, "currentState", UIState.InGame);
+        SetField(uiManager, "soloScoringModeRoot", modeRoot);
+
+        Invoke(uiManager, "OnBBagguButton");
+
+        Assert.That(modeRoot.activeSelf, Is.False);
+        Assert.That(GetFieldValue<UIState>(uiManager, "currentState"), Is.EqualTo(UIState.MainMenu));
+    }
+
+    [Test]
+    public void RestartAfterLobby_UsesFreshStateAndSingleHandlers()
+    {
+        Type controllerType = AssertPlayerHandInputBoundary();
+        Component controller = CreateInactiveObject("PlayerHandController").AddComponent(controllerType);
+        SoloScoringGameManager manager = CreateManager(controller);
+        manager.StartNewGame();
+        MahjongRound firstRound = GetFieldValue<MahjongRound>(manager, "currentRound");
+        Timer timer = GetFieldValue<Timer>(manager, "redstoneClock");
+        Invoke(timer, "CheckTimerTick", 10f);
+        GetFieldValue<ScoreManagerDistance>(manager, "scoreManagerDistance").GetInstantDistance(50f);
+        manager.currentState = GameState.PlayerTurn;
+        RaiseEvent(controller, "ForfeitRequested");
+
+        Invoke(manager, "OnDisable");
+        Invoke(manager, "OnEnable");
+        manager.StartNewGame();
+
+        MahjongRound secondRound = GetFieldValue<MahjongRound>(manager, "currentRound");
+        Component soloUiController = GetFieldValue<Component>(manager, "soloUIController");
+        Assert.That(secondRound, Is.Not.SameAs(firstRound));
+        Assert.That(timer.RemainingTime, Is.EqualTo(180f));
+        Assert.That(GetFieldValue<ScoreManagerDistance>(manager, "scoreManagerDistance").DistanceWithAccumulated, Is.Zero);
+        Assert.That(manager.currentState, Is.EqualTo(GameState.PlayerTurn));
+        Assert.That(GetFieldValue<bool>(manager, "pendingForfeit"), Is.False);
+        Assert.That(GetFieldValue<GameObject>(soloUiController, "forfeitConfirmation").activeSelf, Is.False);
+        Assert.That(CountTargetHandlers(controller, manager), Is.EqualTo(3));
+        Assert.That(CountTargetHandlers(soloUiController, manager), Is.EqualTo(2));
+        Assert.That(CountTargetHandlers(secondRound, manager), Is.EqualTo(6));
+        Assert.That(CountTargetHandlers(timer, manager), Is.EqualTo(1));
+    }
+
     private SoloScoringGameManager CreateManager(Component playerHandController = null)
     {
         Type soloUiType = typeof(SoloScoringGameManager).Assembly.GetType("SoloScoringUIController");
@@ -233,6 +489,29 @@ public class SoloSessionLifecycleTests
         Assert.That(scene, Does.Contain("soloScoringModeRoot: {fileID: 1987654321}"));
         Assert.That(scene, Does.Contain("m_Name: SoloScoringGameManager"));
         Assert.That(CountOccurrences(scene, "m_Name: EventSystem"), Is.EqualTo(1));
+
+        Scene loadedScene = EditorSceneManager.OpenScene("Assets/Scenes/SampleScene.unity", OpenSceneMode.Additive);
+        try
+        {
+            Transform soloRoot = FindTransform(loadedScene, "SoloScoringModeRoot");
+            EventSystem[] eventSystems = FindComponents<EventSystem>(loadedScene);
+            Assert.That(soloRoot, Is.Not.Null);
+            Assert.That(soloRoot.gameObject.activeSelf, Is.False);
+            Assert.That(eventSystems, Has.Length.EqualTo(1));
+            Assert.That(eventSystems[0].transform.IsChildOf(soloRoot), Is.False,
+                "The shared EventSystem must stay outside the inactive solo root.");
+        }
+        finally
+        {
+            EditorSceneManager.CloseScene(loadedScene, true);
+        }
+
+        Assert.That(ReadGuid("Assets/Scripts/SoloScoringGameManager.cs.meta"),
+            Is.EqualTo("83be086a716bef149853d38249179bd7"));
+        Assert.That(ReadGuid("Assets/Scripts/UI-Kozeki/PlayerHandController.cs.meta"),
+            Is.EqualTo("f741381e994254649afad56bd8fdc47a"));
+        Assert.That(ReadGuid("Assets/Scripts/UI-Kozeki/SoloScoringUIController.cs.meta"),
+            Is.EqualTo("9b978f8eb5c74984b8f91d51ff046652"));
     }
 
     private static void AssertSoloUiOwnershipBoundary()
@@ -320,11 +599,100 @@ public class SoloSessionLifecycleTests
         return controllerType;
     }
 
-    private static void RaiseEvent(Component source, string eventName)
+    private static void RaiseEvent(Component source, string eventName, params object[] arguments)
     {
         Delegate handlers = GetField(source.GetType(), eventName).GetValue(source) as Delegate;
         Assert.That(handlers, Is.Not.Null, $"{eventName} must have an invokable backing delegate.");
-        handlers.DynamicInvoke();
+        handlers.DynamicInvoke(arguments);
+    }
+
+    private static void AddEventHandler(Component source, string eventName, Delegate handler)
+    {
+        source.GetType().GetEvent(eventName).AddEventHandler(source, handler);
+    }
+
+    private static byte[] PreserveSaveFile()
+    {
+        string savePath = Path.Combine(Application.persistentDataPath, "yaml.json");
+        return File.Exists(savePath) ? File.ReadAllBytes(savePath) : null;
+    }
+
+    private static void RestoreSaveFile(byte[] originalSave)
+    {
+        string savePath = Path.Combine(Application.persistentDataPath, "yaml.json");
+        if (originalSave == null)
+        {
+            File.Delete(savePath);
+            return;
+        }
+
+        File.WriteAllBytes(savePath, originalSave);
+    }
+
+    private static string ReadGuid(string assetMetaPath)
+    {
+        foreach (string line in File.ReadAllLines(assetMetaPath))
+        {
+            if (line.StartsWith("guid: ", StringComparison.Ordinal))
+            {
+                return line.Substring("guid: ".Length);
+            }
+        }
+
+        return string.Empty;
+    }
+
+    private static Transform FindTransform(Scene scene, string objectName)
+    {
+        foreach (GameObject root in scene.GetRootGameObjects())
+        {
+            Transform[] transforms = root.GetComponentsInChildren<Transform>(true);
+            foreach (Transform candidate in transforms)
+            {
+                if (candidate.name == objectName)
+                {
+                    return candidate;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private static T[] FindComponents<T>(Scene scene) where T : Component
+    {
+        var components = new List<T>();
+        foreach (GameObject root in scene.GetRootGameObjects())
+        {
+            components.AddRange(root.GetComponentsInChildren<T>(true));
+        }
+
+        return components.ToArray();
+    }
+
+    private static void AssertSceneOverlaySelectsCancel()
+    {
+        Scene loadedScene = EditorSceneManager.OpenScene("Assets/Scenes/SampleScene.unity", OpenSceneMode.Additive);
+        try
+        {
+            SoloScoringUIController[] controllers = FindComponents<SoloScoringUIController>(loadedScene);
+            EventSystem[] eventSystems = FindComponents<EventSystem>(loadedScene);
+            Assert.That(controllers, Has.Length.EqualTo(1));
+            Assert.That(eventSystems, Has.Length.EqualTo(1));
+
+            EventSystem eventSystem = eventSystems[0];
+            Invoke(eventSystem, "OnEnable");
+            Invoke(controllers[0], "Awake");
+            controllers[0].ShowForfeitConfirmation();
+
+            Button cancelButton = GetFieldValue<Button>(controllers[0], "cancelButton");
+            Assert.That(EventSystem.current, Is.EqualTo(eventSystem));
+            Assert.That(eventSystem.currentSelectedGameObject, Is.EqualTo(cancelButton.gameObject));
+        }
+        finally
+        {
+            EditorSceneManager.CloseScene(loadedScene, true);
+        }
     }
 
     private GameObject CreateInactiveObject(string name)
@@ -353,7 +721,8 @@ public class SoloSessionLifecycleTests
     private static int CountTargetHandlers(object source, object target)
     {
         int count = 0;
-        foreach (FieldInfo field in source.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic))
+        foreach (FieldInfo field in source.GetType().GetFields(
+                     BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
         {
             if (!typeof(Delegate).IsAssignableFrom(field.FieldType))
             {
