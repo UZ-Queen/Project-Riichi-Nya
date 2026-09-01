@@ -4,16 +4,16 @@ milestone: v1.0
 current_phase: 01
 current_phase_name: Executable Baseline / 실행 기준선과 검증 경로
 status: executing
-stopped_at: Completed 01-02-PLAN.md
-last_updated: "2026-09-01T10:12:27.331Z"
+stopped_at: Completed 01-03-PLAN.md
+last_updated: "2026-09-01T10:31:44.974Z"
 last_activity: 2026-09-01
-last_activity_desc: Completed 01-02 PlayerHandController/View input and presentation boundary
-state_head: d100521cd7f95728e6481b8e61bf623ff75fecbd
+last_activity_desc: Completed 01-03 SoloScoringUIController and forfeit overlay boundary
+state_head: 634a69a6fbeb871ee167b0b47b589efd31bdb748
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 5
-  completed_plans: 2
+  completed_plans: 3
 milestone_name: milestone
 ---
 
@@ -29,11 +29,11 @@ See: .planning/PROJECT.md (updated 2026-08-28)
 ## Current Position
 
 Phase: 1 of 7 (Executable Baseline / 실행 기준선과 검증 경로)
-Plan: 3 of 5 in current phase
+Plan: 4 of 5 in current phase
 Status: Ready to execute
-Last activity: 2026-09-01 -- Completed 01-02 PlayerHandController/View input and presentation boundary
+Last activity: 2026-09-01 -- Completed 01-03 SoloScoringUIController and forfeit overlay boundary
 
-Progress: [████░░░░░░] 40%
+Progress: [██████░░░░] 60%
 
 ## Performance Metrics
 
@@ -61,6 +61,7 @@ Progress: [████░░░░░░] 40%
 |------|----------|-------|-------|
 | Phase 01 P01 | 2d 20h 45m | 4 tasks | 18 files |
 | Phase 01 P02 | 17min | 2 tasks | 9 files |
+| Phase 01 P03 | 15min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -79,6 +80,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 1]: New Korean lifecycle labels reuse the existing 경기천년 2K TMP atlas and shared material.
 - [Phase 01]: PlayerHandView stays on the existing hand GameObject and reuses the current tile hierarchy.
 - [Phase 01]: PlayerHandController preserves the original script GUID and uses direct idempotent manager subscriptions.
+- [Phase 01]: SoloScoringUIController preserves the former GameUIManager asset GUID and owns solo presentation references.
+- [Phase 01]: The forfeit overlay uses existing scene Buttons and EventSystem with Cancel selected by default.
+- [Phase 01]: PlayerHandController blocks ordinary input explicitly while Escape remains available for modal cancel.
 
 ### Pending Todos
 
@@ -99,6 +103,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-01T10:12:27.313Z
-Stopped at: Completed 01-02-PLAN.md
+Last session: 2026-09-01T10:31:44.955Z
+Stopped at: Completed 01-03-PLAN.md
 Resume file: None
