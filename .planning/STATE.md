@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.0
 current_phase: 01
 current_phase_name: Executable Baseline / 실행 기준선과 검증 경로
-status: executing
-stopped_at: Completed 01-04-PLAN.md
-last_updated: "2026-09-01T10:49:02.639Z"
+status: verifying
+stopped_at: Completed 01-05-PLAN.md
+last_updated: "2026-09-01T12:29:21.491Z"
 last_activity: 2026-09-01
-last_activity_desc: Completed 01-04 SoloScoringGameManager and mode-root lifecycle
-state_head: f2000846c22a060db01df5cd11bd15275931c81a
+last_activity_desc: Completed 01-05 final executable baseline evidence
+state_head: decdd57682c07de5bd0ef1540742dcc3ada916aa
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 5
-  completed_plans: 4
+  completed_plans: 5
 milestone_name: milestone
 ---
 
@@ -30,10 +30,10 @@ See: .planning/PROJECT.md (updated 2026-08-28)
 
 Phase: 1 of 7 (Executable Baseline / 실행 기준선과 검증 경로)
 Plan: 5 of 5 in current phase
-Status: Ready to execute
-Last activity: 2026-09-01 -- Completed 01-04 SoloScoringGameManager and mode-root lifecycle
+Status: Phase complete — ready for verification
+Last activity: 2026-09-01 -- Completed 01-05 final executable baseline evidence
 
-Progress: [████████░░] 80%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -63,6 +63,7 @@ Progress: [████████░░] 80%
 | Phase 01 P02 | 17min | 2 tasks | 9 files |
 | Phase 01 P03 | 15min | 2 tasks | 7 files |
 | Phase 01 P04 | 15min | 3 tasks | 7 files |
+| Phase 01 P05 | 1h 35min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -87,6 +88,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 01]: SoloScoringGameManager preserves the former manager script GUID and removes the bounded legacy facade after caller migration.
 - [Phase 01]: UiManager activates one inactive-by-default SoloScoringModeRoot before session start and disables it only on lobby return.
 - [Phase 01]: The solo manager is scene-local rather than DontDestroyOnLoad so root disable owns subscription teardown.
+- [Phase 01]: PlayerHandController uses one private HandleEscape seam to make the real same-frame Escape branch assertion-testable without a generalized input abstraction.
+- [Phase 01]: Final Phase 1 project evidence is the explicit aggregate 3 + 13 = 16 from independently filtered trace and lifecycle XML results.
+- [Phase 01]: GUI PASS is recorded only from explicit approval of all eight same-PID steps on Player PID 20000.
 
 ### Pending Todos
 
@@ -107,6 +111,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-01T10:49:02.620Z
-Stopped at: Completed 01-04-PLAN.md
+Last session: 2026-09-01T12:29:21.467Z
+Stopped at: Completed 01-05-PLAN.md
 Resume file: None

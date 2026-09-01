@@ -140,9 +140,16 @@ Task 2 was the blocking-human GUI checkpoint and produced no file change or comm
 - **Files modified:** None tracked
 - **Commit:** N/A (ignored evidence restoration)
 
+**4. [Rule 3 - Blocking] Reconciled visible STATE progress after the SDK scope skip**
+- **Found during:** Plan closeout
+- **Issue:** `state.update-progress` updated the structured completed-plan count but skipped the prose activity and progress bar because the phase scope is unscoped.
+- **Fix:** Preserved SDK counters and verifying status while reconciling the visible activity and progress bar to 5/5 plans and 100%.
+- **Files modified:** `.planning/STATE.md`
+- **Commit:** Plan state metadata commit
+
 ---
 
-**Total deviations:** 3 auto-fixed (1 missing critical testability seam, 2 blocking evidence/fixture issues)
+**Total deviations:** 4 auto-fixed (1 missing critical testability seam, 3 blocking evidence/fixture/state issues)
 **Impact on plan:** No feature scope, package, assembly descriptor, scene, or public API was added; the production change is one private branch seam.
 
 ## Issues Encountered
