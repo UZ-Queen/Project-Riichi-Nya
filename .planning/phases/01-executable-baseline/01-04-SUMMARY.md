@@ -133,10 +133,18 @@ status: complete
 - **Verification:** Subsequent Task 1, Task 2, Task 3, and final gates all passed the exact two selected cases.
 - **Committed in:** `e0b22b5`, `0a0c599`
 
+**3. [Rule 3 - Blocking] Reconciled visible STATE progress after an SDK scope skip**
+- **Found during:** Plan closeout
+- **Issue:** `state.update-progress` updated the structured completed-plan count but skipped the prose activity and progress bar because the phase scope is unscoped.
+- **Fix:** Preserved SDK counters and reconciled the visible activity and progress bar to Plan 5 of 5 with 4/5 plans complete (80%).
+- **Files modified:** `.planning/STATE.md`
+- **Verification:** `STATE.md` reports Plan 5 of 5, `completed_plans: 4`, and 80%; `ROADMAP.md` reports 4/5 plans executed.
+- **Committed in:** Plan state metadata commit
+
 ---
 
-**Total deviations:** 2 auto-fixed blocking tool/import issues
-**Impact on plan:** Production scope and behavior did not expand; the only effect was one extra Task 1 implementation commit.
+**Total deviations:** 3 auto-fixed blocking tool/import issues
+**Impact on plan:** Production scope and behavior did not expand; the only implementation effect was one extra Task 1 commit.
 
 ## Issues Encountered
 

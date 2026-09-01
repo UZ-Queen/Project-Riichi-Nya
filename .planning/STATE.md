@@ -4,16 +4,16 @@ milestone: v1.0
 current_phase: 01
 current_phase_name: Executable Baseline / 실행 기준선과 검증 경로
 status: executing
-stopped_at: Completed 01-03-PLAN.md
-last_updated: "2026-09-01T10:31:44.974Z"
+stopped_at: Completed 01-04-PLAN.md
+last_updated: "2026-09-01T10:49:02.639Z"
 last_activity: 2026-09-01
-last_activity_desc: Completed 01-03 SoloScoringUIController and forfeit overlay boundary
-state_head: 634a69a6fbeb871ee167b0b47b589efd31bdb748
+last_activity_desc: Completed 01-04 SoloScoringGameManager and mode-root lifecycle
+state_head: f2000846c22a060db01df5cd11bd15275931c81a
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 5
-  completed_plans: 3
+  completed_plans: 4
 milestone_name: milestone
 ---
 
@@ -29,11 +29,11 @@ See: .planning/PROJECT.md (updated 2026-08-28)
 ## Current Position
 
 Phase: 1 of 7 (Executable Baseline / 실행 기준선과 검증 경로)
-Plan: 4 of 5 in current phase
+Plan: 5 of 5 in current phase
 Status: Ready to execute
-Last activity: 2026-09-01 -- Completed 01-03 SoloScoringUIController and forfeit overlay boundary
+Last activity: 2026-09-01 -- Completed 01-04 SoloScoringGameManager and mode-root lifecycle
 
-Progress: [██████░░░░] 60%
+Progress: [████████░░] 80%
 
 ## Performance Metrics
 
@@ -62,6 +62,7 @@ Progress: [██████░░░░] 60%
 | Phase 01 P01 | 2d 20h 45m | 4 tasks | 18 files |
 | Phase 01 P02 | 17min | 2 tasks | 9 files |
 | Phase 01 P03 | 15min | 2 tasks | 7 files |
+| Phase 01 P04 | 15min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -83,6 +84,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 01]: SoloScoringUIController preserves the former GameUIManager asset GUID and owns solo presentation references.
 - [Phase 01]: The forfeit overlay uses existing scene Buttons and EventSystem with Cancel selected by default.
 - [Phase 01]: PlayerHandController blocks ordinary input explicitly while Escape remains available for modal cancel.
+- [Phase 01]: SoloScoringGameManager preserves the former manager script GUID and removes the bounded legacy facade after caller migration.
+- [Phase 01]: UiManager activates one inactive-by-default SoloScoringModeRoot before session start and disables it only on lobby return.
+- [Phase 01]: The solo manager is scene-local rather than DontDestroyOnLoad so root disable owns subscription teardown.
 
 ### Pending Todos
 
@@ -103,6 +107,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-01T10:31:44.955Z
-Stopped at: Completed 01-03-PLAN.md
+Last session: 2026-09-01T10:49:02.620Z
+Stopped at: Completed 01-04-PLAN.md
 Resume file: None
