@@ -1,17 +1,20 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.0
-milestone_name: milestone
+current_phase: 1
+current_phase_name: Executable Baseline / 실행 기준선과 검증 경로
 status: executing
-stopped_at: Phase 1 context gathered
-last_updated: "2026-08-31T09:50:59.513Z"
-last_activity: 2026-08-29 -- Phase 01 planning complete
+stopped_at: Completed 01-01-PLAN.md
+last_updated: "2026-09-01T08:52:38.536Z"
+last_activity: 2026-08-29
+last_activity_desc: Phase 01 planning complete
+state_head: 8df5c2470a480ccee0509b1fd3c2b6469a294fa9
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 3
-  completed_plans: 0
-  percent: 0
+  completed_plans: 1
+milestone_name: milestone
 ---
 
 # Project State
@@ -26,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-08-28)
 ## Current Position
 
 Phase: 1 of 7 (Executable Baseline / 실행 기준선과 검증 경로)
-Plan: 0 of 3 in current phase
+Plan: 1 of 3 in current phase
 Status: Ready to execute
 Last activity: 2026-08-29 -- Phase 01 planning complete
 
@@ -52,6 +55,11 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: -
 
 *Updated after each plan completion*
+**Per-Plan Metrics:**
+
+| Plan | Duration | Tasks | Files |
+|------|----------|-------|-------|
+| Phase 01 P01 | 2d 20h 45m | 4 tasks | 18 files |
 
 ## Accumulated Context
 
@@ -63,6 +71,10 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - 솔로는 180초 점수·부스트·거리의 독립 플레이 경험으로 유지한다.
 - Phase 6의 `CALL-01`~`CALL-18`은 완전한 Stage 3 묶음으로만 공개하며, gate 실패 시 전체를 v2로 이동한다.
 - 전략 AI, 추가 종료 규칙, 전면 UI 재제작과 새 패키지는 이번 milestone에서 제외한다.
+- [Phase 1]: MahjongGameManager remains the sole owner of start, pending-forfeit, finalization, persistence, and restart cleanup.
+- [Phase 1]: A private pending-forfeit flag distinguishes confirmation from unrelated Processing state.
+- [Phase 1]: Windows builds preserve a durable report before explicit Editor exit and restore the canonical ignored Temp evidence path.
+- [Phase 1]: New Korean lifecycle labels reuse the existing 경기천년 2K TMP atlas and shared material.
 
 ### Pending Todos
 
@@ -83,6 +95,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-31T09:50:59.498Z
-Stopped at: Phase 1 context gathered
-Resume file: .planning/phases/01-executable-baseline/01-CONTEXT.md
+Last session: 2026-09-01T08:52:38.517Z
+Stopped at: Completed 01-01-PLAN.md
+Resume file: None

@@ -7,11 +7,11 @@
 
 ### Executable Baseline
 
-- [ ] **BASE-01**: 개발자는 기존 소스 기준 커밋 `b18320e`를 `portfolio-baseline` annotated tag로 재현할 수 있다.
-- [ ] **BASE-02**: 개발자는 고정된 시드와 행동 기록으로 대표 솔로 패 진행을 반복 재현할 수 있다.
-- [ ] **BASE-03**: Windows Player 빌드는 런타임 코드의 `UnityEditor` 참조 없이 컴파일되고 실행된다.
-- [ ] **BASE-04**: 개발자는 Unity Test Framework에서 프로젝트 규칙 EditMode 테스트를 배치 실행하고 결과 파일을 얻을 수 있다.
-- [ ] **BASE-05**: 플레이어는 같은 실행 세션에서 솔로 게임을 시작하고 종료 또는 포기한 뒤 다시 시작할 수 있다.
+- [x] **BASE-01**: 개발자는 기존 소스 기준 커밋 `b18320e`를 `portfolio-baseline` annotated tag로 재현할 수 있다.
+- [x] **BASE-02**: 개발자는 고정된 시드와 행동 기록으로 대표 솔로 패 진행을 반복 재현할 수 있다.
+- [x] **BASE-03**: Windows Player 빌드는 런타임 코드의 `UnityEditor` 참조 없이 컴파일되고 실행된다.
+- [x] **BASE-04**: 개발자는 Unity Test Framework에서 프로젝트 규칙 EditMode 테스트를 배치 실행하고 결과 파일을 얻을 수 있다.
+- [x] **BASE-05**: 플레이어는 같은 실행 세션에서 솔로 게임을 시작하고 종료 또는 포기한 뒤 다시 시작할 수 있다.
 
 ### Shared Rules Core
 
@@ -159,11 +159,11 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BASE-01 | Phase 1 | Pending |
-| BASE-02 | Phase 1 | Pending |
-| BASE-03 | Phase 1 | Pending |
-| BASE-04 | Phase 1 | Pending |
-| BASE-05 | Phase 1 | Pending |
+| BASE-01 | Phase 1 | Complete |
+| BASE-02 | Phase 1 | Complete |
+| BASE-03 | Phase 1 | Complete |
+| BASE-04 | Phase 1 | Complete |
+| BASE-05 | Phase 1 | Complete |
 | RULE-01 | Phase 2 | Pending |
 | RULE-02 | Phase 2 | Pending |
 | RULE-03 | Phase 2 | Pending |
@@ -243,6 +243,7 @@
 | PORT-08 | Phase 7 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 82 total
 - Mapped to phases: 82
 - Unmapped: 0 ✓
