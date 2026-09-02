@@ -1,6 +1,6 @@
 ---
 phase: 01-executable-baseline
-reviewed: 2026-09-01T12:38:41Z
+reviewed: 2026-09-02T02:51:56Z
 depth: standard
 files_reviewed: 17
 files_reviewed_list:
@@ -23,120 +23,94 @@ files_reviewed_list:
   - Assets/Scripts/UI-Kozeki/UiManager.cs
 findings:
   critical: 2
-  warning: 4
+  warning: 2
   info: 0
-  total: 6
+  total: 4
 status: issues_found
 ---
 
 # Phase 01: Code Review Report
 
-**Reviewed:** 2026-09-01T12:38:41Z  
-**Depth:** standard  
-**Files Reviewed:** 17  
+**Reviewed:** 2026-09-02T02:51:56Z
+**Depth:** standard
+**Files Reviewed:** 17
 **Status:** issues_found
 
 ## Summary
 
-The Phase 01 implementation has two ship-blocking state/presentation defects and four robustness or test-reliability defects. The forfeit idempotency and direct event unsubscription paths are present, but the fresh-session UI state and new-record result display are not internally consistent. No security vulnerability was found in the reviewed scope.
+Phase 01의 gap closure로 이전의 timeout 기록 표시 순서와 재시작 선택 강조 문제는 해소됐다. 그러나 현재 범위에는 사용자 저장 데이터 손실 위험 1건, 실제 입력이 아무 동작도 하지 않는 기능 결함 1건, 손패 렌더링 방어 실패와 씬 패널 오배선 2건이 남아 있다. 검토 범위에서 네트워크·인증·명령 실행 관련 보안 취약점은 발견하지 못했다.
 
 ## Narrative Findings (AI reviewer)
 
 ## Critical Issues
 
-### CR-01: New timeout record is rendered as the old record
+### CR-01: EditMode 테스트가 실제 플레이어 저장 파일을 덮어쓴다
 
-**Classification:** BLOCKER  
-**File:** `Assets/Scripts/SoloScoringGameManager.cs:243-252`  
-**Issue:** `FinalizeGame` sends `saveData.highScore` to `ShowGameOver` before applying a newly earned timeout record. When `yourScore` exceeds the stored value, the result screen displays the previous record even though the higher value is saved immediately afterward. The UI and persisted state therefore disagree on the run that sets a record.
+**Classification:** BLOCKER
+**File:** `Assets/Editor/Tests/SoloSessionLifecycleTests.cs:52-97, 241-297, 684-699`
+**Issue:** 세 persistence 테스트가 `Application.persistentDataPath/yaml.json`을 직접 읽고 테스트 값으로 덮어쓴 뒤, 원본을 메모리의 `byte[]`로만 보관한다. Editor와 Windows Player는 같은 company/product persistent-data 위치를 사용할 수 있으므로 테스트 중 Editor 종료, Unity crash, 강제 중단이 발생하면 `finally`가 실행되지 않아 사용자의 실제 최고 기록이 테스트 값으로 영구 교체되거나 삭제된다. 테스트가 통과하는 경우만 복원된다는 구조라 데이터 손실 위험이 있다.
 
-**Fix:** Update the timeout record before rendering and saving, while preserving the no-save forfeit policy.
+**Fix:** 테스트 시작 전에 원본을 동일 디렉터리의 명시적 backup 파일로 원자적으로 이동하거나 복사하고, `[SetUp]`에서 이전 실행의 stale backup을 먼저 복구한 뒤 `[TearDown]`에서 복원한다. 더 안전한 방법은 `SettingsManager`가 테스트 전용 임시 경로를 받도록 저장 경로 seam을 두고 모든 테스트 저장을 `Temp` 아래로 격리하는 것이다.
 
 ```csharp
-PetitGameSaveData saveData = SettingsManager.Load();
-if (reason == GameEndReason.TimeExpired && yourScore > saveData.highScore)
-{
-    saveData.highScore = yourScore;
-}
+private const string BackupSuffix = ".phase1-test-backup";
 
-soloUIController?.ShowGameOver(yourScore, saveData.highScore, reason);
-if (reason == GameEndReason.TimeExpired)
+[SetUp]
+public void RecoverInterruptedSaveTest()
 {
-    SettingsManager.Save(saveData);
+    string savePath = Path.Combine(Application.persistentDataPath, "yaml.json");
+    string backupPath = savePath + BackupSuffix;
+    if (File.Exists(backupPath))
+    {
+        File.Copy(backupPath, savePath, true);
+        File.Delete(backupPath);
+    }
 }
 ```
 
-Add a lifecycle regression where `yourScore` is greater than the stored record and assert both the rendered record and saved value.
+### CR-02: 리치 키 입력과 manager route가 모두 무동작이다
 
-### CR-02: Fresh sessions retain the previous tile highlight
+**Classification:** BLOCKER
+**File:** `Assets/Scripts/UI-Kozeki/PlayerHandController.cs:79-82`; `Assets/Scripts/SoloScoringGameManager.cs:368-372, 391-393`
+**Issue:** 리치 키를 누르면 사용되지 않는 `callRiichiNya` 필드만 `true`가 된다. 이 필드는 읽히지 않으므로 `OnPlayerCall(PlayerCallType.Riichi)`가 발행되지 않으며, 설령 외부에서 해당 event를 발행해도 `RiichiHandler`가 비어 있어 규칙 상태가 전혀 바뀌지 않는다. 화면은 리치 가능 상태를 표시하지만 실제 사용자 입력은 조용히 무시된다.
 
-**Classification:** BLOCKER  
-**File:** `Assets/Scripts/UI-Kozeki/PlayerHandController.cs:159-164`  
-**Issue:** `HandleGameStart` resets `currentIndex` to 6 but never pushes that value to `PlayerHandView`. `MahjongTileGameObject.isSelected` survives root disable/enable, and `FillHand` only changes tile images and dora state. If a player moves the selection and then forfeits or times out, the next session reports index 6 internally while the old tile remains visibly raised. This violates the claimed fresh-session boundary and can make the next discard target differ from the highlighted tile.
-
-**Fix:** Synchronize the view whenever the controller resets the selection.
+**Fix:** 리치를 현재 범위에서 지원한다면 controller가 리치 intent를 발행하고 manager가 기존 `MahjongRound`의 리치 상태 전이 API로 처리하도록 연결한 뒤 한 개의 입력→도메인 회귀 테스트를 추가한다. 아직 지원하지 않는 기능이라면 리치 표시와 key route를 제거하거나 명시적으로 비활성화해 동작 가능한 기능처럼 노출하지 않는다.
 
 ```csharp
-private void HandleGameStart()
+if (Input.GetKeyDown(InputPreset.riichi))
 {
-    isGameOver = false;
-    gameplayInputEnabled = true;
-    currentIndex = 6;
-    UpdateHand();
+    OnPlayerCall(PlayerCallType.Riichi);
 }
 ```
-
-Add a regression that selects a non-default tile, cycles the real mode root, starts a new session, and asserts that only tile 6 is selected.
 
 ## Warnings
 
-### WR-01: Oversized hand logging falls through into an array crash
+### WR-01: 잘못된 손패 길이를 진단한 뒤 배열 범위를 벗어난다
 
-**Classification:** WARNING  
-**File:** `Assets/Scripts/UI-Kozeki/PlayerHandView.cs:56-75`  
-**Issue:** `FillHand` detects `index >= tilesInHand.Length` and logs an error, but then continues to access `tilesInHand[index]`. A malformed 14-or-more-item hand therefore throws `IndexOutOfRangeException` immediately after the diagnostic instead of failing safely. The branch demonstrates that invalid input is expected enough to diagnose, so falling through is not a valid contract.
+**Classification:** WARNING
+**File:** `Assets/Scripts/UI-Kozeki/PlayerHandView.cs:56-81`
+**Issue:** `FillHand`는 14장 이상 입력을 발견하면 오류를 기록하지만 곧바로 `tilesInHand[index]`에 계속 접근하여 `IndexOutOfRangeException`을 발생시킨다. 반대로 13장보다 적으면 남은 타일에 이전 손패 이미지가 남는다. `null`도 검사하지 않아 호출 경계가 잘못되면 부분 갱신 또는 예외로 끝난다.
 
-**Fix:** Validate once before mutation and return early (or throw a clear programmer-contract exception); do not partially update the view.
+**Fix:** mutation 전에 `tiles != null && tiles.Count == tilesInHand.Length`를 한 번 검증하고, 실패하면 명확한 오류를 남긴 뒤 return하여 기존 화면을 원자적으로 보존한다.
 
 ```csharp
 if (tiles == null || tiles.Count != tilesInHand.Length)
 {
-    Debug.LogError($"손패는 {tilesInHand.Length}장이어야 합니다.");
+    Debug.LogError($"손패는 정확히 {tilesInHand.Length}장이어야 합니다.");
     return;
 }
 ```
 
-### WR-02: Score panel is wired to the round panel's CanvasGroup
+### WR-02: Score 패널이 활성화되지 않으며 다른 패널의 CanvasGroup에 연결돼 있다
 
-**Classification:** WARNING  
-**File:** `Assets/Scenes/SampleScene.unity:2421-2424`  
-**Issue:** The `GameUIState.Score` entry uses rect `1739634553` but CanvasGroup `71275690`, which belongs to `Round Info Holder`. `Score Info Holder` has its own CanvasGroup at file ID `1739634555` (`SampleScene.unity:9837-9844`). Activating or deactivating Score therefore fades/interacts with RoundInfo while moving a different rect, producing coupled panel state and incorrect transitions.
+**Classification:** WARNING
+**File:** `Assets/Scripts/UI-Kozeki/SoloScoringUIController.cs:120-137`; `Assets/Scenes/SampleScene.unity:2421-2424, 9837-9844`
+**Issue:** `Initialize`는 RoundInfo, PlayerHand, Distance, Time만 활성화하고 `GameUIState.Score`를 한 번도 활성화하지 않는다. 또한 씬의 Score entry는 rect `1739634553`과 Round Info의 CanvasGroup `71275690`을 짝지었고, Score 자체 CanvasGroup `1739634555`는 사용하지 않는다. 따라서 점수 텍스트를 갱신해도 기본 세션에서 패널이 보이지 않으며, 외부에서 Score를 활성화하면 RoundInfo의 alpha/raycast 상태를 잘못 변경한다.
 
-**Fix:** Set the Score entry's `group` reference to `{fileID: 1739634555}` in the Unity Inspector and save the scene. Add a scene contract assertion that every panel entry's `rect` and `group` belong to the same GameObject.
-
-### WR-03: The restart regression does not exercise a Unity root cycle
-
-**Classification:** WARNING  
-**File:** `Assets/Editor/Tests/SoloSessionLifecycleTests.cs:367-396`  
-**Issue:** `RestartAfterLobby_UsesFreshStateAndSingleHandlers` claims lobby/root-cycle coverage but directly invokes only the manager's private `OnDisable` and `OnEnable` methods on synthetic objects. It never toggles `SoloScoringModeRoot`, never runs `UiManager.OnBBagguButton`, and never checks the controller/view state. The test can pass while child lifecycle ordering, serialized hierarchy, selection reset, or another root-owned component is broken; CR-02 is one concrete defect it misses.
-
-**Fix:** Load `SampleScene` additively, activate the serialized solo root, start a session, mutate selection/session state, call the actual lobby-return route, reactivate/start again, and assert state plus handler counts on the real components. Keep the focused synthetic subscription tests separately.
-
-### WR-04: Trace length mismatches bypass the promised first-mismatch diagnostic
-
-**Classification:** WARNING  
-**File:** `Assets/Editor/Tests/MahjongRoundTraceTests.cs:18-23`  
-**Issue:** The test asserts record-count equality before calling `FindFirstMismatch`. If deterministic behavior diverges by adding or removing a record, NUnit stops at the generic count assertion and `BuildMismatchMessage` is never used. That contradicts the trace's stated first-mismatch evidence contract and removes the exact state needed to diagnose a regression.
-
-**Fix:** Compute and assert `firstMismatch` before any standalone count assertion; `FindFirstMismatch` already returns the common length when counts differ.
-
-```csharp
-int firstMismatch = FindFirstMismatch(expected.Records, actual.Records);
-Assert.That(firstMismatch, Is.EqualTo(-1), BuildMismatchMessage(expected, actual, firstMismatch));
-```
+**Fix:** 솔로 HUD에 점수를 표시할 의도라면 `Initialize`에서 `ActivePanel(GameUIState.Score)`를 호출하고, Unity Inspector에서 Score entry의 group을 `{fileID: 1739634555}`로 다시 저장한다. 각 panel entry의 rect와 group이 같은 GameObject 소유인지 검사하는 scene contract assertion도 추가한다.
 
 ---
 
-_Reviewed: 2026-09-01T12:38:41Z_  
-_Reviewer: the agent (gsd-code-reviewer)_  
+_Reviewed: 2026-09-02T02:51:56Z_
+_Reviewer: the agent (gsd-code-reviewer)_
 _Depth: standard_
