@@ -6,7 +6,7 @@
 
 ## Phases
 
-- [ ] **Phase 1: Executable Baseline — 실행 기준선과 검증 경로** - 기존 솔로 플레이를 재현하고 테스트·Windows 빌드·재시작 검증이 가능한 기준선을 만든다.
+- [x] **Phase 1: Executable Baseline — 실행 기준선과 검증 경로** - 기존 솔로 플레이를 재현하고 테스트·Windows 빌드·재시작 검증이 가능한 기준선을 만든다. (completed 2026-09-02)
 - [ ] **Phase 2: Shared Rules Core — 정확한 공유 규칙 코어** - 두 모드가 같은 결정론적 패산·화료·역·부·지불 결과를 사용하게 한다.
 - [ ] **Phase 3: Solo Preservation and Riichi — 독립 솔로 모드와 완전한 리치** - 기존 180초 점수·부스트·거리 경험을 보존하면서 리치 전 과정을 완성한다.
 - [ ] **Phase 4: Headless Hanchan — 헤드리스 고정 기본 반장전** - UI 없이도 한 사람과 쯔모기리 더미 세 좌석의 동1국~남4국 대국을 끝까지 검증한다.
@@ -171,7 +171,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Executable Baseline — 실행 기준선과 검증 경로 | 7/7 | In Progress|  |
+| 1. Executable Baseline — 실행 기준선과 검증 경로 | 7/7 | Complete    | 2026-09-02 |
 | 2. Shared Rules Core — 정확한 공유 규칙 코어 | 0/TBD | Not started | - |
 | 3. Solo Preservation and Riichi — 독립 솔로 모드와 완전한 리치 | 0/TBD | Not started | - |
 | 4. Headless Hanchan — 헤드리스 고정 기본 반장전 | 0/TBD | Not started | - |

@@ -20,6 +20,8 @@
 - ✓ uGUI, TextMesh Pro, DOTween을 사용한 메뉴·게임·화료·게임오버 UI가 존재한다 — existing
 - ✓ JSON 고득점 저장, PlayerPrefs 음량 저장, ScriptableObject 패 이미지 데이터베이스가 존재한다 — existing
 - ✓ 타일 데이터베이스를 생성하는 Unity Editor 도구가 존재한다 — existing
+- ✓ `portfolio-baseline` 태그, 고정 시드 trace, Unity XML, Windows Player 빌드로 기존 솔로 동작을 재현하는 실행 기준선을 확립했다 — Phase 1
+- ✓ 솔로 포기·메뉴 복귀·동일 프로세스 재시작과 저장 복구 안전성을 자동 검증 및 사용자 UAT로 확인했다 — Phase 1
 
 ### Active
 
@@ -82,8 +84,10 @@
 | 단계 3은 사람의 치·퐁과 모든 종류의 깡을 포함한다 | 향후 AI 후로 판단에 앞서 합법 행동과 열린 손패 규칙을 완성한다 | — Pending |
 | 특수 유국·추가 종료 규칙은 구현하지 않는다 | 상태 결과와 진행 책임만 명확히 해 미래 추가가 기존 코드를 흩뜨리지 않게 한다 | — Pending |
 | AI 플레이는 단계 4로 연기한다 | 합법 행동과 대국 상태 표현이 검증되기 전에 의사결정 모델을 붙이지 않는다 | — Pending |
-| `b18320e`를 `portfolio-baseline` 태그 기준으로 사용한다 | 중복 코드 없이 기존과 최종 구현을 재현 가능하게 비교한다 | — Pending |
+| `b18320e`를 `portfolio-baseline` 태그 기준으로 사용한다 | 중복 코드 없이 기존과 최종 구현을 재현 가능하게 비교한다 | ✓ Phase 1 — annotated tag와 정확한 peeled commit 검증 완료 |
 | 대표 사례 중심 AI 개발 기록을 남긴다 | AI 제안보다 문제 정의, 사람의 판단, 검증 능력을 보여주기 위해서다 | — Pending |
+| 솔로 생명주기·정책은 `SoloScoringGameManager`가 소유하고 입력·표현은 `PlayerHandController`/`PlayerHandView`로 분리한다 | 4인 모드 확장 전에 기존 솔로 흐름의 책임과 재시작 경계를 명확히 한다 | ✓ Phase 1 — 4+15 XML과 동일 PID UAT 통과 |
+| 자동 XML·빌드와 실제 Player 관찰을 별도 증거로 유지한다 | 존재하지 않거나 관찰하지 않은 결과를 PASS로 추정하지 않는다 | ✓ Phase 1 — fail-closed 검증 및 UAT 완료 |
 
 ## Evolution
 
@@ -103,4 +107,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-08-28 after initialization*
+*Last updated: 2026-09-02 after Phase 1*
