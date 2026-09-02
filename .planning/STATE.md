@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.0
 current_phase: 01
 current_phase_name: Executable Baseline — 실행 기준선과 검증 경로
-status: executing
-stopped_at: Planned 01-06 gap closure
-last_updated: "2026-09-01T18:37:55.772Z"
+status: verifying
+stopped_at: Completed 01-06-PLAN.md
+last_updated: "2026-09-02T02:44:02.647Z"
 last_activity: 2026-09-02
-last_activity_desc: Planned and verified 01-06 gap closure
-state_head: 447a03b1920174bdb953350f472dbc7509e43387
+last_activity_desc: Completed Plan 01-06 gap closure; end-of-phase D-13 verification pending
+state_head: 710bc80762d22d75d6f52d17662c31b7c39898c6
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 6
-  completed_plans: 5
+  completed_plans: 6
 milestone_name: milestone
 ---
 
@@ -24,22 +24,22 @@ milestone_name: milestone
 See: .planning/PROJECT.md (updated 2026-08-28)
 
 **Core value:** 기존 마작 로직을 정확하고 테스트 가능한 공유 규칙 엔진으로 개선하고, 독립 솔로와 고정 4인 반장전에서 재사용되는 과정을 증거로 보여준다.
-**Current focus:** Phase 1 — Executable Baseline / 실행 기준선과 검증 경로
+**Current focus:** Phase 01 — Executable Baseline — 실행 기준선과 검증 경로
 
 ## Current Position
 
-Phase: 01 (Executable Baseline — 실행 기준선과 검증 경로) — READY TO EXECUTE
-Plan: 5 of 6 in current phase
-Status: Ready to execute
-Last activity: 2026-09-02 -- Planned and verified 01-06 gap closure
+Phase: 01 (Executable Baseline — 실행 기준선과 검증 경로) — VERIFYING
+Plan: 6 of 6
+Status: End-of-phase D-13 verification required
+Last activity: 2026-09-02 — Completed Plan 01-06 gap closure
 
-Progress: [████████░░] 83%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 1
+- Total plans completed: 6
 - Average duration: -
 - Total execution time: 0.0 hours
 
@@ -64,6 +64,7 @@ Progress: [████████░░] 83%
 | Phase 01 P03 | 15min | 2 tasks | 7 files |
 | Phase 01 P04 | 15min | 3 tasks | 7 files |
 | Phase 01 P05 | 1h 35min | 3 tasks | 3 files |
+| Phase 01 P06 | 7h 40min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -91,6 +92,10 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 01]: PlayerHandController uses one private HandleEscape seam to make the real same-frame Escape branch assertion-testable without a generalized input abstraction.
 - [Phase 01]: Final Phase 1 project evidence is the explicit aggregate 3 + 13 = 16 from independently filtered trace and lifecycle XML results.
 - [Phase 01]: GUI PASS is recorded only from explicit approval of all eight same-PID steps on Player PID 20000.
+- [Phase 01]: Trace value and length divergence use the existing first-mismatch diagnostic path.
+- [Phase 01]: TimeExpired updates the record before rendering and saving while Forfeit remains no-save.
+- [Phase 01]: Session start propagates index 6 through the existing UpdateHand route without a reset API.
+- [Phase 01]: The 4+14 automated gate does not replace the pending D-13 visible Player observation.
 
 ### Pending Todos
 
@@ -111,6 +116,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-01T12:29:21.467Z
-Stopped at: Completed 01-05-PLAN.md
+Last session: 2026-09-02T02:44:02.622Z
+Stopped at: Completed 01-06-PLAN.md
 Resume file: None
