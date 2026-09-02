@@ -161,6 +161,7 @@ public class PlayerHandController : MonoBehaviour
         isGameOver = false;
         gameplayInputEnabled = true;
         currentIndex = 6;
+        UpdateHand();
     }
 
     private void AttachManagerEvents()

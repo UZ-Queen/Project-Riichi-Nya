@@ -262,6 +262,42 @@ public class SoloSessionLifecycleTests
     }
 
     [Test]
+    public void TimeoutNewRecord_RendersAndPersistsUpdatedHighScore()
+    {
+        byte[] originalSave = PreserveSaveFile();
+
+        try
+        {
+            SettingsManager.Save(new PetitGameSaveData { highScore = 10f });
+            SoloScoringGameManager manager = CreateManager();
+            Component soloUiController = GetFieldValue<Component>(manager, "soloUIController");
+            UiGameOver gameOver = CreateInactiveObject("UiGameOver").AddComponent<UiGameOver>();
+            TextMeshProUGUI total = CreateUiObject("Total", typeof(CanvasRenderer), typeof(TextMeshProUGUI))
+                .GetComponent<TextMeshProUGUI>();
+            TextMeshProUGUI record = CreateUiObject("Record", typeof(CanvasRenderer), typeof(TextMeshProUGUI))
+                .GetComponent<TextMeshProUGUI>();
+            TextMeshProUGUI reason = CreateUiObject("Reason", typeof(CanvasRenderer), typeof(TextMeshProUGUI))
+                .GetComponent<TextMeshProUGUI>();
+            SetField(gameOver, "uiTotalScore", total);
+            SetField(gameOver, "uiRecordScore", record);
+            SetField(gameOver, "uiReason", reason);
+            SetField(soloUiController, "uiGameOver", gameOver);
+
+            ScoreManagerDistance score = GetFieldValue<ScoreManagerDistance>(manager, "scoreManagerDistance");
+            score.GetInstantDistance(50f);
+            float finalScore = score.DistanceWithAccumulated;
+            Invoke(manager, "HandleTimerFinished");
+
+            Assert.That(record.text, Is.EqualTo(finalScore.ToString()));
+            Assert.That(SettingsManager.Load().highScore, Is.EqualTo(finalScore));
+        }
+        finally
+        {
+            RestoreSaveFile(originalSave);
+        }
+    }
+
+    [Test]
     public void PlayerController_Subscriptions_AreSymmetricAcrossRootCycles()
     {
         Type controllerType = AssertPlayerHandInputBoundary();
@@ -367,33 +403,67 @@ public class SoloSessionLifecycleTests
     [Test]
     public void RestartAfterLobby_UsesFreshStateAndSingleHandlers()
     {
-        Type controllerType = AssertPlayerHandInputBoundary();
-        Component controller = CreateInactiveObject("PlayerHandController").AddComponent(controllerType);
-        SoloScoringGameManager manager = CreateManager(controller);
-        manager.StartNewGame();
-        MahjongRound firstRound = GetFieldValue<MahjongRound>(manager, "currentRound");
-        Timer timer = GetFieldValue<Timer>(manager, "redstoneClock");
-        Invoke(timer, "CheckTimerTick", 10f);
-        GetFieldValue<ScoreManagerDistance>(manager, "scoreManagerDistance").GetInstantDistance(50f);
-        manager.currentState = GameState.PlayerTurn;
-        RaiseEvent(controller, "ForfeitRequested");
+        Scene loadedScene = EditorSceneManager.OpenScene("Assets/Scenes/SampleScene.unity", OpenSceneMode.Additive);
+        try
+        {
+            UiManager uiManager = FindComponents<UiManager>(loadedScene)[0];
+            Transform soloRoot = FindTransform(loadedScene, "SoloScoringModeRoot");
+            SoloScoringGameManager manager = FindComponents<SoloScoringGameManager>(loadedScene)[0];
+            PlayerHandController controller = FindComponents<PlayerHandController>(loadedScene)[0];
+            PlayerHandView view = FindComponents<PlayerHandView>(loadedScene)[0];
+            SoloScoringUIController soloUiController = FindComponents<SoloScoringUIController>(loadedScene)[0];
 
-        Invoke(manager, "OnDisable");
-        Invoke(manager, "OnEnable");
-        manager.StartNewGame();
+            Invoke(uiManager, "Awake");
+            Invoke(manager, "Awake");
+            Invoke(soloUiController, "Awake");
+            Invoke(view, "Awake");
+            Invoke(controller, "Awake");
+            Invoke(manager, "OnEnable");
+            Invoke(soloUiController, "OnEnable");
+            Invoke(controller, "OnEnable");
+            uiManager.OnGameStartButton();
 
-        MahjongRound secondRound = GetFieldValue<MahjongRound>(manager, "currentRound");
-        Component soloUiController = GetFieldValue<Component>(manager, "soloUIController");
-        Assert.That(secondRound, Is.Not.SameAs(firstRound));
-        Assert.That(timer.RemainingTime, Is.EqualTo(180f));
-        Assert.That(GetFieldValue<ScoreManagerDistance>(manager, "scoreManagerDistance").DistanceWithAccumulated, Is.Zero);
-        Assert.That(manager.currentState, Is.EqualTo(GameState.PlayerTurn));
-        Assert.That(GetFieldValue<bool>(manager, "pendingForfeit"), Is.False);
-        Assert.That(GetFieldValue<GameObject>(soloUiController, "forfeitConfirmation").activeSelf, Is.False);
-        Assert.That(CountTargetHandlers(controller, manager), Is.EqualTo(3));
-        Assert.That(CountTargetHandlers(soloUiController, manager), Is.EqualTo(2));
-        Assert.That(CountTargetHandlers(secondRound, manager), Is.EqualTo(6));
-        Assert.That(CountTargetHandlers(timer, manager), Is.EqualTo(1));
+            MahjongRound firstRound = GetFieldValue<MahjongRound>(manager, "currentRound");
+            Timer timer = GetFieldValue<Timer>(manager, "redstoneClock");
+            Invoke(timer, "CheckTimerTick", 10f);
+            GetFieldValue<ScoreManagerDistance>(manager, "scoreManagerDistance").GetInstantDistance(50f);
+            manager.currentState = GameState.PlayerTurn;
+            RaiseEvent(controller, "ForfeitRequested");
+            Invoke(controller, "MoveHand", 2);
+
+            MahjongTileGameObject[] tiles = GetFieldValue<MahjongTileGameObject[]>(view, "tilesInHand");
+            Assert.That(GetFieldValue<bool>(tiles[2], "isSelected"), Is.True);
+
+            uiManager.OnBBagguButton();
+            Invoke(controller, "OnDisable");
+            Invoke(soloUiController, "OnDisable");
+            Invoke(manager, "OnDisable");
+            Assert.That(soloRoot.gameObject.activeSelf, Is.False);
+
+            Invoke(manager, "OnEnable");
+            Invoke(soloUiController, "OnEnable");
+            Invoke(controller, "OnEnable");
+            uiManager.OnGameStartButton();
+
+            MahjongRound secondRound = GetFieldValue<MahjongRound>(manager, "currentRound");
+            Assert.That(secondRound, Is.Not.SameAs(firstRound));
+            Assert.That(timer.RemainingTime, Is.EqualTo(180f));
+            Assert.That(GetFieldValue<ScoreManagerDistance>(manager, "scoreManagerDistance").DistanceWithAccumulated, Is.Zero);
+            Assert.That(manager.currentState, Is.EqualTo(GameState.PlayerTurn));
+            Assert.That(GetFieldValue<bool>(manager, "pendingForfeit"), Is.False);
+            Assert.That(GetFieldValue<GameObject>(soloUiController, "forfeitConfirmation").activeSelf, Is.False);
+            Assert.That(controller.currentIndex, Is.EqualTo(6));
+            Assert.That(Array.FindAll(tiles, tile => GetFieldValue<bool>(tile, "isSelected")).Length, Is.EqualTo(1));
+            Assert.That(GetFieldValue<bool>(tiles[6], "isSelected"), Is.True);
+            Assert.That(CountTargetHandlers(controller, manager), Is.EqualTo(3));
+            Assert.That(CountTargetHandlers(soloUiController, manager), Is.EqualTo(2));
+            Assert.That(CountTargetHandlers(secondRound, manager), Is.EqualTo(6));
+            Assert.That(CountTargetHandlers(timer, manager), Is.EqualTo(1));
+        }
+        finally
+        {
+            EditorSceneManager.CloseScene(loadedScene, true);
+        }
     }
 
     private SoloScoringGameManager CreateManager(Component playerHandController = null)

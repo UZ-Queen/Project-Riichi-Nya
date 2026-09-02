@@ -241,14 +241,14 @@ public partial class SoloScoringGameManager : MonoBehaviour, IScoreDistanceConsu
         float yourScore = svcScoreManager.DistanceWithAccumulated;
 
         var saveData = SettingsManager.Load();
+        if (reason == GameEndReason.TimeExpired && yourScore > saveData.highScore)
+        {
+            saveData.highScore = yourScore;
+        }
+
         soloUIController?.ShowGameOver(yourScore, saveData.highScore, reason);
         if (reason == GameEndReason.TimeExpired)
         {
-            if (yourScore > saveData.highScore)
-            {
-                saveData.highScore = yourScore;
-            }
-
             SettingsManager.Save(saveData);
         }
 
