@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.0
 current_phase: 01
 current_phase_name: Executable Baseline — 실행 기준선과 검증 경로
-status: ready_to_execute
-stopped_at: Planned 01-07-PLAN.md
-last_updated: "2026-09-02T06:40:06.836Z"
+status: executing
+stopped_at: Completed 01-07-PLAN.md
+last_updated: "2026-09-02T07:41:37.139Z"
 last_activity: 2026-09-02
-last_activity_desc: Phase 01 gap planning complete; Plan 01-07 ready to execute
-state_head: 9584d24c2117326e70a5178622c87b3928e61b86
+last_activity_desc: Completed Plan 01-07 save-safety gap closure
+state_head: 7e29f3db588cc33bff2c7365be98d349acc1610f
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 7
-  completed_plans: 6
+  completed_plans: 7
 milestone_name: milestone
 ---
 
@@ -28,12 +28,12 @@ See: .planning/PROJECT.md (updated 2026-08-28)
 
 ## Current Position
 
-Phase: 01 (Executable Baseline — 실행 기준선과 검증 경로) — READY TO EXECUTE
-Plan: 6 of 7
-Status: Ready to execute Plan 01-07
-Last activity: 2026-09-02 — Planned save-safety gap closure
+Phase: 01 (Executable Baseline — 실행 기준선과 검증 경로) — EXECUTING
+Plan: 7 of 7
+Status: Ready for Phase 01 verification
+Last activity: 2026-09-02 — Completed Plan 01-07 save-safety gap closure
 
-Progress: [█████████░] 86%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -65,6 +65,7 @@ Progress: [█████████░] 86%
 | Phase 01 P04 | 15min | 3 tasks | 7 files |
 | Phase 01 P05 | 1h 35min | 3 tasks | 3 files |
 | Phase 01 P06 | 7h 40min | 3 tasks | 6 files |
+| Phase 01 P07 | 53min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -96,6 +97,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 01]: TimeExpired updates the record before rendering and saving while Forfeit remains no-save.
 - [Phase 01]: Session start propagates index 6 through the existing UpdateHand route without a reset API.
 - [Phase 01]: The 4+14 automated gate does not replace the pending D-13 visible Player observation.
+- [Phase 01]: Lifecycle persistence tests use a same-directory durable backup or originally-absent marker and recover stale state before mutation.
+- [Phase 01]: Real and temporary save recovery paths share fixture-private helpers while production SettingsManager remains unchanged.
+- [Phase 01]: Exact 4+15 automated save-safety evidence does not replace the pending D-13 same-PID Windows Player observation.
 
 ### Pending Todos
 
@@ -116,6 +120,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-02T02:44:02.622Z
-Stopped at: Completed 01-06-PLAN.md
+Last session: 2026-09-02T07:41:36.340Z
+Stopped at: Completed 01-07-PLAN.md
 Resume file: None
