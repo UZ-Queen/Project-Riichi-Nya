@@ -2,11 +2,12 @@
 
 - Baseline tag: portfolio-baseline
 - Baseline commit: b18320ec1d9d647900d2173049819bab6bd47175
-- Target commit: 36459396409270fdd3a502679720a9592a1b370e
+- Target commit: 1239b4d
 - Unity version: 2022.3.29f1
 - EditMode command: Invoke-UnityTests.ps1 -ProjectPath <project> -TestPlatform EditMode -TestFilter MahjongRoundTraceTests -ExpectedGate Green; Invoke-UnityTests.ps1 -ProjectPath <project> -TestPlatform EditMode -TestFilter SoloSessionLifecycleTests -ExpectedGate Green
 - EditMode status: PASS
-- Test count: 3 + 13 = 16
+- Test count: 4 + 14 = 18
+- Plan 01-06 regressions: LengthDivergence_ReportsFirstMismatchState, TimeoutNewRecord_RendersAndPersistsUpdatedHighScore, RestartAfterLobby_UsesFreshStateAndSingleHandlers PASS
 - Seeded trace: seed=1557 acceptedActions=112 PASS
 - Windows build command: Unity.exe -batchmode -nographics -projectPath <project> -executeMethod Phase1Build.BuildWindowsPlayer -logFile <project>/Temp/phase1/build.log; restore durable Builds/phase1/build-report.txt to Temp/phase1/build-report.txt after the explicit Editor exit
 - BuildReport: Temp/phase1/build-report.txt reports Result: Succeeded, Errors: 0, Warnings: 15, Size: 122097335, Duration: 00:00:17.7720326
@@ -16,6 +17,7 @@
 - Licensing status: PASS
 - Human checkpoint: APPROVED
 - GUI status: PASS
-- Raw artifacts: Logs/UnityTestGate/20260901-200231-641-results.xml, Logs/UnityTestGate/20260901-200231-641-unity.log, Logs/UnityTestGate/20260901-200143-063-results.xml, Logs/UnityTestGate/20260901-200143-063-unity.log, Temp/phase1/build.log, Temp/phase1/build-report.txt, Temp/phase1/player.pid, Builds/phase1/RiichiNya.exe
+- Plan 01-06 GUI observation: NOT RE-OBSERVED — the automated rerun did not launch a fresh Player; end-of-phase verification must repeat the D-13 same-PID forfeit/menu/restart path after selecting a non-default tile and confirm only tile 6 is highlighted
+- Raw artifacts: Logs/UnityTestGate/20260902-114033-474-results.xml, Logs/UnityTestGate/20260902-114033-474-unity.log, Logs/UnityTestGate/20260902-114054-685-results.xml, Logs/UnityTestGate/20260902-114054-685-unity.log, Temp/phase1/build.log, Temp/phase1/build-report.txt, Temp/phase1/player.pid, Builds/phase1/RiichiNya.exe
 - Before: no project-authored tests; runtime UnityEditor import created Player-build risk; direct Esc forfeit skipped confirmation; restart duplicate subscriptions and stale-state risk were unguarded
-- After: three trace and thirteen lifecycle cases pass independently; seed 1557 trace is reproducible; SoloScoringGameManager, SoloScoringUIController, PlayerHandController, and PlayerHandView preserve one-owner lifecycle behavior; the final same-PID GUI sequence was explicitly approved
+- After: four trace and fourteen lifecycle cases pass independently; seed 1557 trace is reproducible; length divergence reports the first missing state; timeout records render and persist the same value; the real-root restart resets the selection to tile 6; the earlier final same-PID GUI sequence remains approved but the Plan 01-06 visible-selection change is not freshly observed
