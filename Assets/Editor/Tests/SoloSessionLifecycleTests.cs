@@ -15,6 +15,66 @@ public class SoloSessionLifecycleTests
 {
     private readonly List<GameObject> createdObjects = new List<GameObject>();
 
+    [Test]
+    public void RecoverInterruptedSaveTest_RestoresDurableBackupBeforeNextMutation()
+    {
+        byte[] originalBytes = { 0x10, 0x20, 0x30, 0x40 };
+        byte[] interruptedBytes = { 0x50, 0x60, 0x70 };
+        string temporaryDirectory = Path.Combine(
+            Path.GetTempPath(),
+            $"RiichiNya-SaveRecovery-{Guid.NewGuid():N}");
+        string livePath = Path.Combine(temporaryDirectory, "yaml.json");
+        string backupPath = livePath + ".phase1-test-backup";
+        string absentPath = livePath + ".phase1-test-absent";
+
+        Directory.CreateDirectory(temporaryDirectory);
+        try
+        {
+            File.WriteAllBytes(backupPath, originalBytes);
+            File.WriteAllBytes(livePath, interruptedBytes);
+
+            RecoverSaveFile(livePath, backupPath, absentPath);
+
+            Assert.That(File.ReadAllBytes(livePath), Is.EqualTo(originalBytes));
+            Assert.That(File.Exists(backupPath), Is.False);
+            Assert.That(File.Exists(absentPath), Is.False);
+
+            GuardSaveFile(livePath, backupPath, absentPath);
+
+            Assert.That(File.Exists(livePath), Is.False);
+            Assert.That(File.ReadAllBytes(backupPath), Is.EqualTo(originalBytes));
+            Assert.That(File.Exists(absentPath), Is.False);
+
+            File.WriteAllBytes(livePath, interruptedBytes);
+            RecoverSaveFile(livePath, backupPath, absentPath);
+
+            Assert.That(File.ReadAllBytes(livePath), Is.EqualTo(originalBytes));
+            Assert.That(File.Exists(backupPath), Is.False);
+            Assert.That(File.Exists(absentPath), Is.False);
+
+            File.Delete(livePath);
+            GuardSaveFile(livePath, backupPath, absentPath);
+
+            Assert.That(File.Exists(livePath), Is.False);
+            Assert.That(File.Exists(backupPath), Is.False);
+            Assert.That(File.Exists(absentPath), Is.True);
+
+            File.WriteAllBytes(livePath, interruptedBytes);
+            RecoverSaveFile(livePath, backupPath, absentPath);
+
+            Assert.That(File.Exists(livePath), Is.False);
+            Assert.That(File.Exists(backupPath), Is.False);
+            Assert.That(File.Exists(absentPath), Is.False);
+        }
+        finally
+        {
+            if (Directory.Exists(temporaryDirectory))
+            {
+                Directory.Delete(temporaryDirectory, true);
+            }
+        }
+    }
+
     [TearDown]
     public void TearDown()
     {
@@ -679,6 +739,14 @@ public class SoloSessionLifecycleTests
     private static void AddEventHandler(Component source, string eventName, Delegate handler)
     {
         source.GetType().GetEvent(eventName).AddEventHandler(source, handler);
+    }
+
+    private static void GuardSaveFile(string livePath, string backupPath, string absentPath)
+    {
+    }
+
+    private static void RecoverSaveFile(string livePath, string backupPath, string absentPath)
+    {
     }
 
     private static byte[] PreserveSaveFile()
