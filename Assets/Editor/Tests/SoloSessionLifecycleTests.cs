@@ -301,7 +301,7 @@ public class SoloSessionLifecycleTests
         SoloScoringGameManager manager = CreateManager(controller);
         int gameOverCount = 0;
         manager.OnGameOver += () => gameOverCount++;
-        byte[] originalSave = PreserveSaveFile();
+        GuardSaveFile(LiveSavePath, BackupSavePath, AbsentSavePath);
         AssertSaveGuarded();
 
         try
@@ -321,14 +321,14 @@ public class SoloSessionLifecycleTests
         }
         finally
         {
-            RestoreSaveFile(originalSave);
+            RecoverSaveFile(LiveSavePath, BackupSavePath, AbsentSavePath);
         }
     }
 
     [Test]
     public void TimeoutNewRecord_RendersAndPersistsUpdatedHighScore()
     {
-        byte[] originalSave = PreserveSaveFile();
+        GuardSaveFile(LiveSavePath, BackupSavePath, AbsentSavePath);
         AssertSaveGuarded();
 
         try
@@ -358,7 +358,7 @@ public class SoloSessionLifecycleTests
         }
         finally
         {
-            RestoreSaveFile(originalSave);
+            RecoverSaveFile(LiveSavePath, BackupSavePath, AbsentSavePath);
         }
     }
 
@@ -792,30 +792,12 @@ public class SoloSessionLifecycleTests
         File.Delete(absentPath);
     }
 
-    private static byte[] PreserveSaveFile()
-    {
-        string savePath = Path.Combine(Application.persistentDataPath, "yaml.json");
-        return File.Exists(savePath) ? File.ReadAllBytes(savePath) : null;
-    }
-
     private static void AssertSaveGuarded()
     {
         Assert.That(File.Exists(LiveSavePath), Is.False,
             "The live save must be moved or recorded absent before a persistence mutation.");
         Assert.That(File.Exists(BackupSavePath) ^ File.Exists(AbsentSavePath), Is.True,
             "Exactly one durable pre-test state must exist before a persistence mutation.");
-    }
-
-    private static void RestoreSaveFile(byte[] originalSave)
-    {
-        string savePath = Path.Combine(Application.persistentDataPath, "yaml.json");
-        if (originalSave == null)
-        {
-            File.Delete(savePath);
-            return;
-        }
-
-        File.WriteAllBytes(savePath, originalSave);
     }
 
     private static string ReadGuid(string assetMetaPath)
