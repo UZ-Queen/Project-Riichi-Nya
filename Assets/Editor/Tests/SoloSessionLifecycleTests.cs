@@ -13,7 +13,16 @@ using UnityEngine.UI;
 
 public class SoloSessionLifecycleTests
 {
+    private static readonly string LiveSavePath = Path.Combine(Application.persistentDataPath, "yaml.json");
+    private static readonly string BackupSavePath = LiveSavePath + ".phase1-test-backup";
+    private static readonly string AbsentSavePath = LiveSavePath + ".phase1-test-absent";
     private readonly List<GameObject> createdObjects = new List<GameObject>();
+
+    [SetUp]
+    public void SetUp()
+    {
+        RecoverSaveFile(LiveSavePath, BackupSavePath, AbsentSavePath);
+    }
 
     [Test]
     public void RecoverInterruptedSaveTest_RestoresDurableBackupBeforeNextMutation()
@@ -78,6 +87,8 @@ public class SoloSessionLifecycleTests
     [TearDown]
     public void TearDown()
     {
+        RecoverSaveFile(LiveSavePath, BackupSavePath, AbsentSavePath);
+
         foreach (GameObject createdObject in createdObjects)
         {
             UnityEngine.Object.DestroyImmediate(createdObject);
@@ -109,13 +120,12 @@ public class SoloSessionLifecycleTests
         Assert.That(confirmForfeit, Is.Not.Null, "Forfeit must wait for an explicit confirmation.");
         Assert.That(lastEndReason, Is.Not.Null, "The finalizer must retain the observed end reason.");
 
-        string savePath = Path.Combine(Application.persistentDataPath, "yaml.json");
-        byte[] originalSave = File.Exists(savePath) ? File.ReadAllBytes(savePath) : null;
+        GuardSaveFile(LiveSavePath, BackupSavePath, AbsentSavePath);
 
         try
         {
             SettingsManager.Save(new PetitGameSaveData { highScore = 4321f });
-            byte[] expectedSave = File.ReadAllBytes(savePath);
+            byte[] expectedSave = File.ReadAllBytes(LiveSavePath);
             Component controller = CreateInactiveObject("PlayerHandController").AddComponent(controllerType);
             SoloScoringGameManager manager = CreateManager(controller);
             int gameOverCount = 0;
@@ -143,18 +153,11 @@ public class SoloSessionLifecycleTests
 
             Assert.That(lastEndReason.GetValue(manager).ToString(), Is.EqualTo("Forfeit"));
             Assert.That(gameOverCount, Is.EqualTo(1));
-            Assert.That(File.ReadAllBytes(savePath), Is.EqualTo(expectedSave));
+            Assert.That(File.ReadAllBytes(LiveSavePath), Is.EqualTo(expectedSave));
         }
         finally
         {
-            if (originalSave == null)
-            {
-                File.Delete(savePath);
-            }
-            else
-            {
-                File.WriteAllBytes(savePath, originalSave);
-            }
+            RecoverSaveFile(LiveSavePath, BackupSavePath, AbsentSavePath);
         }
     }
 
@@ -743,10 +746,48 @@ public class SoloSessionLifecycleTests
 
     private static void GuardSaveFile(string livePath, string backupPath, string absentPath)
     {
+        RecoverSaveFile(livePath, backupPath, absentPath);
+
+        if (File.Exists(livePath))
+        {
+            File.Move(livePath, backupPath);
+            return;
+        }
+
+        using (File.Create(absentPath))
+        {
+        }
     }
 
     private static void RecoverSaveFile(string livePath, string backupPath, string absentPath)
     {
+        if (File.Exists(backupPath))
+        {
+            if (File.Exists(livePath))
+            {
+                File.Delete(livePath);
+            }
+
+            if (File.Exists(absentPath))
+            {
+                File.Delete(absentPath);
+            }
+
+            File.Move(backupPath, livePath);
+            return;
+        }
+
+        if (!File.Exists(absentPath))
+        {
+            return;
+        }
+
+        if (File.Exists(livePath))
+        {
+            File.Delete(livePath);
+        }
+
+        File.Delete(absentPath);
     }
 
     private static byte[] PreserveSaveFile()
