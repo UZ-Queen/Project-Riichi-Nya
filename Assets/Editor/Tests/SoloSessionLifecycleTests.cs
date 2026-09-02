@@ -302,6 +302,7 @@ public class SoloSessionLifecycleTests
         int gameOverCount = 0;
         manager.OnGameOver += () => gameOverCount++;
         byte[] originalSave = PreserveSaveFile();
+        AssertSaveGuarded();
 
         try
         {
@@ -328,6 +329,7 @@ public class SoloSessionLifecycleTests
     public void TimeoutNewRecord_RendersAndPersistsUpdatedHighScore()
     {
         byte[] originalSave = PreserveSaveFile();
+        AssertSaveGuarded();
 
         try
         {
@@ -794,6 +796,14 @@ public class SoloSessionLifecycleTests
     {
         string savePath = Path.Combine(Application.persistentDataPath, "yaml.json");
         return File.Exists(savePath) ? File.ReadAllBytes(savePath) : null;
+    }
+
+    private static void AssertSaveGuarded()
+    {
+        Assert.That(File.Exists(LiveSavePath), Is.False,
+            "The live save must be moved or recorded absent before a persistence mutation.");
+        Assert.That(File.Exists(BackupSavePath) ^ File.Exists(AbsentSavePath), Is.True,
+            "Exactly one durable pre-test state must exist before a persistence mutation.");
     }
 
     private static void RestoreSaveFile(byte[] originalSave)
