@@ -164,7 +164,8 @@
 
 Phase 2는 외부 package를 설치하지 않으므로 legitimacy gate 대상이 없다. 기존 Unity Test Framework와 Newtonsoft 패키지는 lockfile/manifest에 이미 고정되어 있다. [VERIFIED: Packages/manifest.json:9-11; Packages/packages-lock.json:190-253]
 
-**Packages removed due to [SLOP] verdict:** none  
+**Packages removed due to [SLOP] verdict:** none
+
 **Packages flagged as suspicious [SUS]:** none
 
 ## Architecture Patterns
@@ -479,7 +480,8 @@ static int RoundUpToHundred(int points)
 | Node / gsd-tools | research/commit seam | ✓ | Node `24.14.1` | planning can proceed without runtime dependency in game. [VERIFIED: environment probe 2026-09-04] |
 | External package/service | rules implementation | not required | — | BCL + installed packages. [VERIFIED: Standard Stack] |
 
-**Missing dependencies with no fallback:** none.  
+**Missing dependencies with no fallback:** none.
+
 **Missing dependencies with fallback:** none.
 
 ## Validation Architecture
@@ -595,5 +597,6 @@ Unity official docs confirm `testFilter`, `testCategory`, EditMode and NUnit-for
 - Mahjong Soul-specific variants: LOW until direct client/official-ranked evidence is attached.
 - Validation architecture: HIGH — existing project helper, XML contract, fixtures, and config inspected.
 
-**Research date:** 2026-09-04  
+**Research date:** 2026-09-04
+
 **Valid until:** 2026-10-04 for Unity/codebase patterns; re-check Mahjong Soul client behavior immediately before locking conformance fixtures.
