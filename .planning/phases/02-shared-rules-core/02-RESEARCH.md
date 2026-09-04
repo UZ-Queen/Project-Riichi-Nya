@@ -452,22 +452,22 @@ static int RoundUpToHundred(int points)
 | A5 | pinned Unity/Mono runtime 안에서만 seeded `System.Random` sequence를 compatibility contract로 삼으면 충분하다. | Shuffle | runtime upgrade 뒤 golden order 변경 가능. |
 | A6 | `Phase2RegressionTests.cs`와 `Phase2ConformanceTests.cs` 두 fixture 파일이 현재 규모에서 가장 작은 유지보수 단위다. | Project Structure | planner가 중복/파일 크기에 따라 합치거나 helper를 늦게 추출할 수 있음. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **작혼 현재 랭크전의 변형 규칙을 어떤 직접 관찰로 lock할 것인가?**
+1. **작혼 현재 랭크전의 변형 규칙을 어떤 직접 관찰로 lock할 것인가? — RESOLVED**
    - What we know: official event 자료는 적5 3장과 open tanyao를 확인한다. generic 산술은 EMA로 검증 가능하다. [CITED: https://mahjongsoul.yo-star.com/tournament/rules.pdf] [CITED: https://mahjong-europe.org/portal/images/docs/Riichi-rules-2025-EN.pdf]
    - What's unclear: double yakuman 4종, kazoe cap, kiriage, renhou 제외, double-wind pair fu는 공개 official-ranked 문서가 없다. [ASSUMED]
-   - Recommendation: 구현 GREEN 전에 Mahjong Soul result 화면/공식 도움말을 사람이 확인해 각 fixture에 `CheckedOn=2026-09-04` 이후 관찰 근거를 추가한다. 관찰이 불가능하면 2차 출처 두 개 이상과 inference note를 유지하고 포트폴리오에 한계를 명시한다. [ASSUMED]
+   - Resolution: D-01/D-02에 따라 direct Player 관찰 전에는 double yakuman 4종, kazoe cap, no-kiriage, renhou 제외, double-wind pair fu를 최소 두 개의 독립 2차 출처로 교차 확인한 dated row로 고정하고 `Authority=secondary`, non-empty `[inference]` note, `CheckedOn`을 유지한다. 이를 공식 랭크전 증거로 표현하지 않는다. 이후 실제 Mahjong Soul Player 관찰이 생기면 동일 row의 authority/evidence를 갱신하되 관찰 전 구현을 무기한 막지 않는다. [ASSUMED]
 
-2. **점수 규칙 버전 형식은 무엇인가?**
+2. **점수 규칙 버전 형식은 무엇인가? — RESOLVED**
    - What we know: build version과 별도 hardcoded version 및 mismatch highScore-only reset은 locked다. [VERIFIED: 02-CONTEXT.md:50-52]
    - What's unclear: string/int 형식은 planner discretion이다.
-   - Recommendation: 비교만 필요한 현재 scope에서는 단일 정수 상수와 DTO 정수 필드가 가장 작다. 첫 교정 version을 임의 의미 버전 체계로 확장하지 않는다. [ASSUMED]
+   - Resolution: `MahjongScoringRules.CurrentVersion` 단일 정수 상수와 `PetitGameSaveData.scoringRulesVersion` 단일 정수 DTO field를 사용하며 첫 교정값은 `1`이다. version registry, semantic-version parser, profile history는 만들지 않는다. [VERIFIED: 02-CONTEXT.md:50-52] [ASSUMED]
 
-3. **기존 public API를 얼마나 유지할 것인가?**
+3. **기존 public API를 얼마나 유지할 것인가? — RESOLVED**
    - What we know: RED는 현행 API에 먼저 작성하고 제품 내 이중 엔진은 금지다. [VERIFIED: 02-CONTEXT.md:54-59]
    - What's unclear: `MahjongWinInfo`/`HashSet` 반환을 즉시 바꿀지 facade로 잠시 연결할지 planner가 정한다.
-   - Recommendation: 각 caller를 같은 wave에서 바꿀 수 있으면 직접 교체한다. compile continuity가 필요할 때만 `[Obsolete]` facade를 한 wave 유지하고 Phase 종료 전에 제거한다. [ASSUMED]
+   - Resolution: current callers는 각 소유 wave에서 새 core result로 직접 이동한다. compile continuity가 실제 필요할 때만 `[Obsolete]` facade를 해당 wave 안에서 임시 사용하고, Phase 2 종료 gate 전에 facade와 모든 call site를 제거한다. 제품에 두 번째 scorer나 장기 compatibility surface를 남기지 않는다. [VERIFIED: 02-CONTEXT.md:54-59] [ASSUMED]
 
 ## Environment Availability
 
