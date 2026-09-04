@@ -79,7 +79,17 @@
   4. 친·자의 론과 쯔모는 지불자별 금액을 100점 단위로 올림하며, 같은 패와 맥락은 솔로와 4인 모드에서 같은 기본 결과를 만든다.
   5. 교정된 규칙을 사용하는 솔로 모드가 기존 실행 경로에서 계속 시작되고 Windows Player가 빌드·실행된다.
 
-**Plans**: TBD
+**Plans**: 8 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — 실제 solo start를 통과하는 공유 136장 wall과 tile identity tracer
+- [ ] 02-02-PLAN.md — exhaustive decomposition과 payment-aware best-candidate selection
+- [ ] 02-03-PLAN.md — validated win context, fixed yaku/yakuman catalog, immutable dora resolver
+- [ ] 02-04-PLAN.md — exact fu와 four-seat ron/tsumo payment result
+- [ ] 02-05-PLAN.md — corrected shared result를 소비하는 independent solo round adapter
+- [ ] 02-06-PLAN.md — scoring-rules version과 high-score-only durable migration
+- [ ] 02-07-PLAN.md — shared dora presentation 및 fail-closed automated phase evidence
+- [ ] 02-08-PLAN.md — same-PID Windows Player observation과 final evidence seal
 
 ### Phase 3: Solo Preservation and Riichi — 독립 솔로 모드와 완전한 리치
 

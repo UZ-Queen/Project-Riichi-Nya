@@ -39,12 +39,14 @@ created: 2026-09-04
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 02-W0-01 | TBD | 0 | RULE-01~03 | T-02-01, T-02-02 | 잘못된 패 입력과 mutable hash identity가 wall/equality 계약을 우회하지 못한다. | regression + unit | helper `Phase2RegressionTests` RED, 교정 뒤 GREEN | ❌ W0 | ⬜ pending |
-| 02-W0-02 | TBD | 0 | RULE-04~09 | T-02-01, T-02-03 | malformed hand/context를 거절하고 역·부·지불 결과를 표 기반 oracle과 비교한다. | conformance + unit | helper `Phase2ConformanceTests` GREEN | ❌ W0 | ⬜ pending |
-| 02-W0-03 | TBD | 0 | RULE-10 | T-02-04 | 솔로 adapter가 순수 결과의 winner income을 거리 서비스에 정확히 한 번 전달하고 save migration이 high score만 초기화한다. | integration EditMode | Phase 2 filters + `SoloSessionLifecycleTests` GREEN | ❌ W0 | ⬜ pending |
-| 02-W0-04 | TBD | 0 | RULE-01~10 | T-02-05 | missing/empty XML, zero discovery, license/IPC 실패를 GREEN으로 오인하지 않는다. | evidence gate | 네 filtered helper run + XML name/count audit + Windows build | ❌ W0 | ⬜ pending |
-
-*Planner는 실제 PLAN/task가 확정되면 `TBD`와 Wave 0 식별자를 실행 task ID로 치환한다.*
+| 02-01-T1/T2 | 02-01 | 1 | RULE-01~03 | T-02-01~03 | 실제 solo start가 공유 136장 wall과 stable tile identity를 사용하고 RED/GREEN evidence가 fail-closed다. | tracer regression + conformance | `Phase2RegressionTests` RED→GREEN, `Phase2ConformanceTests` GREEN | ❌ plan creates | ⬜ pending |
+| 02-02-T1/T2 | 02-02 | 2 | RULE-04~05 | T-02-04~06 | malformed hand/meld를 거절하고 exhaustive candidates와 income/Han/Fu/stable selection을 검증한다. | regression + unit | 두 Phase 2 fixture GREEN | ❌ plan expands | ⬜ pending |
+| 02-03-T1/T2 | 02-03 | 3 | RULE-06~07 | T-02-07~09 | contradictory context와 dora-only를 거절하고 fixed yaku/yakuman catalog를 source-dated rows로 검증한다. | regression + parameterized conformance | 두 Phase 2 fixture GREEN | ❌ plan expands | ⬜ pending |
+| 02-04-T1/T2 | 02-04 | 4 | RULE-08~09 | T-02-10~12 | winning attribution별 fu와 four payment shapes/zero-sum deltas를 literal oracle과 비교한다. | regression + parameterized conformance | 두 Phase 2 fixture GREEN | ❌ plan expands | ⬜ pending |
+| 02-05-T1/T2 | 02-05 | 5 | RULE-10 | T-02-13~15 | solo adapter가 winner income을 한 번 전달하고 18-draw/dealer/wind progression을 적용한다. | integration EditMode | 두 Phase 2 fixture + Phase 1 fixtures GREEN | ❌ plan expands | ⬜ pending |
+| 02-06-T1/T2 | 02-06 | 6 | RULE-10 | T-02-16~18 | score-version mismatch가 high score만 초기화하고 durable test scope가 exact prior save를 복구한다. | persistence integration | `Phase2ConformanceTests` + exact `SoloSessionLifecycleTests` 15 GREEN | ❌ plan creates | ⬜ pending |
+| 02-07-T1/T2 | 02-07 | 7 | RULE-07/10 | T-02-19~21 | view는 shared resolver 결과만 표시하고 automated evidence는 XML/count/BuildReport를 모두 요구한다. | presentation EditMode + evidence gate | 네 filtered fixtures + fresh Windows build | ❌ plan expands | ⬜ pending |
+| 02-08-T1/T2 | 02-08 | 8 | RULE-07/09/10 | T-02-22~23 | same-PID explicit observation만 GUI PASS이고 final ledger가 39 edges/7 prohibitions/source coverage를 보존한다. | human checkpoint + final audit | Regression GREEN backstop + five explicit human observations | ✅ prior plans | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -52,10 +54,12 @@ created: 2026-09-04
 
 ## Wave 0 Requirements
 
-- [ ] `Assets/Editor/Tests/Phase2RegressionTests.cs` — 139장 패산, 마지막 index 제외 shuffle, identity 불일치, 탐욕 분해 누락, dora-only, tsumo-as-ron 결함을 현행 공개 API에서 재현한다.
-- [ ] `Assets/Editor/Tests/Phase2ConformanceTests.cs` — 일반형·치또이츠·국사무쌍, 역·도라·판·부·역만·지불과 mode-independent 결과를 출처·확인일이 있는 표 기반 사례로 검증한다.
-- [ ] `.planning/phases/02-shared-rules-core/02-EVIDENCE.md` — RED/GREEN 대상 commit, filter, 정확한 test name/count, 예상/실제 결과와 원본 XML/log 경로를 기록한다.
-- [ ] 공개 official-ranked 근거가 없는 Mahjong Soul 변형 규칙은 직접 관찰 또는 복수 2차 출처와 `[inference]` 표시를 fixture에 남긴다.
+- [ ] Plan 02-01 owns creation of `Phase2RegressionTests.cs`, `Phase2ConformanceTests.cs`, and `02-EVIDENCE.md`; each later plan expands the same fixtures only for its owned behavior.
+- [ ] Plans 02-01, 02-02, 02-03, 02-04, and 02-06 each create an assertion-failure RED commit for the still-current public defect before their production correction; compile/license/missing XML is not RED.
+- [ ] `Phase2ConformanceTests.cs` owns literal source-dated wall, decomposition, yaku/dora/yakuman, fu/payment, mode adapter, solo progression, save migration, and presentation rows without generating expected values from production code.
+- [ ] Plan 02-06 extracts `DurableSaveTestScope` only when the second real-save fixture needs it and preserves exact Phase 1 lifecycle 15 names.
+- [ ] Plan 02-07 owns the four-fixture/fresh-build automated phase gate and leaves human fields `NOT OBSERVED`; Plan 02-08 alone owns D-31 same-PID approval and final ledger seal.
+- [ ] Mahjong Soul rules without official ranked documentation use direct observation or at least two secondary sources plus non-empty `[inference]`, `CheckedOn`, and `Authority` fields.
 - [x] 기존 Unity Test Framework, global test helper, predefined editor assembly와 Windows build helper를 재사용한다.
 
 ---
@@ -77,9 +81,9 @@ Unity helper가 라이선스/IPC/lock/XML 부재를 보고하면 상태는 BLOCK
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
+- [x] All planned tasks have an `<automated>` verify; Plan 02-08 additionally has the explicit human checkpoint.
+- [x] Sampling continuity: every task carries a filtered Unity gate.
+- [x] Wave 0 ownership is assigned to concrete plan/task IDs for every missing fixture/evidence/helper.
 - [x] No watch-mode flags or ad-hoc `-quit` Test Runner command
 - [ ] Feedback latency < 30 minutes confirmed by measurement
 - [ ] `nyquist_compliant: true` set in frontmatter
