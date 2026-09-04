@@ -82,13 +82,36 @@
 **Plans**: 8 plans
 
 Plans:
+**Wave 1**
+
 - [ ] 02-01-PLAN.md — 실제 solo start를 통과하는 공유 136장 wall과 tile identity tracer
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 02-02-PLAN.md — exhaustive decomposition과 payment-aware best-candidate selection
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 02-03-PLAN.md — validated win context, fixed yaku/yakuman catalog, immutable dora resolver
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 02-04-PLAN.md — exact fu와 four-seat ron/tsumo payment result
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 02-05-PLAN.md — corrected shared result를 소비하는 independent solo round adapter
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 02-06-PLAN.md — scoring-rules version과 high-score-only durable migration
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 02-07-PLAN.md — shared dora presentation 및 fail-closed automated phase evidence
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
 - [ ] 02-08-PLAN.md — same-PID Windows Player observation과 final evidence seal
 
 ### Phase 3: Solo Preservation and Riichi — 독립 솔로 모드와 완전한 리치
