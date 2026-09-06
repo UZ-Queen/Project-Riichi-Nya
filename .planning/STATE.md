@@ -6,8 +6,8 @@ current_phase_name: shared-rules-core
 status: executing
 stopped_at: Phase 2 context gathered
 last_updated: "2026-09-04T07:50:25.806Z"
-last_activity: 2026-09-02
-last_activity_desc: Phase 01 complete, transitioned to Phase 2
+last_activity: 2026-09-06
+last_activity_desc: Completed quick 260906-kut; recorded P2-CR-02 proposal only
 state_head: 1a69a70b2662cb3bf73e1b8297347e89a6bdeafb
 progress:
   total_phases: 7
@@ -31,7 +31,7 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 Phase: 02 (shared-rules-core) — READY TO EXECUTE
 Plan: Not started
 Status: Ready to execute
-Last activity: 2026-09-02 — Phase 01 complete, transitioned to Phase 2
+Last activity: 2026-09-06 — Completed quick task 260906-kut: P2-CR-02 솔로 지급 회귀 검증 범위 조정 제안 기록 (Phase 2 계획·코드 미반영)
 
 Progress: [░░░░░░░░░░░░░░░░░░░░] 7/7 plans
 
@@ -111,6 +111,12 @@ None yet.
 - Phase 2는 점수 fixture catalog와 순차 assembly migration을 계획에서 구체화해야 한다.
 - Phase 4는 남4국 친 연장 후 친이 넘어갈 때 종료하는 고정 계약을 그대로 검증해야 한다.
 - Phase 6 계획 전 call priority, kuikae, riichi-after-ankan, rinshan/live-wall 및 kan-dora timing을 권위 규칙과 재확인해야 한다.
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260906-kut | P2-CR-02 솔로 지급 회귀 검증 범위 조정 제안 기록 | 2026-09-06 | ff50213 | [260906-kut-phase-2-02-04-02-05](./quick/260906-kut-phase-2-02-04-02-05/) |
 
 ## Deferred Items
 
