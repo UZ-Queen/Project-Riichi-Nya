@@ -79,12 +79,12 @@
   4. 친·자의 론과 쯔모는 지불자별 금액을 100점 단위로 올림하며, 같은 패와 맥락은 솔로와 4인 모드에서 같은 기본 결과를 만든다.
   5. 교정된 규칙을 사용하는 솔로 모드가 기존 실행 경로에서 계속 시작되고 Windows Player가 빌드·실행된다.
 
-**Plans**: 8 plans
+**Plans**: 1/8 plans executed
 
 Plans:
 **Wave 1**
 
-- [ ] 02-01-PLAN.md — 실제 solo start를 통과하는 공유 136장 wall과 tile identity tracer
+- [x] 02-01-PLAN.md — 실제 solo start를 통과하는 공유 136장 wall과 tile identity tracer
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -205,7 +205,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Executable Baseline — 실행 기준선과 검증 경로 | 7/7 | Complete    | 2026-09-02 |
-| 2. Shared Rules Core — 정확한 공유 규칙 코어 | 0/TBD | Not started | - |
+| 2. Shared Rules Core — 정확한 공유 규칙 코어 | 1/8 | In Progress|  |
 | 3. Solo Preservation and Riichi — 독립 솔로 모드와 완전한 리치 | 0/TBD | Not started | - |
 | 4. Headless Hanchan — 헤드리스 고정 기본 반장전 | 0/TBD | Not started | - |
 | 5. Unity Hanchan Integration — Unity 반장전 통합 | 0/TBD | Not started | - |

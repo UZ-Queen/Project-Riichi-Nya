@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.0
 current_phase: 02
-current_phase_name: shared-rules-core
-status: planned
-stopped_at: Phase 2 plans revised; P2-OPEN-01 resolved; implementation not started
-last_updated: "2026-09-06T07:57:35.728Z"
+current_phase_name: Shared Rules Core
+status: executing
+stopped_at: Completed 02-01-PLAN.md at the user-requested boundary; 02-02 not started
+last_updated: "2026-09-06T09:47:09.598Z"
 last_activity: 2026-09-06
-last_activity_desc: Resolved P2-OPEN-01 by user decision; initial 18, first draw 17; documents only
-state_head: b3fd5bb
+last_activity_desc: Plan 02-01 completed; stopped before 02-02 at the user-requested boundary
+state_head: b8debab606629cf37508cd2314dfaf94e888f8ec
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 15
-  completed_plans: 7
+  completed_plans: 8
 milestone_name: milestone
 ---
 
@@ -24,22 +24,22 @@ milestone_name: milestone
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** 기존 마작 로직을 정확하고 테스트 가능한 공유 규칙 엔진으로 개선하고, 독립 솔로와 고정 4인 반장전에서 재사용되는 과정을 증거로 보여준다.
-**Current focus:** Phase 2 — Shared Rules Core — 정확한 공유 규칙 코어
+**Current focus:** Phase 02 — Shared Rules Core
 
 ## Current Position
 
-Phase: 02 (shared-rules-core) — PLANNED; P2-OPEN-01 resolved (initial 18, first draw 17)
-Plan: Not started
-Status: Plans revised and reviewed; implementation not started
-Last activity: 2026-09-06 — Completed quick task 260906-mov: P2-CR-01~04 계획 반영 및 전체 8개 검토; P2-OPEN-01 후속 해소 (초기 18→첫 쯔모 후 17)
+Phase: 02 (Shared Rules Core) — EXECUTING
+Plan: 2 of 8
+Status: Stopped at user-requested boundary; 02-02 not started
+Last activity: 2026-09-06 — Plan 02-01 completed with Regression, Conformance, trace, and lifecycle GREEN
 
-Progress: 7/15 phase plans completed (Phase 1: 7/7; Phase 2: 0/8)
+Progress: 8/15 phase plans completed (Phase 1: 7/7; Phase 2: 1/8)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 7
+- Total plans completed: 8
 - Average duration: -
 - Total execution time: 0.0 hours
 
@@ -48,6 +48,7 @@ Progress: 7/15 phase plans completed (Phase 1: 7/7; Phase 2: 0/8)
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01 | 7 | - | - |
+| 02 | 1 | 1h 30m | 1h 30m |
 
 **Recent Trend:**
 
@@ -66,6 +67,7 @@ Progress: 7/15 phase plans completed (Phase 1: 7/7; Phase 2: 0/8)
 | Phase 01 P05 | 1h 35min | 3 tasks | 3 files |
 | Phase 01 P06 | 7h 40min | 3 tasks | 6 files |
 | Phase 01 P07 | 53min | 2 tasks | 3 files |
+| Phase 02 P01 | 1h 30m | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -102,6 +104,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 01]: Exact 4+15 automated save-safety evidence remained separate from D-13, which was explicitly approved through the completed 20/20 UAT.
 
 - [Phase 02 / 2026-09-06]: P2-CR-01~04를 계획에 반영했다. 기본 tile equality는 TileID, 실제 solo 지급 RED/GREEN은 02-05 소유, 마지막 패 1→0 이후 화료/최종 타패를 보장하고 우라는 유효한 리치 화료에만 공개한다. 과거 논의는 보존하며 멘젠쯔모 제외는 적용하지 않는다.
+- [Phase 02]: MahjongWall creates four copies of each TileID, replaces one five per suit with a red five, and delegates to the shared Fisher-Yates helper.
+- [Phase 02]: MahjongTile equality uses TileID only; physical selection removes by index and wall evidence compares TileID with isAkaDora.
+- [Phase 02]: Wall generation no longer mutates isDora or doraCount; later Phase 2 plans own indicator resolution.
 
 ### Pending Todos
 
@@ -110,7 +115,7 @@ None yet.
 ### Blockers/Concerns
 
 - 9일 범위에서 Phase 6이 Stage 2 안정화와 Phase 7 릴리스 증거를 침범하지 않게 조건부 gate를 지켜야 한다.
-- Phase 2의 기존 8개 계획과 fixture/파일 소유를 검토했다. P2-OPEN-01은 후속 사용자 결정으로 해소했다: 초기 18→첫 쯔모 후 17, 배패 13장 비차감, 첫 쯔모 포함 총 18회. 관련 계획과 검증 조건에 반영했으며 구현·실행 증거는 아직 없다.
+- Phase 2의 02-01 wall/identity는 구현·실행 증거까지 완료했다. P2-OPEN-01의 초기 18→첫 쯔모 후 17, 배패 13장 비차감, 첫 쯔모 포함 총 18회 변경은 02-05가 담당하며 아직 구현·실행되지 않았다.
 - Phase 4는 남4국 친 연장 후 친이 넘어갈 때 종료하는 고정 계약을 그대로 검증해야 한다.
 - Phase 6 계획 전 call priority, kuikae, riichi-after-ankan, rinshan/live-wall 및 kan-dora timing을 권위 규칙과 재확인해야 한다.
 
@@ -131,6 +136,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-06T07:41:24.339Z
-Stopped at: Phase 2 plans revised and reviewed; P2-OPEN-01 resolved; implementation not started
-Resume file: .planning/phases/02-shared-rules-core/02-CONTEXT.md
+Last session: 2026-09-06T09:47:09.417Z
+Stopped at: Completed 02-01-PLAN.md at the user-requested boundary; 02-02 not started
+Resume file: .planning/phases/02-shared-rules-core/02-02-PLAN.md
