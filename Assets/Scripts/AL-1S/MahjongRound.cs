@@ -110,7 +110,7 @@ public class MahjongPlayer
         for (int i = 0; i < fullHand.Count; i++)
         {
             List<MahjongTile> tenpaiCheckHand = new List<MahjongTile>(fullHand);
-            tenpaiCheckHand.Remove(fullHand[i]);
+            tenpaiCheckHand.RemoveAt(i);
             HashSet<MahjongWinInfo> wins = MahjongUtility.FindAgariTiles(tenpaiCheckHand);
             if (wins.Count > 0)
             {
@@ -204,11 +204,7 @@ public class MahjongRound
         doraTiles = new List<MahjongTile>();
         uradoraTiles = new List<MahjongTile>();
         kanCount = 0;
-        var yamatoCannon = MahjongTile.GetAllTiles().SelectMany(tile => Enumerable.Repeat(tile, 3)).ToList();
-        yamatoCannon.AddRange(MahjongTile.GetAllTiles(true));
-        //패산 생성
-        yama = new LinkedList<MahjongTile>
-            (Utilities.ShuffleArray(yamatoCannon.ToArray(), prng.Next()));
+        yama = new LinkedList<MahjongTile>(MahjongWall.CreateShuffled(prng));
         originalYama = new List<MahjongTile>(yama);
 
         //린샹패
@@ -285,35 +281,6 @@ public class MahjongRound
     void UpdateDora(int doraIndex = 0)
     {
         currentRoundInfo.AddNewDoraTiles(doraTiles[doraIndex]);
-
-        UpdateDoraFromList(yama, doraTiles[doraIndex]);
-        UpdateDoraFromList(linshan, doraTiles[doraIndex]);
-        UpdateDoraFromList(player.River, doraTiles[doraIndex]);
-        for (int i = 0; i < player.Hand.Count; i++)
-        {
-            if (doraTiles[doraIndex].DoraTileID == player.Hand[i].TileID)
-            {
-                var tmpTile = player.Hand[i];
-                // tmpTile.isDora = true;
-                tmpTile.AddDora();
-                player.Hand[i] = tmpTile;
-            }
-        }
-
-    }
-
-    //도라표시패가 3만이라면, 도라를 켜야 하는 타일은 4만. 즉 
-    void UpdateDoraFromList(LinkedList<MahjongTile> ll,  MahjongTile target){
-        var node = ll.First;
-        while(node != null){
-            if(target.DoraTileID == node.Value.TileID){
-                var tmpTile = node.Value;
-                // tmpTile.isDora = true;
-                tmpTile.AddDora();
-                node.Value = tmpTile;
-            }
-            node = node.Next;
-        }
     }
     
 

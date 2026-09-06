@@ -131,7 +131,7 @@ public struct MahjongBlock : IComparable<MahjongBlock>
 
 }
 
-public partial struct MahjongTile : IComparable<MahjongTile>
+public partial struct MahjongTile : IComparable<MahjongTile>, IEquatable<MahjongTile>
 {
     //...왜?
     public bool IsZapae
@@ -312,25 +312,45 @@ public partial struct MahjongTile : IComparable<MahjongTile>
 
 
 
+    /// <summary>
+    /// 두 패가 같은 종류인지 TileID로 비교합니다.
+    /// </summary>
     public static bool operator ==(MahjongTile a, MahjongTile b)
     {
-        return a.TileID == b.TileID;
+        return a.Equals(b);
     }
+
+    /// <summary>
+    /// 두 패가 다른 종류인지 TileID로 비교합니다.
+    /// </summary>
     public static bool operator !=(MahjongTile a, MahjongTile b)
     {
-        return !(a == b);
+        return !a.Equals(b);
     }
     // public static bool operator +(MahjongTile a, int next)
 
+    /// <summary>
+    /// 다른 패와 종류가 같은지 TileID로 비교합니다.
+    /// </summary>
+    public bool Equals(MahjongTile other)
+    {
+        return TileID == other.TileID;
+    }
+
+    /// <summary>
+    /// 다른 객체가 같은 종류의 패인지 TileID로 비교합니다.
+    /// </summary>
     public override bool Equals(object obj)
     {
-        return base.Equals(obj);
+        return obj is MahjongTile other && Equals(other);
     }
+
+    /// <summary>
+    /// 패 종류를 나타내는 TileID의 해시 코드를 반환합니다.
+    /// </summary>
     public override int GetHashCode()
     {
-        //return base.GetHashCode();
-        int hash = Utilities.HashCombine(TileID);
-        return hash;
+        return TileID.GetHashCode();
     }
     public override string ToString()
     {
@@ -364,6 +384,9 @@ public partial struct MahjongTile : IComparable<MahjongTile>
 
     }
 
+    /// <summary>
+    /// 패 종류를 TileID 순서로 비교합니다.
+    /// </summary>
     public int CompareTo(MahjongTile other)
     {
         return TileID.CompareTo(other.TileID);

@@ -41,12 +41,27 @@ public partial class Utilities
                 return hash;
             }
         }
-    static public T[] ShuffleArray<T>(T[] array, int seed)
+    /// <summary>
+    /// 지정한 시드로 배열을 제자리에서 균등하게 섞습니다.
+    /// </summary>
+    public static T[] ShuffleArray<T>(T[] array, int seed)
     {
-        System.Random prng = new System.Random(seed);
-        for (int i = 0; i < array.Length - 1; i++)
+        return ShuffleArray(array, new System.Random(seed));
+    }
+
+    /// <summary>
+    /// 전달받은 난수 생성기로 배열을 제자리에서 균등하게 섞습니다.
+    /// </summary>
+    public static T[] ShuffleArray<T>(T[] array, System.Random random)
+    {
+        if (random == null)
         {
-            Swap(ref array[i], ref array[prng.Next(i, array.Length - 1)]);
+            throw new ArgumentNullException(nameof(random));
+        }
+
+        for (int i = array.Length - 1; i > 0; i--)
+        {
+            Swap(ref array[i], ref array[random.Next(i + 1)]);
         }
 
         return array;
