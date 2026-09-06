@@ -94,6 +94,11 @@ public class MahjongPlayer
     //     return isRiichiAble;
     // }
 
+    /// <summary>
+    /// 실제 선택 인덱스의 패를 제거했을 때 텐파이가 되는 타패 후보를 찾습니다.
+    /// </summary>
+    /// <param name="removeToTenpaiTileIndex">타패 인덱스별 화료 후보입니다.</param>
+    /// <returns>리치 가능한 타패 후보가 하나 이상이면 참입니다.</returns>
     public bool IsRiichiAble(out Dictionary<int, HashSet<MahjongWinInfo>> removeToTenpaiTileIndex)
     {
         removeToTenpaiTileIndex = new Dictionary<int, HashSet<MahjongWinInfo>>();

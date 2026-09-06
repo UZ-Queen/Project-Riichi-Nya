@@ -131,6 +131,9 @@ public struct MahjongBlock : IComparable<MahjongBlock>
 
 }
 
+/// <summary>
+/// TileID를 종류 정체성으로 사용하고 적색 여부를 원본 속성으로 보존하는 마작패 값입니다.
+/// </summary>
 public partial struct MahjongTile : IComparable<MahjongTile>, IEquatable<MahjongTile>
 {
     //...왜?
