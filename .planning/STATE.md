@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 current_phase: 02
 current_phase_name: shared-rules-core
-status: executing
-stopped_at: Phase 2 context gathered
-last_updated: "2026-09-04T07:50:25.806Z"
+status: planned
+stopped_at: Phase 2 plans revised; P2-OPEN-01 pending before initialization implementation
+last_updated: "2026-09-06T07:41:24.338Z"
 last_activity: 2026-09-06
-last_activity_desc: Completed quick 260906-lx5; recorded P2-CR-04 proposal only
-state_head: 1a69a70b2662cb3bf73e1b8297347e89a6bdeafb
+last_activity_desc: Applied P2-CR-01 through P2-CR-04; validated all 8 plans; no implementation
+state_head: 09f262d
 progress:
   total_phases: 7
   completed_phases: 1
@@ -28,12 +28,12 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 
 ## Current Position
 
-Phase: 02 (shared-rules-core) — READY TO EXECUTE
+Phase: 02 (shared-rules-core) — PLANNED; P2-OPEN-01 pending for 02-05 initialization
 Plan: Not started
-Status: Ready to execute
-Last activity: 2026-09-06 — Completed quick task 260906-lx5: P2-CR-04 리치 화료 전용 우라도라 공개 제안 기록 (Phase 2 계획·코드 미반영)
+Status: Plans revised and reviewed; implementation not started
+Last activity: 2026-09-06 — Completed quick task 260906-mov: P2-CR-01~04 계획 반영 및 전체 8개 검토; 18 초기화 의미 OPEN
 
-Progress: [░░░░░░░░░░░░░░░░░░░░] 7/7 plans
+Progress: 7/15 phase plans completed (Phase 1: 7/7; Phase 2: 0/8)
 
 ## Performance Metrics
 
@@ -101,6 +101,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 01]: Real and temporary save recovery paths share fixture-private helpers while production SettingsManager remains unchanged.
 - [Phase 01]: Exact 4+15 automated save-safety evidence remained separate from D-13, which was explicitly approved through the completed 20/20 UAT.
 
+- [Phase 02 / 2026-09-06]: P2-CR-01~04를 계획에 반영했다. 기본 tile equality는 TileID, 실제 solo 지급 RED/GREEN은 02-05 소유, 마지막 패 1→0 이후 화료/최종 타패를 보장하고 우라는 유효한 리치 화료에만 공개한다. 과거 논의는 보존하며 멘젠쯔모 제외는 적용하지 않는다.
+
 ### Pending Todos
 
 None yet.
@@ -108,17 +110,18 @@ None yet.
 ### Blockers/Concerns
 
 - 9일 범위에서 Phase 6이 Stage 2 안정화와 Phase 7 릴리스 증거를 침범하지 않게 조건부 gate를 지켜야 한다.
-- Phase 2는 점수 fixture catalog와 순차 assembly migration을 계획에서 구체화해야 한다.
+- Phase 2의 기존 8개 계획과 fixture/파일 소유를 검토했다. P2-OPEN-01: 기본 18의 첫 쯔모 포함 여부·초기화·표시 시점은 미결이며 02-05 Task 2의 해당 구현 전에 사용자 결정과 기록 갱신이 필요하다.
 - Phase 4는 남4국 친 연장 후 친이 넘어갈 때 종료하는 고정 계약을 그대로 검증해야 한다.
 - Phase 6 계획 전 call priority, kuikae, riichi-after-ankan, rinshan/live-wall 및 kan-dora timing을 권위 규칙과 재확인해야 한다.
 
 ### Quick Tasks Completed
 
-| # | Description | Date | Commit | Directory |
-|---|-------------|------|--------|-----------|
-| 260906-kut | P2-CR-02 솔로 지급 회귀 검증 범위 조정 제안 기록 | 2026-09-06 | ff50213 | [260906-kut-phase-2-02-04-02-05](./quick/260906-kut-phase-2-02-04-02-05/) |
-| 260906-ld7 | P2-CR-03 남은 패·마지막 타패·모드별 해저로월 제안 기록 | 2026-09-06 | b3a6fea | [260906-ld7-record-p2-cr-03-remaining-tiles-final-di](./quick/260906-ld7-record-p2-cr-03-remaining-tiles-final-di/) |
-| 260906-lx5 | P2-CR-04 리치 화료 전용 우라도라 공개 제안 기록 | 2026-09-06 | ed9a7b4 | [260906-lx5-record-p2-cr-04-riichi-win-only-ura-disc](./quick/260906-lx5-record-p2-cr-04-riichi-win-only-ura-disc/) |
+| # | Description | Date | Commit | Status | Directory |
+|---|-------------|------|--------|--------|-----------|
+| 260906-kut | P2-CR-02 솔로 지급 회귀 검증 범위 조정 제안 기록 | 2026-09-06 | ff50213 |  | [260906-kut-phase-2-02-04-02-05](./quick/260906-kut-phase-2-02-04-02-05/) |
+| 260906-ld7 | P2-CR-03 남은 패·마지막 타패·모드별 해저로월 제안 기록 | 2026-09-06 | b3a6fea |  | [260906-ld7-record-p2-cr-03-remaining-tiles-final-di](./quick/260906-ld7-record-p2-cr-03-remaining-tiles-final-di/) |
+| 260906-lx5 | P2-CR-04 리치 화료 전용 우라도라 공개 제안 기록 | 2026-09-06 | ed9a7b4 |  | [260906-lx5-record-p2-cr-04-riichi-win-only-ura-disc](./quick/260906-lx5-record-p2-cr-04-riichi-win-only-ura-disc/) |
+| 260906-mov | P2-CR-01~04 계획 반영 및 전체 8개 의존성·요구사항·검증 검토 | 2026-09-06 | 09f262d | Verified (docs); P2-OPEN-01 open | [260906-mov-apply-p2-cr-01-through-p2-cr-04-to-exist](./quick/260906-mov-apply-p2-cr-01-through-p2-cr-04-to-exist/) |
 
 ## Deferred Items
 
@@ -128,6 +131,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-04T06:06:52.189Z
-Stopped at: Phase 2 context gathered
+Last session: 2026-09-06T07:41:24.339Z
+Stopped at: Phase 2 plans revised and reviewed; P2-OPEN-01 remains open
 Resume file: .planning/phases/02-shared-rules-core/02-CONTEXT.md
