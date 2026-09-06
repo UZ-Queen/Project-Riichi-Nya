@@ -4,11 +4,11 @@ milestone: v1.0
 current_phase: 02
 current_phase_name: shared-rules-core
 status: planned
-stopped_at: Phase 2 plans revised; P2-OPEN-01 pending before initialization implementation
-last_updated: "2026-09-06T07:41:24.338Z"
+stopped_at: Phase 2 plans revised; P2-OPEN-01 resolved; implementation not started
+last_updated: "2026-09-06T07:57:35.728Z"
 last_activity: 2026-09-06
-last_activity_desc: Applied P2-CR-01 through P2-CR-04; validated all 8 plans; no implementation
-state_head: 09f262d
+last_activity_desc: Resolved P2-OPEN-01 by user decision; initial 18, first draw 17; documents only
+state_head: b3fd5bb
 progress:
   total_phases: 7
   completed_phases: 1
@@ -28,10 +28,10 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 
 ## Current Position
 
-Phase: 02 (shared-rules-core) — PLANNED; P2-OPEN-01 pending for 02-05 initialization
+Phase: 02 (shared-rules-core) — PLANNED; P2-OPEN-01 resolved (initial 18, first draw 17)
 Plan: Not started
 Status: Plans revised and reviewed; implementation not started
-Last activity: 2026-09-06 — Completed quick task 260906-mov: P2-CR-01~04 계획 반영 및 전체 8개 검토; 18 초기화 의미 OPEN
+Last activity: 2026-09-06 — Completed quick task 260906-mov: P2-CR-01~04 계획 반영 및 전체 8개 검토; P2-OPEN-01 후속 해소 (초기 18→첫 쯔모 후 17)
 
 Progress: 7/15 phase plans completed (Phase 1: 7/7; Phase 2: 0/8)
 
@@ -110,7 +110,7 @@ None yet.
 ### Blockers/Concerns
 
 - 9일 범위에서 Phase 6이 Stage 2 안정화와 Phase 7 릴리스 증거를 침범하지 않게 조건부 gate를 지켜야 한다.
-- Phase 2의 기존 8개 계획과 fixture/파일 소유를 검토했다. P2-OPEN-01: 기본 18의 첫 쯔모 포함 여부·초기화·표시 시점은 미결이며 02-05 Task 2의 해당 구현 전에 사용자 결정과 기록 갱신이 필요하다.
+- Phase 2의 기존 8개 계획과 fixture/파일 소유를 검토했다. P2-OPEN-01은 후속 사용자 결정으로 해소했다: 초기 18→첫 쯔모 후 17, 배패 13장 비차감, 첫 쯔모 포함 총 18회. 관련 계획과 검증 조건에 반영했으며 구현·실행 증거는 아직 없다.
 - Phase 4는 남4국 친 연장 후 친이 넘어갈 때 종료하는 고정 계약을 그대로 검증해야 한다.
 - Phase 6 계획 전 call priority, kuikae, riichi-after-ankan, rinshan/live-wall 및 kan-dora timing을 권위 규칙과 재확인해야 한다.
 
@@ -121,7 +121,7 @@ None yet.
 | 260906-kut | P2-CR-02 솔로 지급 회귀 검증 범위 조정 제안 기록 | 2026-09-06 | ff50213 |  | [260906-kut-phase-2-02-04-02-05](./quick/260906-kut-phase-2-02-04-02-05/) |
 | 260906-ld7 | P2-CR-03 남은 패·마지막 타패·모드별 해저로월 제안 기록 | 2026-09-06 | b3a6fea |  | [260906-ld7-record-p2-cr-03-remaining-tiles-final-di](./quick/260906-ld7-record-p2-cr-03-remaining-tiles-final-di/) |
 | 260906-lx5 | P2-CR-04 리치 화료 전용 우라도라 공개 제안 기록 | 2026-09-06 | ed9a7b4 |  | [260906-lx5-record-p2-cr-04-riichi-win-only-ura-disc](./quick/260906-lx5-record-p2-cr-04-riichi-win-only-ura-disc/) |
-| 260906-mov | P2-CR-01~04 계획 반영 및 전체 8개 의존성·요구사항·검증 검토 | 2026-09-06 | 09f262d | Verified (docs); P2-OPEN-01 open | [260906-mov-apply-p2-cr-01-through-p2-cr-04-to-exist](./quick/260906-mov-apply-p2-cr-01-through-p2-cr-04-to-exist/) |
+| 260906-mov | P2-CR-01~04 계획 반영 및 전체 8개 의존성·요구사항·검증 검토 | 2026-09-06 | 09f262d | Verified (docs); P2-OPEN-01 resolved | [260906-mov-apply-p2-cr-01-through-p2-cr-04-to-exist](./quick/260906-mov-apply-p2-cr-01-through-p2-cr-04-to-exist/) |
 
 ## Deferred Items
 
@@ -132,5 +132,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-09-06T07:41:24.339Z
-Stopped at: Phase 2 plans revised and reviewed; P2-OPEN-01 remains open
+Stopped at: Phase 2 plans revised and reviewed; P2-OPEN-01 resolved; implementation not started
 Resume file: .planning/phases/02-shared-rules-core/02-CONTEXT.md

@@ -6,7 +6,7 @@ nyquist_compliant: false
 wave_0_complete: false
 created: 2026-09-04
 revised: 2026-09-06
-plan_review: revised_with_open_initialization_decision
+plan_review: revised_initialization_decision_resolved
 ---
 
 # Phase 02 — Validation Strategy
@@ -45,7 +45,7 @@ plan_review: revised_with_open_initialization_decision
 | 02-02-T1/T2 | 02-02 | 2 | RULE-04~05 | T-02-04~06 | malformed hand/meld를 거절하고 exhaustive candidates와 income/Han/Fu/stable selection을 검증한다. | regression + unit | 두 Phase 2 fixture GREEN | ❌ plan expands | ⬜ pending |
 | 02-03-T1/T2 | 02-03 | 3 | RULE-06~07 | T-02-07~09 | contradictory context와 dora-only를 거절하고 fixed yaku/yakuman catalog를 source-dated rows로 검증한다. | regression + parameterized conformance | 두 Phase 2 fixture GREEN | ❌ plan expands | ⬜ pending |
 | 02-04-T1/T2 | 02-04 | 4 | RULE-03/05/08/09 | T-02-10~12 | winning attribution별 fu, result equality와 income selector, four payment shapes/zero-sum deltas를 계산 코어 literal oracle과 비교한다. 실제 솔로 지급 RED/GREEN은 02-05 소유다. | regression + parameterized conformance | 두 Phase 2 fixture GREEN | ❌ plan expands | ⬜ pending |
-| 02-05-T1/T2 | 02-05 | 5 | RULE-10 | T-02-13~15 | SOL-PAY-01 실제 지급 assertion RED→동일 GREEN과 player delta/거리 service 1500 한 호출을 검증한다. 남은 패 1→0 no-end, 0의 Haitei 화료 또는 타패 후 유국, 친/국풍을 검증한다. P2-OPEN-01은 초기화 구현 전 확인한다. PLAYER-OBS-01~05 setup은 개발 guard에 한정한다. | integration EditMode | SOL-PAY-01 named RED→GREEN; 두 Phase 2 fixture + Phase 1 fixtures GREEN; PLAYER-OBS-01=6판20부/12000/distance80.00/boost6 유지 | ❌ plan expands | ⬜ pending |
+| 02-05-T1/T2 | 02-05 | 5 | RULE-10 | T-02-13~15 | SOL-PAY-01 실제 지급 assertion RED→동일 GREEN과 player delta/거리 service 1500 한 호출을 검증한다. 남은 패 1→0 no-end, 0의 Haitei 화료 또는 타패 후 유국, 친/국풍을 검증한다. P2-OPEN-01의 초기 18/배패 13장 차감 없음/첫 쯔모 후 17/총 18회/같은 국 19번째 draw 없음/새 국 18→17을 검증한다. PLAYER-OBS-01~05 setup은 개발 guard에 한정한다. | integration EditMode | SOL-PAY-01 named RED→GREEN; 두 Phase 2 fixture + Phase 1 fixtures GREEN; PLAYER-OBS-01=6판20부/12000/distance80.00/boost6 유지 | ❌ plan expands | ⬜ pending |
 | 02-06-T1/T2 | 02-06 | 6 | RULE-10 | T-02-16~18 | score-version mismatch가 high score만 초기화하고 durable test scope가 exact prior save를 복구한다. | persistence integration | `Phase2ConformanceTests` + exact `SoloSessionLifecycleTests` 15 GREEN | ❌ plan creates | ⬜ pending |
 | 02-07-T1/T2 | 02-07 | 7 | RULE-07/10 | T-02-19~21 | view는 shared resolver를 사용하고 raw hidden ura 존재하에서도 유효 리치 화료만 공개하며(0판 포함) 새 국·비리치 결과를 초기화한다. 자동 evidence는 네 fixture XML/count와 observation BuildReport/exe를 모두 요구한다. | presentation EditMode + evidence gate | Plan 02-07 Task 2 exact command: Phase 2 fixtures positive, trace exact 4, lifecycle exact 15, fresh normal + development Windows builds Succeeded/Errors 0/exe exists | ❌ plan expands | ⬜ pending |
 | 02-08-T1/T2 | 02-08 | 8 | RULE-07/09/10 | T-02-22~23 | same-PID PLAYER-OBS-01~05 각 항목의 직접 관찰만 GUI PASS이고 final ledger가 39 edges/7 prohibitions/source coverage를 보존한다. | human checkpoint + final audit | Regression GREEN backstop + PLAYER-OBS-01 기존 5항목 + 아래 PLAYER-OBS-02~05의 명시 관찰 | ✅ prior plans | ⬜ pending |
@@ -90,7 +90,7 @@ Unity helper가 라이선스/IPC/lock/XML 부재를 보고하면 상태는 BLOCK
 - [ ] Feedback latency < 30 minutes confirmed by measurement
 - [ ] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending (문서 정합성 검토와 미래 Unity/Player 검증 완료는 별개; P2-OPEN-01 미결)
+**Approval:** pending (문서 정합성 검토와 미래 Unity/Player 검증 완료는 별개; P2-OPEN-01 사용자 결정 해소; 실제 실행 증거 대기)
 
 ## P2-CR-01~04 추가 검증 계약 — 2026-09-06
 
@@ -98,18 +98,18 @@ Unity helper가 라이선스/IPC/lock/XML 부재를 보고하면 상태는 BLOCK
 |---|---|---|
 | P2-CR-01 | 02-01 T1/T2, 02-02 T1, 02-03 T1, 02-07 T1 | TileID 기본 ==/!=/typed/object Equals/hash/CompareTo 일치; default/invalid 법칙; 실제 타패·리치 후보 인덱스 제거 양방향; 적5 머리/커쯔/순쯔/치또이츠/대기; 원본 손패/화료패/meld 적색 보존; 136/종류별4/적5각1; explicit (TileID,isAkaDora) 시퀀스와 적색만 바꾼 순서 거부; resolver 원본 필드 비변이 검사. |
 | P2-CR-02 | 02-04 T1/T2 → 02-05 T1 | 02-04 계산 GREEN 뒤 02-05에서 SOL-PAY-01의 실제 player delta/service 금액·횟수 assertion RED와 동일 입력·기대값·이름 GREEN을 모두 보존. skip/ignore/filter 은폐 금지; 기존 ron 필드 의미 유지. |
-| P2-CR-03 | 02-03 T1 → 02-05 T2 | 남은 패 1에서 타패+마지막 패 취득 후 0/end0회; 0에서 유효 화료는 Haitei+score1회, 타패는 extra draw0회/end1회/next1회; 양수에는 Haitei 없음; 실제 wall이 남는 solo와 synthetic four-player caller의 live-wall 마지막 패/비마지막 패 맥락 분리; 마지막 타패 후 tenpai/noten·친 진행; 음수/중복 종료/stale Haitei 거부. |
+| P2-CR-03 | 02-03 T1 → 02-05 T2 | 초기 18/배패 13장 비차감/첫 쯔모 후 17/총 18회/새 국 18→17; 남은 패 1에서 타패+마지막 패 취득 후 0/end0회; 0에서 유효 화료는 Haitei+score1회, 타패는 extra draw0회/end1회/next1회; 양수에는 Haitei 없음; 실제 wall이 남는 solo와 synthetic four-player caller의 live-wall 마지막 패/비마지막 패 맥락 분리; 마지막 타패 후 tenpai/noten·친 진행; 음수/중복 종료/stale Haitei 거부. |
 | P2-CR-04 | 02-03 T1 → 02-05 T1 → 02-07 T1 → 02-08 T1 | raw hidden ura가 존재해도 리치 화료 전/비리치 화료/리치 유국·오화료 비공개·미적용; 유효 리치 화료만 공개(ura0 포함); 이전 공개→새 국→비리치 결과 잔류 없음; 자동 presentation 검사와 실제 GUI를 별도 기록. |
 
 **SOL-PAY-01:** 02-05 T1의 literal 비리치 Pinfu+MenzenTsumo 2판20부를 실제 solo 경로로 평가한다. 02-04의 완성된 계산 코어는 payer 700/400/400, WinnerIncome 1500을 반환하고, 수정 전 호출부가 사용하는 같은 han/fu의 zaRon은 1300이다. PLAYER-OBS-01의 12000/12000 사례로 이 결함을 검출했다고 기록하지 않는다. RED/GREEN 각각 XML, exact test names, positive selected count, commit, raw log를 연결한다. Phase 2 case 수는 구현 시 정하고 이동·추가한 이름/필터/기대수/최종 coverage를 함께 갱신한다. Phase 1은 계속 exact 4+15다.
 
-**P2-OPEN-01:** 18이 첫 쯔모 포함 총량인지, 첫 쯔모 이후 남은 패 수인지 확인 전에는 초기화/표시/총량의 literal expected를 확정하지 않는다. 02-05 T2의 해당 구현은 사용자 결정과 기록 갱신을 요구한다. 이 항목이 열린 채 Phase 2 완료로 표시하지 않는다.
+**P2-OPEN-01 — RESOLVED (2026-09-06 후속 사용자 결정):** 기본값 18은 배패 후 첫 쯔모를 포함한 한 국의 허용 쯔모 총량이다. 배패 13장은 이 수량에서 차감하지 않고 첫 쯔모 직전 18로 초기화하며, 첫 패를 실제로 가져오면 18→17로 차감한 뒤 상태/표시에 전달한다. 조기 종료가 없으면 18번째 쯔모에서 1→0이 되고 같은 국의 19번째 쯔모는 없다. 새 국에서도 18로 초기화한 뒤 첫 쯔모 후 17이 된다. 마지막 패의 화료/최종 타패 분기는 그대로 유지한다. 결정 근거는 02-DISCUSSION-LOG의 후속 사용자 결정 기록이다. 02-05 T2에서 초기 상태·배패 비차감·첫 쯔모 후 상태/표시 17·총량·같은 국 19번째 draw 금지·새 국 reset을 각각 검증한다.
 
 ### PLAYER-OBS-01~05 고정 사례와 실제 화면 관찰
 
 계획된 개발 전용 entry는 같은 PID에서 시작 버튼 1회로 01을 로드하고 F6으로 02→03→04→05를 순차 setup한다. 각 전환은 기존 round 교체/UI refresh를 사용하며 entry가 우라 표시를 직접 지워 테스트를 통과시키지 않는다. 새 사례마다 score/distance의 기존 초기화 경로를 사용한다. 관찰용 Space/Q는 메모리에서 쯔모/쯔모기리로 고정하고 사용자 저장 설정은 바꾸지 않는다. raw hidden ura는 fixture 입력으로 존재해야 하며 비공개 화면에는 나타나면 안 된다.
 
-공통 A 손패는 `1m2m3m4m0m6m2p3p4p2s3s5p5p`, 쯔모패 `4s`, visible indicator `2p`, 비친/동장/멘젠 쯔모다. 명시하지 않은 일발·더블리치·특수 화료는 없다. 사례 01~03의 남은 패는 1로 고정하여 Haitei가 붙지 않게 한다. 이 말단 setup은 18 초기화 의미를 확정하지 않는다.
+공통 A 손패는 `1m2m3m4m0m6m2p3p4p2s3s5p5p`, 쯔모패 `4s`, visible indicator `2p`, 비친/동장/멘젠 쯔모다. 명시하지 않은 일발·더블리치·특수 화료는 없다. 사례 01~03의 남은 패는 1로 고정하여 Haitei가 붙지 않게 한다. 이 말단 setup은 고정 관찰용이며, 일반 시작의 초기 18→첫 쯔모 후 17 계약은 02-05 T2에서 별도로 검증한다.
 
 | Case ID | 고정 setup | 실제 동작 | 관찰할 결과 |
 |---|---|---|---|

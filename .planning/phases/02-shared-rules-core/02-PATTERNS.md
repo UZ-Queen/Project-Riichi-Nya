@@ -127,7 +127,7 @@ public event Action<int> OnPlayerScoreAlters = delegate { };
 public event Action<MahjongWinInfo> OnPlayerWin = delegate { };
 ```
 
-`remainingTileCount`는 현재 쯔모패 제외 수량이며 1→0 마지막 패 취득 후 화료를 허용하고 0의 최종 타패에서 유국한다. P2-OPEN-01의 18 초기화 의미는 확인 전 확정하지 않는다. 마지막 일반 패의 Haitei는 solo caller가 전달하고 pure core는 wall/counter를 읽지 않는다. 잘못된 쯔모 `-8000`, 국/친 진행은 `MahjongRound`/solo policy에 남기고 pure scorer로 옮기지 않는다.
+`remainingTileCount`는 현재 쯔모패 제외 수량이며 1→0 마지막 패 취득 후 화료를 허용하고 0의 최종 타패에서 유국한다. 해소된 P2-OPEN-01에 따라 배패 13장은 차감하지 않고 초기 18→첫 쯔모 후 17이며, 조기 종료가 없으면 첫 쯔모 포함 총 18회에서 0이 된다. 새 국도 18→17로 reset한다. 마지막 일반 패의 Haitei는 solo caller가 전달하고 pure core는 wall/counter를 읽지 않는다. 잘못된 쯔모 `-8000`, 국/친 진행은 `MahjongRound`/solo policy에 남기고 pure scorer로 옮기지 않는다.
 
 ---
 
