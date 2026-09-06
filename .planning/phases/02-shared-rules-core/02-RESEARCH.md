@@ -17,10 +17,10 @@
 
 ### 패 정체성, 패산과 도라
 - **D-05:** 패산은 정확히 136장이다. 각 패 종류는 네 장이며 만·통·삭의 일반 5 한 장을 적5 한 장으로 각각 대체하여 적5는 총 세 장만 존재한다.
-- **D-06:** 관찰 가능한 패 값의 정체성은 `패 종류 + 적5 여부`다. 동일한 일반패 네 장을 구분하는 물리적 copy ID는 추가하지 않는다. 화료 분해와 대기 계산은 적색을 무시한 패 종류로 비교하고, 값 객체의 `==`, `Equals`, `GetHashCode`는 동일한 정체성 계약을 사용한다. — **Reversibility:** costly — 이 계약을 뒤집으면 HashSet/Dictionary 중복 처리, 직렬화와 모든 solver 비교 지점을 함께 마이그레이션해야 한다.
+- **D-06:** 기본 패 동등성은 `TileID`만 비교한다. 같은 무늬의 적5·일반5는 `==` 및 typed/object `Equals`가 참이고 `!=`는 거짓이며, `GetHashCode`는 같고 기본 `CompareTo`는 0이다. default/invalid 값도 같은 법칙을 따른다. `isAkaDora`는 원본 손패·화료패·선언된 몸통의 표시·적도라 점수용 속성으로 보존하며 물리적 copy ID는 추가하지 않는다. 패산 순서·시드 검증은 `(TileID, isAkaDora)`를 명시적으로 비교하고, 선택한 패의 제거는 해당 인덱스를 사용한다. `isDora`/`doraCount`는 기본 동등성에 포함하지 않는다. — **2026-09-06 P2-CR-01 정정:** 기존 `==`의 종류 비교를 유지하며 `Equals`를 정렬한다. 컬렉션 호출의 의도·인덱스 제거·적색 보존을 함께 점검한다. 결과 객체의 동등성/최적 후보 선정 계약은 별개로 유지한다.
 - **D-07:** 한 공유 패산 생성기는 같은 시드에 항상 같은 136장 순서를 반환하고, 셔플의 마지막 원소를 포함한 모든 합법 위치를 선택할 수 있어야 한다. Phase 2에서 보장하는 것은 두 모드의 **생성 순서**이며, 아직 존재하지 않는 4인 플레이 흐름과 솔로의 좌석별 쯔모열이 같다고 주장하지 않는다.
 - **D-08:** 일반 도라와 우라도라는 표시패에서 화료 평가 시 계산한다. 패 값에 `isDora`나 `doraCount`를 누적해 변이시키지 않는다. 적5 여부만 패의 고유 속성으로 유지한다.
-- **D-09:** 인게임 패의 도라 반짝임도 점수 코어와 같은 표시패→도라 해석 결과를 사용한다. 공개되지 않은 우라도라는 화료 전 화면에 표시하지 않는다.
+- **D-09:** 인게임 도라 반짝임은 점수 코어와 같은 표시패→도라 resolver를 사용한다. 우라 정보 공개 조건은 `유효한 화료 성립 AND 해당 화료자의 리치 상태`다. 리치 화료 전, 비리치 화료, 유국·오화료에서는 우라 표시패·우라 유래 강조·결과의 우라 정보를 비공개로 유지하고 해당 표시 경로에 전달하지 않는다. 공개 자격은 우라 보너스가 양수인지와 무관하다. 새 국·비리치 결과 전환에서 이전 우라 표시를 지우고 공개 도라·적도라 표시는 유지한다. — **2026-09-06 P2-CR-04 명확화.**
 
 ### 화료 분해와 최종 해석 선택
 - **D-10:** 일반형, 치또이츠, 국사무쌍을 포함하여 입력과 맥락에 맞는 모든 합법 화료 분해를 열거하고 각각 점수화한다. 실제 런타임 API는 최종 최적 결과 한 개를 반환하며 전체 후보 목록은 테스트·디버그 경계에서만 사용한다.
@@ -29,7 +29,7 @@
 
 ### 역·부·도라와 지불 결과
 - **D-13:** 순수 점수 코어는 작혼 4인 랭크전의 모든 표준 역·역만을 평가한다. 멘젠/후로 차이, 쿠이사가리, 상황역, 더블 역만과 복합 역만을 포함하고, 후로·깡 플레이가 아직 없어도 합성 맥락으로 검증할 수 있어야 한다.
-- **D-14:** 리치·더블리치·일발·해저/하저·영상개화·창깡·천화/지화처럼 패 모양만으로 알 수 없는 조건은 호출자가 명시적인 화료 맥락으로 전달한다. 동시에 성립할 수 없는 상황은 서로 모순되는 여러 boolean 조합보다 배타적인 상태 값으로 표현하는 방향을 우선한다. 정확한 타입 모양은 planner가 정한다.
+- **D-14:** 리치·더블리치·일발·해저/하저·영상개화·창깡·천화/지화는 호출자가 명시적인 화료 맥락으로 전달한다. 상호 배타 상황은 배타 상태 값으로 검증한다. 솔로 호출자는 실제 패산에 패가 남아도 솔로에서 허용된 마지막 일반 쯔모패를 `SpecialWinSource.Haitei`로 전달한다. 후속 4인 호출자는 솔로 제한과 무관하게 실제 라이브 월의 마지막 일반 쯔모패 여부를 판단한다. 코어는 모드 카운터/패산 객체를 읽지 않고 같은 해저로월 evaluator를 사용한다. 실제 4인 상태나 솔로 가상 하저 론은 만들지 않는다. — **2026-09-06 P2-CR-03 명확화.**
 - **D-15:** 삼깡자·사깡자와 영상개화·창깡의 **점수 판정**은 Phase 2에 포함한다. 활성 도라/우라 표시패 목록이 주어지면 깡도라·깡우라도라도 같은 resolver로 셀 수 있다. 깡 선언, 영상패 쯔모, 라이브 월 보충, 표시패 공개 시점과 UI는 이 Phase에서 구현하지 않는다.
 - **D-16:** 도라·적도라·우라도라는 판을 올리지만 독립적인 역이 아니다. 도라밖에 없는 손은 화료할 수 없으며, 최소 한 개의 비도라 역을 확인한 뒤 도라를 합산한다.
 - **D-17:** 지불 계산 결과는 화료자 총수입과 좌석별 지불 delta를 함께 제공한다. 론은 방총자가 전액 지불하고, 친 쯔모는 세 자가 같은 금액을, 자 쯔모는 친 한 명과 자 두 명이 서로 다른 지분을 지불하며 각 지불액은 100점 단위로 올림한다.
@@ -37,7 +37,7 @@
 
 ### 기존 솔로 경로의 Phase 2 통합
 - **D-19:** Phase 2는 기존 솔로를 완성하거나 4인전을 함께 만들지 않는다. 현재 솔로의 패산·화료 확인·점수 호출을 새 규칙 코어로 최소 교체하고, 교정된 실제 마작 점수를 기존 거리·부스트 공식에 전달한다. 기존 오답 점수와 체감을 맞추기 위한 호환 보정은 하지 않는다.
-- **D-20:** 솔로 한 국은 패산 하나와 플레이어 손패 하나만 유지한다. 숨겨진 상대 손패·강·쯔모·AI·가상 론을 만들지 않으며, 상대 패를 보관하기 위한 `graveyard`도 솔로 규칙에는 필요하지 않다. 기본 쯔모 한도는 18회이고 한도가 0이 되면 패산 잔량과 무관하게 유국 처리한다.
+- **D-20:** 솔로 한 국은 패산 하나와 플레이어 손패 하나만 유지하고 숨겨진 상대·강·쯔모·AI·가상 론·`graveyard`를 만들지 않는다. 남은 패는 현재 쯔모패를 제외하고 앞으로 가져올 수 있는 솔로 허용 패 수다. 남은 패 1에서 타패 후 마지막 패를 실제로 가져올 때 한 번 차감하여 0이 되지만 아직 유국하지 않는다. 마지막 패로 유효한 화료를 선언하면 해저로월을 평가하고, 0에서 타패를 완료하면 추가 쯔모 없이 한 번 유국한다. 텐파이는 마지막 타패 후 손패로 판정한다. 자동 화료·중복 종료·음수 카운터·다음 국의 해저 맥락 잔류를 허용하지 않는다. 기본값 18의 첫 쯔모 포함 여부와 초기화/표시 시점은 **OPEN P2-OPEN-01**이며, 총 쯔모 수를 임의로 확정하지 않는다. — **2026-09-06 P2-CR-03 정정.**
 - **D-21:** 잘못된 쯔모 선언은 감점 후 현재 국을 끝내고 다음 국으로 진행한다. Phase 2에서는 현행 `-8,000점` 동작을 보존하며, 순수 규칙 코어는 화료 불가 결과만 반환하고 감점·국 전환은 솔로 모드가 소유한다.
 - **D-22:** 3분 솔로 세션은 `동1국`에서 플레이어가 친으로 시작한다. 플레이어가 친일 때 화료하거나 유국 텐파이면 같은 국과 친을 유지하고, 친 노텐 유국이면 친과 국이 넘어간다. 플레이어가 자일 때는 플레이어 화료 또는 유국 뒤에 가상 친과 국이 진행된다. 상대 좌석의 손패 상태는 만들지 않으며 결과 입력상 항상 노텐·비화료로 취급한다.
 - **D-23:** 솔로에는 본장, 리치봉, 노텐벌부를 적용하지 않는다. 친의 더 높은 화료 점수와 텐파이 유지에 따른 친 연장 자체가 전략 보상이다.
@@ -64,7 +64,7 @@
 
 ### Phase 3 — 솔로 리치와 도전 설정
 - 솔로 리치는 유효한 텐파이 타패로 선언하고 손패를 고정하지만 1,000점 공탁, 리치봉 이월·회수는 사용하지 않는 무료 연습 리치다. 리치·일발·우라도라 점수 조건은 적용하고, 일발은 후로가 없는 솔로에서 다음 자기 쯔모까지 유지된다.
-- 리치 선언 시 현재 남은 쯔모 횟수 `R`을 패산 잔량을 상한으로 `R × 4`로 한 번만 바꾼다. 계산은 솔로 규칙의 한 지점에 두어 향후 `×3` 또는 `+고정값`으로 쉽게 조정하되 지금 범용 modifier 시스템을 만들지 않는다.
+- 리치 선언 시 현재 쯔모패를 제외한 남은 패 수 `R`을 패산 잔량을 상한으로 `R × 4`로 한 번만 바꾼다. 계산은 솔로 규칙의 한 지점에 두어 향후 `×3` 또는 `+고정값`으로 쉽게 조정하되 지금 범용 modifier 시스템을 만들지 않는다.
 - 타패 제한 시간 `없음/30초/15초/10초/5초`, 리치 가능 표시, 텐파이 타패·대기패 표시를 독립 보조 옵션으로 제공하는 아이디어를 Phase 3 discuss에서 구체화한다.
 - 도전 점수는 정확한 마작 점수 뒤에 적용하며 `기본 1.0 + 선택한 난이도 보너스의 합`으로 계산한다. 설정은 세션 시작 시 고정하고 최고기록에 설정 snapshot과 솔로 점수 규칙 버전을 남긴다.
 - 제한 시간별 보너스, 표시 보너스, 반올림·상한, 시간 초과 타패 동작, 현행 잘못된 쯔모 `-8,000점`에 도전 배율을 적용할지는 Phase 3 discuss에서 결정한다.
@@ -89,7 +89,7 @@
 |----|-------------|------------------|
 | RULE-01 | 두 모드가 동일한 136장·4장씩·적5 3장 패산을 사용 | 34종×4에서 일반 5 세 장을 적5로 치환하는 단일 generator와 구성 불변식 테스트 |
 | RULE-02 | 동일 seed 순서와 마지막 위치를 포함한 공정 shuffle | descending Fisher–Yates와 `Random.Next(i + 1)` 경계, seed golden/동일성 테스트 |
-| RULE-03 | 패와 결과의 equality/hash/comparison 계약 일치 | `MahjongTile`의 종류+적색 typed equality와 결과 값 계약 테스트 |
+| RULE-03 | 패와 결과의 equality/hash/comparison 계약 일치 | `MahjongTile`의 TileID typed equality 및 원본 적색 보존, 별도 결과 값 계약 테스트 |
 | RULE-04 | 일반형·치또이츠·국사무쌍의 모든 완전 분해 | 34종 count-vector 재귀 분기와 특수형 독립 검사, 모호한 손 후보 집합 테스트 |
 | RULE-05 | 실제 최종 지불액 최대 해석 선택 | 후보별 payment 산출 후 총수입→판→부→열거 순서 comparator |
 | RULE-06 | 최소 1역, 도라-only 거절 | 비도라 역 검증과 bonus han 합산을 두 단계로 분리 |
@@ -232,7 +232,7 @@ Assets/
 
 **When to use:** 14장 은폐형과 Phase 6용 합성 공개 meld를 평가할 때 사용한다. 공개 meld 수만큼 필요한 은폐 meld 수를 줄이되 Phase 2에서는 meld 실행 상태를 만들지 않는다. [VERIFIED: .planning/phases/02-shared-rules-core/02-CONTEXT.md:34-38,149-151]
 
-**Key invariant:** solver의 종류 비교는 적색을 무시하지만 결과의 tile equality는 적색을 포함한다. 따라서 solver 내부에서 `==`를 쓰지 말고 종류 key/count를 명시적으로 사용한다. [VERIFIED: .planning/phases/02-shared-rules-core/02-CONTEXT.md:24]
+**Key invariant:** 기본 tile equality와 solver의 34종 count-vector는 모두 TileID 기준이다. exhaustive 구조 열거를 유지하면서 원본 손패·화료패·선언된 몸통의 적색 정보를 bonus/표시까지 보존한다. 기본 종류 비교를 우회하는 별도 API는 필요하지 않다. [VERIFIED: .planning/phases/02-shared-rules-core/02-CONTEXT.md:24]
 
 ### Pattern 2: 평가 맥락과 모드 정책 분리
 
@@ -258,7 +258,7 @@ Assets/
 
 | Fixture family | Required cases | Evidence status at research time |
 |----------------|----------------|----------------------------------|
-| Wall / identity | 34종×4, 적5 3장 치환, normal5/red5 inequality, kind-only solver grouping | Locked user decision + codebase regression. [VERIFIED: 02-CONTEXT.md:22-28] |
+| Wall / identity | 34종×4, 적5 3장 치환, normal5/red5 equality, index-based removal, explicit red-position sequence comparison | P2-CR-01 후속 정정 + codebase regression. [VERIFIED: 02-CONTEXT.md:22-28] |
 | Basic yaku | 모든 1/2/3/6 han 표준역, 멘젠/후로와 쿠이사가리 pair | Generic list/values are authoritative EMA baseline; 작혼 쿠이탕은 official tournament corroboration. [CITED: https://mahjong-europe.org/portal/images/docs/Riichi-rules-2025-EN.pdf] [CITED: https://mahjongsoul.yo-star.com/tournament/rules.pdf] |
 | Dora | suit 9→1, wind East→South→West→North→East, dragon White→Green→Red→White, duplicate indicators, aka, ura gated by riichi, dora-only reject | Indicator cycles and ura condition from EMA; dora-only reject is locked. [CITED: https://mahjong-europe.org/portal/images/docs/Riichi-rules-2025-EN.pdf] [VERIFIED: 02-CONTEXT.md:25-28,36-38] |
 | Fu | chiitoitsu 25, pinfu tsumo 20, closed ron +10, normal tsumo +2, wait/head/set fu, open no-fu ron 30, 10-unit rounding, double-wind pair | Generic arithmetic from EMA; Mahjong Soul double-wind 4-fu requires client/secondary fixture. [CITED: https://mahjong-europe.org/portal/images/docs/Riichi-rules-2025-EN.pdf] [ASSUMED] |
@@ -271,7 +271,7 @@ Planner가 "모든 표준역"을 추상 문구로 남기지 않도록 conformanc
 ### Anti-Patterns to Avoid
 
 - **두 탐욕 pass:** sequence-first/triplet-first는 혼합 분기가 셋 이상인 손을 누락한다. 첫 남은 종류에서 가능한 branch를 모두 재귀한다. [VERIFIED: Assets/Scripts/AL-1S/MahjongUtilities.cs:182-287]
-- **`MahjongTile ==`를 solver 종류 비교에 재사용:** D-06 이후 적5와 일반5는 다른 값이므로 meld/decomposition에서는 kind key를 사용한다. [VERIFIED: Assets/Scripts/AL-1S/MahjongTileAndBlock.cs:315-334; 02-CONTEXT.md:24]
+- **선택 위치를 아는데 값으로 제거:** 기본 종류 equality에서 `Remove(tile)`는 앞의 같은 종류를 제거할 수 있다. `IsRiichiAble`과 실제 타패는 선택 인덱스를 사용하고, 패산 `SequenceEqual`은 `(TileID, isAkaDora)`를 명시한다. 기본 ==의 종류 비교는 결함이 아니다. [P2-CR-01]
 - **패 값에 도라 상태 축적:** 현재 `UpdateDora`가 wall/hand tile을 변이해 같은 indicator가 중복 적용될 수 있다. 표시패 resolver를 query로 사용한다. [VERIFIED: Assets/Scripts/AL-1S/MahjongRound.cs:285-317; Assets/Scripts/AL-1S/MahjongTileAndBlock.cs:270-278]
 - **모순 boolean bag:** `isHaitei`, `isHoutei`, `isRinshan`, `isChanKan`를 독립 true로 허용하지 않는다. [VERIFIED: Assets/Scripts/AL-1S/MahjongWinInfo.cs:188-206,273-288]
 - **역 enum이 있으면 구현됐다고 간주:** 현재 원문 enum은 `"Tsuuiisou, Ryuuiisou, Chinroutou"`를 포함하지만 evaluator 호출 목록에는 Ryuuiisou가 없다. catalog coverage test가 enum/metadata/evaluator/fixture를 교차 검증해야 한다. [VERIFIED: Assets/Scripts/AL-1S/MahjongYaku.cs:27-35,192-204]
@@ -303,11 +303,11 @@ Planner가 "모든 표준역"을 추상 문구로 남기지 않도록 conformanc
 
 ## Common Pitfalls
 
-### Pitfall 1: 적5 equality를 고친 뒤 solver가 5의 meld를 잃음
+### Pitfall 1: 종류 동등성 통일 뒤 선택 제거와 적색 보존 누락
 
-**What goes wrong:** normal5와 red5가 값으로 달라지면서 기존 `==` 기반 pair/triplet/sequence가 적5를 별개 종류로 취급한다. [VERIFIED: Assets/Scripts/AL-1S/MahjongUtilities.cs:143-178]
+**What goes wrong:** `IsRiichiAble`의 `tenpaiCheckHand.Remove(fullHand[i])`는 선택한 일반5 대신 앞 적5를 제거할 수 있다. 기본 Equals로만 패산 순서를 비교하면 적색 위치 교환도 놓친다.
 
-**How to avoid:** tile value equality와 solver kind equality를 이름부터 분리하고, 34종 count key를 solver에만 사용한다. identity tests와 red-containing decomposition tests를 같은 wave에 둔다. [VERIFIED: 02-CONTEXT.md:24]
+**How to avoid:** 위치를 아는 경로는 `RemoveAt(i)`를 사용하고 컬렉션 연산의 종류/적색 비교 의도를 점검한다. 원본 적색은 scorer/view까지 보존하며 패산 검증은 `(TileID, isAkaDora)` 시퀀스를 사용한다. `==`/`Equals` 불일치가 RED 대상이고 해시 충돌 자체는 계약 위반이 아니다. [P2-CR-01]
 
 ### Pitfall 2: 139장 버그를 136장으로 줄였지만 적5 치환이 아닌 추가/누락
 
@@ -385,7 +385,7 @@ static void Shuffle<T>(T[] values, System.Random random)
 // Source: Microsoft C# equality guidance
 public bool Equals(MahjongTile other)
 {
-    return TileID == other.TileID && isAkaDora == other.isAkaDora;
+    return TileID == other.TileID;
 }
 
 public override bool Equals(object obj)
@@ -395,7 +395,7 @@ public override bool Equals(object obj)
 
 public override int GetHashCode()
 {
-    return Utilities.HashCombine(TileID, isAkaDora);
+    return Utilities.HashCombine(TileID);
 }
 
 public static bool operator ==(MahjongTile left, MahjongTile right)
@@ -409,7 +409,7 @@ public static bool operator !=(MahjongTile left, MahjongTile right)
 }
 ```
 
-두 값이 `Equals`로 같으면 같은 hash를 내고 operator도 같은 semantics를 써야 한다. [CITED: https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/expressions/equality]
+기본 `CompareTo`도 `TileID.CompareTo(other.TileID)`로 두며 같은 종류의 적5·일반5는 0이다. 적색까지 동일해야 하는 검증은 `(TileID, isAkaDora)`를 따로 비교한다. Microsoft 지침은 API 일관성 근거이며 적색을 기본 동등성에 포함하라는 근거가 아니다. 두 값이 `Equals`로 같으면 같은 hash를 내고 operator도 같은 semantics를 써야 한다. [CITED: https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/expressions/equality]
 
 ### Payment rounding primitive
 
@@ -452,7 +452,7 @@ static int RoundUpToHundred(int points)
 | A5 | pinned Unity/Mono runtime 안에서만 seeded `System.Random` sequence를 compatibility contract로 삼으면 충분하다. | Shuffle | runtime upgrade 뒤 golden order 변경 가능. |
 | A6 | `Phase2RegressionTests.cs`와 `Phase2ConformanceTests.cs` 두 fixture 파일이 현재 규모에서 가장 작은 유지보수 단위다. | Project Structure | planner가 중복/파일 크기에 따라 합치거나 helper를 늦게 추출할 수 있음. |
 
-## Open Questions (RESOLVED)
+## Open Questions (기존 1~3 해소, P2-OPEN-01 미결)
 
 1. **작혼 현재 랭크전의 변형 규칙을 어떤 직접 관찰로 lock할 것인가? — RESOLVED**
    - What we know: official event 자료는 적5 3장과 open tanyao를 확인한다. generic 산술은 EMA로 검증 가능하다. [CITED: https://mahjongsoul.yo-star.com/tournament/rules.pdf] [CITED: https://mahjong-europe.org/portal/images/docs/Riichi-rules-2025-EN.pdf]
@@ -512,7 +512,7 @@ Unity official docs confirm `testFilter`, `testCategory`, EditMode and NUnit-for
 | RULE-07 | closed/open/situational/dora/yakuman catalog coverage | parameterized conformance | conformance filter | ❌ Wave 0 |
 | RULE-08 | all fu components and rounding edge cases | parameterized conformance | conformance filter | ❌ Wave 0 |
 | RULE-09 | four dealer/method payment shapes, per-share rounding/deltas | parameterized unit | conformance filter | ❌ Wave 0 |
-| RULE-10 | identical core result across mode adapters + solo single delivery | integration EditMode | conformance + lifecycle filters | ❌ Wave 0 |
+| RULE-10 | identical core result across mode adapters + solo single delivery | integration EditMode | regression(SOL-PAY-01) + conformance + lifecycle filters | ❌ Wave 0 |
 
 ### Sampling Rate
 
@@ -522,7 +522,7 @@ Unity official docs confirm `testFilter`, `testCategory`, EditMode and NUnit-for
 
 ### Required RED Sequence
 
-1. 현행 API로 139장, last-index, identity mismatch, greedy missed decomposition, dora-only, tsumo-as-ron 결함을 assertion RED로 만든다. compile error는 RED evidence가 아니다. [VERIFIED: 02-CONTEXT.md:54-57]
+1. 각 소유 plan의 수정 직전 현행 API로 02-01의 139장/last-index/Equals mismatch, 02-02의 greedy miss, 02-03의 dora-only를 assertion RED로 만든다. 실제 solo tsumo-as-ron 회귀 SOL-PAY-01의 RED와 동일 test GREEN은 호출부를 수정하는 02-05가 함께 소유한다. 02-04는 계산 코어 Conformance와 그 시점의 기존 Regression을 통과하며 실패 solo test를 미리 남기거나 숨기지 않는다. compile error는 RED evidence가 아니다. [VERIFIED: 02-CONTEXT.md:54-57]
 2. RED commit과 XML/log path를 ledger에 기록한다.
 3. 같은 tests를 교정 후 GREEN으로 만든다.
 4. 새 API/새 규칙은 conformance fixture에 추가하며 존재하지 않는 API 때문에 RED commit을 오염시키지 않는다. [VERIFIED: 02-CONTEXT.md:54-59]
@@ -600,3 +600,14 @@ Unity official docs confirm `testFilter`, `testCategory`, EditMode and NUnit-for
 **Research date:** 2026-09-04
 
 **Valid until:** 2026-10-04 for Unity/codebase patterns; re-check Mahjong Soul client behavior immediately before locking conformance fixtures.
+
+## 2026-09-06 계획 정정 — P2-CR-01~04
+
+외부 규칙을 새로 확정한 연구가 아니라 사용자 승인 요청에 따른 문서 정정이다. 기존 출처·확인일과 A1~A6 추론 상태는 보존한다.
+
+- P2-CR-01: 기본 TileID equality와 원본 적색 속성을 구분하고 인덱스 제거/적색 위치 비교를 02-01, exhaustive 적색 보존을 02-02, bonus/표시를 02-03/07에 배정한다.
+- P2-CR-02: 02-04는 fu/payment/selector, 02-05는 SOL-PAY-01의 실제 player delta 및 거리 service 1500/1회 RED→GREEN이다. 같은 han/fu의 legacy zaRon=1300과 다르게 설계하며 기존 PLAYER-OBS-01(12000)은 그대로 유지한다.
+- P2-CR-03: 1→0 새 패 취득에서 유국하지 않고 마지막 일반 패의 Haitei 화료 또는 최종 타패 후 유국을 02-05에서 검증한다. caller가 solo 허용 마지막 패/future four-seat live-wall 마지막 패를 구분하고 core evaluator는 공유한다. `remainingTsumoCount`는 현재 선언만 있어 **P2-OPEN-01**(18의 첫 쯔모 포함/초기화/표시)을 증명하지 못한다. 해당 초기화 구현 전에 사용자 확인이 필요하다.
+- P2-CR-04: raw hidden ura 존재 상태에서 리치 화료 전/비리치 화료/유국/오화료 비공개, 유효 리치 화료 공개(ura 0판 포함), 다음 국 stale-clear를 02-07 자동 표시 경계와 02-08 실제 Player 관찰로 구분한다.
+
+멘젠쯔모 제외, Phase 3 리치 선언, 실제 4인 상태, Unity 실행은 이번 문서 정정에 포함하지 않는다.
