@@ -7,7 +7,7 @@ status: executing
 stopped_at: Phase 2 context gathered
 last_updated: "2026-09-04T07:50:25.806Z"
 last_activity: 2026-09-06
-last_activity_desc: Completed quick 260906-kut; recorded P2-CR-02 proposal only
+last_activity_desc: Completed quick 260906-ld7; recorded P2-CR-03 proposal only
 state_head: 1a69a70b2662cb3bf73e1b8297347e89a6bdeafb
 progress:
   total_phases: 7
@@ -31,7 +31,7 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 Phase: 02 (shared-rules-core) — READY TO EXECUTE
 Plan: Not started
 Status: Ready to execute
-Last activity: 2026-09-06 — Completed quick task 260906-kut: P2-CR-02 솔로 지급 회귀 검증 범위 조정 제안 기록 (Phase 2 계획·코드 미반영)
+Last activity: 2026-09-06 — Completed quick task 260906-ld7: P2-CR-03 남은 패·마지막 타패·모드별 해저로월 제안 기록 (Phase 2 계획·코드 미반영)
 
 Progress: [░░░░░░░░░░░░░░░░░░░░] 7/7 plans
 
@@ -117,6 +117,7 @@ None yet.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260906-kut | P2-CR-02 솔로 지급 회귀 검증 범위 조정 제안 기록 | 2026-09-06 | ff50213 | [260906-kut-phase-2-02-04-02-05](./quick/260906-kut-phase-2-02-04-02-05/) |
+| 260906-ld7 | P2-CR-03 남은 패·마지막 타패·모드별 해저로월 제안 기록 | 2026-09-06 | b3a6fea | [260906-ld7-record-p2-cr-03-remaining-tiles-final-di](./quick/260906-ld7-record-p2-cr-03-remaining-tiles-final-di/) |
 
 ## Deferred Items
 
